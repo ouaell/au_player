@@ -13,18 +13,21 @@ for a in $aliases; do
     fail=1
   fi
 done
-if grep -riE 'agpl|affero|nonfree|non-free|non-commercial' gradle/libs.versions.toml \
-    app/build.gradle.kts core/build.gradle.kts player/build.gradle.kts \
-    enhance/build.gradle.kts reader/build.gradle.kts websource/build.gradle.kts \
-    library/build.gradle.kts tools/licenses/allowlist.txt; then
+dep_files="gradle/libs.versions.toml app/build.gradle.kts core/build.gradle.kts player/build.gradle.kts enhance/build.gradle.kts reader/build.gradle.kts websource/build.gradle.kts library/build.gradle.kts"
+# shellcheck disable=SC2086
+if grep -riE 'agpl|affero|nonfree|non-free|non-commercial' $dep_files; then
   echo "check_licenses: denylisted license marker found" >&2
   fail=1
 fi
-if grep -r 'GPL' gradle/libs.versions.toml app/build.gradle.kts core/build.gradle.kts \
-    player/build.gradle.kts enhance/build.gradle.kts reader/build.gradle.kts \
-    websource/build.gradle.kts library/build.gradle.kts tools/licenses/allowlist.txt \
-    | grep -v 'LGPL'; then
-  echo "check_licenses: non-LGPL GPL marker found" >&2
+# License tokens (3rd '=' column) must be clean; LGPL tokens allowed per §13.
+# (The allowlist header documents the policy, so tokens — not raw text — are checked.)
+tokens=$(grep -v '^#' tools/licenses/allowlist.txt | awk -F'=' '{print $3}')
+if echo "$tokens" | grep -iE 'agpl|affero|nonfree|non-free|non-commercial'; then
+  echo "check_licenses: denylisted license token found" >&2
+  fail=1
+fi
+if echo "$tokens" | grep 'GPL' | grep -v 'LGPL'; then
+  echo "check_licenses: non-LGPL GPL token found" >&2
   fail=1
 fi
 echo "check_licenses: done (fail=$fail)"
