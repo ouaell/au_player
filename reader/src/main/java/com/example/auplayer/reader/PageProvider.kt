@@ -19,9 +19,9 @@ class FakePageProvider(
 ) : PageProvider {
     override suspend fun open(index: Int): InputStream =
         ByteArrayInputStream(ByteArray(0))
-    override suspend fun size(index: Int): Pair<Int, Int>? = fakeWidth to fakeHeight
+    override suspend fun size(index: Int): Pair<Int, Int>? = FAKE_WIDTH to FAKE_HEIGHT
     override fun close() = Unit
 }
 
-private const val fakeWidth = 100
-private const val fakeHeight = 100
+private const val FAKE_WIDTH = 100
+private const val FAKE_HEIGHT = 100
