@@ -5,7 +5,8 @@
 # Reader-scoped §7.1 check: no Mihon DB/extension/tracker remnants in :reader.
 set -eu
 fail=0
-if git grep -n -I -e 'MX Player' -e 'Mihon' -e 'Tachiyomi' -- . ':!MASTER_PLAN.md' ':!docs'; then
+# (Self-excluded: this script necessarily names the patterns it searches for.)
+if git grep -n -I -e 'MX Player' -e 'Mihon' -e 'Tachiyomi' -- . ':!MASTER_PLAN.md' ':!docs' ':!tools/check_forbidden.sh'; then
   echo "check_forbidden: brand string found outside allowed docs" >&2
   fail=1
 else
