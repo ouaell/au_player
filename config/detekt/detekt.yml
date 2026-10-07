@@ -1,6 +1,6 @@
-# detekt gate config (MS-002, §12.3). Default rules stay ON via
-# buildUponDefaultConfig; this file only pins gate behavior.
-buildUponDefaultConfig: true
+# detekt gate config (MS-002, §12.3). The full default rule set applies because
+# buildUponDefaultConfig=true is set Gradle-side in the root build (it is not
+# a YAML key). This file only pins gate behavior.
 config:
   validation: true
   warningsAsErrors: false
