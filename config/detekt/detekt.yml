@@ -6,3 +6,9 @@ config:
   warningsAsErrors: false
 build:
   maxIssues: 0
+naming:
+  FunctionNaming:
+    active: true
+    # Uppercase names are idiomatic for @Composable functions.
+    ignoreAnnotated:
+      - 'Composable'
