@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.detekt)
 }
 
 android {
@@ -22,4 +23,5 @@ kotlin {
 dependencies {
     implementation(project(":core"))
     implementation(libs.coroutines.core)
+    testImplementation(libs.junit)
 }

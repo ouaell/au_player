@@ -1,0 +1,24 @@
+# MS-002 license allowlist (§12.3, §13). Format: catalog-alias = maven-module = license.
+# Every [libraries] entry in gradle/libs.versions.toml must appear here.
+# Gate fails on GPL/AGPL/non-commercial; LGPL allowed for native libs (dynamic
+# linking + notices, decided in MS-004/MS-051). JUnit is EPL-1.0, test-only.
+core-ktx = androidx.core:core-ktx = Apache-2.0
+activity-compose = androidx.activity:activity-compose = Apache-2.0
+compose-bom = androidx.compose:compose-bom = Apache-2.0
+compose-ui = androidx.compose.ui:ui = Apache-2.0
+compose-material3 = androidx.compose.material3:material3 = Apache-2.0
+compose-preview = androidx.compose.ui:ui-tooling-preview = Apache-2.0
+lifecycle-runtime = androidx.lifecycle:lifecycle-runtime-compose = Apache-2.0
+navigation-compose = androidx.navigation:navigation-compose = Apache-2.0
+room-runtime = androidx.room:room-runtime = Apache-2.0
+room-ktx = androidx.room:room-ktx = Apache-2.0
+room-compiler = androidx.room:room-compiler = Apache-2.0
+datastore = androidx.datastore:datastore-preferences = Apache-2.0
+coroutines-core = org.jetbrains.kotlinx:kotlinx-coroutines-core = Apache-2.0
+coroutines-android = org.jetbrains.kotlinx:kotlinx-coroutines-android = Apache-2.0
+okhttp = com.squareup.okhttp3:okhttp = Apache-2.0
+coil-compose = io.coil-kt:coil-compose = Apache-2.0
+coil-video = io.coil-kt:coil-video = Apache-2.0
+media3-session = androidx.media3:media3-session = Apache-2.0
+commons-compress = org.apache.commons:commons-compress = Apache-2.0
+junit = junit:junit = EPL-1.0 (test-only)

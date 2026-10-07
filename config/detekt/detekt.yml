@@ -1,0 +1,8 @@
+# detekt gate config (MS-002, §12.3). Default rules stay ON via
+# buildUponDefaultConfig; this file only pins gate behavior.
+config:
+  validation: true
+  warningsAsErrors: false
+  buildUponDefaultConfig: true
+build:
+  maxIssues: 0
