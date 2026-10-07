@@ -35,19 +35,18 @@ for so in glob.glob(os.path.join(sys.argv[1], '**', '*.so'), recursive=True):
         continue
     endian = '<' if le else '>'
     if is64:
-        _, _, _, _, phoff, _, _, _, _, phentsize, phnum = struct.unpack(endian + 'HHIQQQIHHHHHH', data[16:64])
+        eh = struct.unpack(endian + 'HHIQQQIHHHHHH', data[16:64])
         fmt, size = endian + 'IIQQQQQQ', 56
     else:
-        _, _, _, _, phoff, _, _, _, phentsize, phnum = struct.unpack(endian + 'HHIIIIIHHHHHH', data[16:52])
+        eh = struct.unpack(endian + 'HHIIIIIHHHHHH', data[16:52])
         fmt, size = endian + 'IIIIIIII', 32
+    phoff, phentsize, phnum = eh[4], eh[8], eh[9]
     with open(so, 'rb') as f:
         for i in range(phnum):
             f.seek(phoff + i * phentsize)
             ph = struct.unpack(fmt, f.read(size))
-            p_type, p_flags, p_offset = ph[0], ph[1], ph[2]
-            p_align = ph[7] if is64 else ph[7]
-            if p_type == 1 and p_align < 0x4000:
-                fails.append((so, 'LOAD align %#x < 0x4000' % p_align))
+            if ph[0] == 1 and ph[7] < 0x4000:
+                fails.append((so, 'LOAD align %#x < 0x4000' % ph[7]))
                 break
 for so, why in fails:
     print('MISALIGNED: %s (%s)' % (so, why))
