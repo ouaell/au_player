@@ -53,23 +53,24 @@ class UrlListProvider(
     override fun close() = Unit
 
     private suspend fun fetch(url: String, attemptsLeft: Int): InputStream {
+        val result = runCatching { attempt(url) }
+        val error = result.exceptionOrNull()
+        if (error == null) return result.getOrThrow()
+        if (attemptsLeft <= 1 || error is ContentTypeException || error is SizeCapException) {
+            throw error
+        }
+        delay(retryDelayMs)
+        return fetch(url, attemptsLeft - 1)
+    }
+
+    private fun attempt(url: String): InputStream {
         val request = Request.Builder().url(url).apply {
             headers.referer?.let { header("Referer", it) }
             headers.userAgent?.let { header("User-Agent", it) }
             headers.cookies?.let { header("Cookie", it) }
         }.build()
-        try {
-            client.newCall(request).execute().use { response ->
-                return validatedStream(response, maxBytes)
-            }
-        } catch (error: ContentTypeException) {
-            throw error
-        } catch (error: SizeCapException) {
-            throw error
-        } catch (error: IOException) {
-            if (attemptsLeft <= 1) throw error
-            delay(retryDelayMs)
-            return fetch(url, attemptsLeft - 1)
+        client.newCall(request).execute().use { response ->
+            return validatedStream(response, maxBytes)
         }
     }
 
