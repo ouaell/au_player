@@ -1,11 +1,14 @@
 package com.example.auplayer.player
 
+import com.example.auplayer.core.Diag
+
 /**
  * Own JNI bindings to the self-built libmpv (P0/Push B1). API usage mirrors
  * libmpv `client.h`/`render.h` (resolved against OUR pinned headers at
  * compile time — no hardcoded ABI numbers except mpv event NAMES, which are
- * stable strings). Full render path is E-verified (E1/E3); until then every
- * function compiles in T1 and fails closed at runtime when native is absent.
+ * stable strings). Render + event-loop entry points live in [MpvRender] and
+ * [MpvEvents] (function-count gate). Full path is E-verified (E1/E3); until
+ * then every function compiles in T1 and fails closed when native is absent.
  */
 object MpvNative {
     var loaded: Boolean = false
@@ -18,6 +21,7 @@ object MpvNative {
             System.loadLibrary("au_mpv")
             true
         } catch (error: UnsatisfiedLinkError) {
+            Diag.record("mpv", "native missing: " + error.message.toString())
             false
         }
         return loaded
@@ -30,15 +34,6 @@ object MpvNative {
     external fun nativeGetProperty(handle: Long, name: String): String?
     external fun nativeObserve(handle: Long, id: Long, name: String)
     external fun nativeUnobserve(handle: Long, id: Long)
-    external fun nativeRenderInit(handle: Long): Int
-    external fun nativeCheckUpdate(handle: Long): Boolean
-    external fun nativeRender(handle: Long, width: Int, height: Int): Int
-    external fun nativeStartEvents(handle: Long, callback: MpvEventCallback)
-    external fun nativeStopEvents(handle: Long)
     external fun nativeErrorString(code: Int): String
     external fun nativeDestroy(handle: Long)
-
-    interface MpvEventCallback {
-        fun onEvent(name: String, replyUserdata: Long)
-    }
 }

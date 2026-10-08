@@ -171,7 +171,7 @@ Java_com_example_auplayer_player_MpvNative_nativeUnobserve(
 }
 
 JNIEXPORT jint JNICALL
-Java_com_example_auplayer_player_MpvNative_nativeRenderInit(
+Java_com_example_auplayer_player_MpvRender_nativeRenderInit(
     JNIEnv*, jobject, jlong handle) {
     Ctx* ctx = fromHandle(handle);
     if (ctx == nullptr || ctx->mpv == nullptr || ctx->render != nullptr) {
@@ -187,7 +187,7 @@ Java_com_example_auplayer_player_MpvNative_nativeRenderInit(
 }
 
 JNIEXPORT jboolean JNICALL
-Java_com_example_auplayer_player_MpvNative_nativeCheckUpdate(
+Java_com_example_auplayer_player_MpvRender_nativeCheckUpdate(
     JNIEnv*, jobject, jlong handle) {
     Ctx* ctx = fromHandle(handle);
     if (ctx == nullptr || ctx->render == nullptr) {
@@ -198,7 +198,7 @@ Java_com_example_auplayer_player_MpvNative_nativeCheckUpdate(
 }
 
 JNIEXPORT jint JNICALL
-Java_com_example_auplayer_player_MpvNative_nativeRender(
+Java_com_example_auplayer_player_MpvRender_nativeRender(
     JNIEnv*, jobject, jlong handle, jint width, jint height) {
     Ctx* ctx = fromHandle(handle);
     if (ctx == nullptr || ctx->render == nullptr) {
@@ -215,7 +215,7 @@ Java_com_example_auplayer_player_MpvNative_nativeRender(
 }
 
 JNIEXPORT void JNICALL
-Java_com_example_auplayer_player_MpvNative_nativeStartEvents(
+Java_com_example_auplayer_player_MpvEvents_nativeStartEvents(
     JNIEnv* env, jobject, jlong handle, jobject callback) {
     Ctx* ctx = fromHandle(handle);
     if (ctx == nullptr || ctx->jvm == nullptr || ctx->running.load()) {
@@ -235,7 +235,7 @@ Java_com_example_auplayer_player_MpvNative_nativeStartEvents(
 }
 
 JNIEXPORT void JNICALL
-Java_com_example_auplayer_player_MpvNative_nativeStopEvents(
+Java_com_example_auplayer_player_MpvEvents_nativeStopEvents(
     JNIEnv* env, jobject, jlong handle) {
     Ctx* ctx = fromHandle(handle);
     if (ctx == nullptr) {
