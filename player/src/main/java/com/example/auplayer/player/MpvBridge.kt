@@ -1,0 +1,66 @@
+package com.example.auplayer.player
+
+/**
+ * Seam over the native mpv wrapper (MS-004 verdict: self-built AAR pending).
+ * `LibmpvBridge` (real implementation) lands with the native build; until
+ * then [FakeMpvBridge] backs the engine. Surface travels as `Any?` so engine
+ * logic stays JVM-testable (real `Surface` attach lands in MS-009).
+ */
+interface MpvBridge {
+    fun init()
+    fun setOption(key: String, value: String)
+    fun command(vararg args: String)
+    fun setEventListener(listener: (MpvEvent) -> Unit)
+    fun attach(token: Any?)
+    fun detach()
+    fun destroy()
+}
+
+/** Native-side events of interest (§5.2 observes; full set lands in MS-011). */
+sealed interface MpvEvent {
+    data class TimePos(val seconds: Double) : MpvEvent
+    data object Eof : MpvEvent
+    data class Error(val message: String) : MpvEvent
+}
+
+/** Fake for unit tests (§4: every interface has a fake). */
+class FakeMpvBridge : MpvBridge {
+    val options = mutableMapOf<String, String>()
+    val commands = mutableListOf<List<String>>()
+    var listener: ((MpvEvent) -> Unit)? = null
+    var attached: Any? = null
+    var initialized = false
+    var destroyed = false
+
+    override fun init() {
+        initialized = true
+    }
+
+    override fun setOption(key: String, value: String) {
+        options[key] = value
+    }
+
+    override fun command(vararg args: String) {
+        commands += args.toList()
+    }
+
+    override fun setEventListener(listener: (MpvEvent) -> Unit) {
+        this.listener = listener
+    }
+
+    override fun attach(token: Any?) {
+        attached = token
+    }
+
+    override fun detach() {
+        attached = null
+    }
+
+    override fun destroy() {
+        destroyed = true
+    }
+
+    fun emit(event: MpvEvent) {
+        listener?.invoke(event)
+    }
+}

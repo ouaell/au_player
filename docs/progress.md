@@ -54,3 +54,9 @@
 - Sections used: §2 (predictive back), §4, §15 (MS-006 row)
 - NavDest sealed (home/player/reader/web/settings) + pure Navigator (JVM-tested back-stack) + NavHost wiring; predictive back via manifest flag
 - Tests added: NavigatorTest (root/deep/unwind)
+
+## MS-007 — PlayerEngine singleton + PlayerController + Fake
+- Status: in review (pushed; CI pending)
+- Sections used: §3.4 (singleton/dispatcher), §4 (interface+fake), §5.2 (events), §15 (MS-007 row)
+- MpvBridge seam (init/options/command/events/attach/detach) + FakeMpvBridge; PlayerEngine (single-thread dispatcher, SharedFlow events, open/play/pause/seek/attach/detach/release); EnginePlayerController; AppContainer owns the single engine (Fake-backed until self-built AAR)
+- Tests added: PlayerEngineTest (5 tests, Unconfined dispatcher, all deterministic)
