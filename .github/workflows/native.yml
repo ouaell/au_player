@@ -72,3 +72,33 @@ jobs:
         with:
           name: native-${{ matrix.arch }}
           path: buildscripts/prefix/${{ matrix.arch }}/
+
+  # Versioned hosting for the app (no binaries in git). Rolling date tag;
+  # same-day reruns upload into it. App pins TAG in native/pins.txt.
+  publish:
+    needs: [build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: native-*
+          path: native-out
+      - name: Publish per-ABI tarballs
+        run: |
+          cd native-out
+          for d in native-*/; do
+            abi=${d%/}
+            abi=${abi#native-}
+            tar -czf "../au-mpv-$abi.tgz" -C "$d" .
+          done
+          TAG="native-$(date -u +%Y%m%d)"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" ../au-mpv-*.tgz --clobber
+          else
+            gh release create "$TAG" ../au-mpv-*.tgz \
+              --title "Native libs $TAG" \
+              --notes "Pinned LGPL libmpv build. Recipe: native/README.md, pins: native/pins.txt"
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
