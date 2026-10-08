@@ -1,8 +1,6 @@
 #!/bin/sh
-# MS-002 §17.5 (minimal): every .so inside the given APK/AAB must have all
-# PT_LOAD segments aligned >= 16 KiB (Play requirement for targetSdk 35+).
-# Shell with no native libs yet -> passes trivially. Full verify_native.sh
-# (ABI/JNI/R8/bundletool/aapt2) lands in MS-062.
+# MS-002 §17.5 + OPENCODE_COMMAND correction: the Play 16 KiB rule applies to
+# 64-bit ABIs (arm64-v8a, x86_64) only. 32-bit libs are reported, never failed.
 set -eu
 if [ "$#" -eq 0 ]; then
   echo "usage: check_16kb.sh <apk|aab>..." >&2
@@ -46,10 +44,13 @@ for so in glob.glob(os.path.join(sys.argv[1], '**', '*.so'), recursive=True):
             f.seek(phoff + i * phentsize)
             ph = struct.unpack(fmt, f.read(size))
             if ph[0] == 1 and ph[7] < 0x4000:
-                fails.append((so, 'LOAD align %#x < 0x4000' % ph[7]))
+                if is64:
+                    fails.append((so, 'LOAD align %#x < 0x4000' % ph[7]))
+                    break
+                print('INFO-32BIT: %s (LOAD align %#x, not required)' % (so, ph[7]))
                 break
 for so, why in fails:
     print('MISALIGNED: %s (%s)' % (so, why))
 sys.exit(1 if fails else 0)
 EOF
-echo "check_16kb: all native libs 16 KiB-aligned"
+echo "check_16kb: all 64-bit native libs 16 KiB-aligned"
