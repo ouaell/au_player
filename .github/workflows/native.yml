@@ -22,11 +22,14 @@ jobs:
       - name: Fetch pinned buildscripts
         run: |
           sha=$(grep '^MPV_ANDROID_SHA=' native/pins.txt | cut -d= -f2)
-          git init buildscripts
-          git -C buildscripts remote add origin https://github.com/mpv-android/mpv-android.git
-          git -C buildscripts fetch --depth 1 origin "$sha"
-          git -C buildscripts checkout "$sha"
-          git -C buildscripts rev-parse HEAD
+          curl -sfL --retry 3 "https://github.com/mpv-android/mpv-android/archive/$sha.tar.gz" -o scripts.tgz
+          mkdir -p buildscripts
+          tar -xzf scripts.tgz -C buildscripts --strip-components=1
+          test -f buildscripts/scripts/ffmpeg.sh
+          test -f buildscripts/scripts/mpv.sh
+          test -f buildscripts/include/download-deps.sh
+          test -f buildscripts/buildall.sh
+          echo "scripts at $sha ready"
       - name: Apply LGPL patches
         run: python3 native/apply_patches.py buildscripts
       - name: Cache prefix
