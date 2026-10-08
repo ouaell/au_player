@@ -123,6 +123,11 @@
 - Key evidence: official ffmpeg.sh uses --enable-gpl (confirmed), mpv.sh passes no -Dgpl (defaults GPL), loadarch already sets 16KB max-page-size, buildall.sh builds per-target/per-arch (mpv without app)
 - check_16kb.sh now takes raw .so files too (64-bit rule preserved)
 
+## P0 app integration B2 — real bridge + EGL + render loop
+- Status: in review (pushed; CI pending)
+- EglHost (app-owned EGL14 display/context/window, GLES3, fail-closed), LibmpvBridge (startup map, string props/events, render helpers, assume-guarded test), RenderLoop (redraw-on-update thread), AppContainer picks real bridge when native loads
+- E1 (emulator, real engine plays corpus) = next gate; nothing is "player complete" before it
+
 ## P0 app integration B1 — own JNI layer (compiles in T1, runs on emulator)
 - Status: in review (pushed; CI pending)
 - MpvNative (load guarded, header-symbol-only bindings, string events) + au_mpv.cpp (create/init/options/commands/props/observe/render/events/destroy) + CMake (pinned NDK r30) ; NDK+cmake in T1 SDK step
