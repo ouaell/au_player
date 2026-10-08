@@ -60,3 +60,9 @@
 - Sections used: §3.4 (singleton/dispatcher), §4 (interface+fake), §5.2 (events), §15 (MS-007 row)
 - MpvBridge seam (init/options/command/events/attach/detach) + FakeMpvBridge; PlayerEngine (single-thread dispatcher, SharedFlow events, open/play/pause/seek/attach/detach/release); EnginePlayerController; AppContainer owns the single engine (Fake-backed until self-built AAR)
 - Tests added: PlayerEngineTest (5 tests, Unconfined dispatcher, all deterministic)
+
+## MS-008 — mpv init options, CA/fonts/shader-cache paths, log to Diag
+- Status: in review (pushed; CI pending)
+- Sections used: §3.4, §15 (MS-008 row)
+- MpvPaths + startupOptions (exact §3.4 map) + ensureMpvDirs + applyStartup (options in order, one Diag line); Diag gains bounded record/entries/clear (200)
+- Tests added: MpvStartupTest (option exactness, dir creation, order+log, store bound)
