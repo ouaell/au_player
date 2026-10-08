@@ -58,6 +58,7 @@ jobs:
         run: gradle detekt ktlintCheck test lint assembleDirectDebug --stacktrace
         env:
           AU_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: 16KB alignment check (MS-002)
         run: sh tools/check_16kb.sh app/build/outputs/apk/direct/debug/*.apk
       - name: Native + release verifiers (MS-062)

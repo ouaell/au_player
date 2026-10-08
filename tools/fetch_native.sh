@@ -12,21 +12,24 @@ OUT_INC="$ROOT/player/src/main/cpp/thirdparty/include"
 TMP=$(mktemp -d)
 trap 'rm -rf "$TMP"' EXIT
 fetch_one() {
-  url="$1"
-  out="$2"
-  if [ -n "${AU_GITHUB_TOKEN:-}" ]; then
-    curl -sfL --retry 3 -H "Authorization: Bearer $AU_GITHUB_TOKEN" -o "$out" "$url"
+  file="$1"
+  if [ -n "${GH_TOKEN:-}" ] && command -v gh >/dev/null 2>&1; then
+    gh release download "$TAG" --repo ouaell/au_player --pattern "$file" --output "$TMP/$file" --clobber
+  elif [ -n "${AU_GITHUB_TOKEN:-}" ]; then
+    curl -sfL --retry 3 -H "Authorization: Bearer $AU_GITHUB_TOKEN" -o "$TMP/$file" \
+      "https://github.com/ouaell/au_player/releases/download/$TAG/$file"
   else
-    curl -sfL --retry 3 -o "$out" "$url"
+    curl -sfL --retry 3 -o "$TMP/$file" \
+      "https://github.com/ouaell/au_player/releases/download/$TAG/$file"
   fi
 }
 for spec in "arm64-v8a:arm64" "armeabi-v7a:armv7l" "x86_64:x86_64"; do
   abi=${spec%%:*}
   build=${spec##*:}
   echo "native: $abi <- $TAG/au-mpv-$build.tgz"
-  fetch_one "https://github.com/ouaell/au_player/releases/download/$TAG/au-mpv-$build.tgz" "$TMP/$build.tgz"
+  fetch_one "au-mpv-$build.tgz"
   mkdir -p "$TMP/$build"
-  tar -xzf "$TMP/$build.tgz" -C "$TMP/$build"
+  tar -xzf "$TMP/au-mpv-$build.tgz" -C "$TMP/$build"
   mkdir -p "$OUT_JNI/$abi"
   find "$TMP/$build" -name '*.so' -path '*lib*' -exec cp {} "$OUT_JNI/$abi/" \;
   inc=$(find "$TMP/$build" -type d -name include | head -1)
