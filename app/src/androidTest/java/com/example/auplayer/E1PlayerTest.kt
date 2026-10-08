@@ -47,6 +47,7 @@ class E1PlayerTest {
                         when (event) {
                             is MpvEvent.TimePos -> times += event.seconds
                             is MpvEvent.Eof -> sawEof = true
+                            is MpvEvent.Error -> Unit
                         }
                     }
                 }
