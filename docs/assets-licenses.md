@@ -8,9 +8,12 @@
   - `Anime4K_Restore_CNN_M.glsl` (glsl/Restore)
   - `Anime4K_Upscale_CNN_x2_M.glsl` (glsl/Upscale)
   - `Anime4K_Upscale_CNN_x2_S.glsl` (glsl/Upscale, governor degrade rung)
-- Standard chain files (`FSRCNNX_x2_8-0-4-1`, FSR EASU/RCAS-style): wanted
-  filenames only — NO source with a verified permissive license found yet
-  (dotfile copies are not license evidence). Standard mode degrades to Off
-  until a follow-up verifies and pins sources. This is the §16 fallback for
-  the [VERIFY] in §6.3, not a silent swap: the chain definition already
-  references the exact wanted filenames.
+- Standard chain (P1.1 verdict, FSRCNNX rejected):
+  - `ravu-lite-r4.hook` — bjin/mpv-prescalers @ b3f0a59 (LGPL-3.0, license
+    text verified in-file + repo LICENSE; compute-capable GLES path,
+    device-verified in H2/E3 with error fallback).
+  - FSRCNNX: REJECTED — only traceable source (igv/FSRCNN-TensorFlow) is
+    GPL-3.0; circulating .glsl provenance untraceable.
+  - FSR1 EASU/RCAS rung: AMD FidelityFX-FSR source is MIT (verified), but no
+    mpv-ready port found (agyild/FSR does not exist). Follow-up: write our
+    own thin port from ffx_fsr1.h; until then Standard ladder is RAVU → Off.

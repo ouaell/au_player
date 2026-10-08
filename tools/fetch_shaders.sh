@@ -12,7 +12,11 @@ while IFS='|' read -r name url; do
     ''|\#*) continue ;;
   esac
   echo "fetch: $name"
-  curl -sfL --retry 3 -o "$OUT/$name.glsl" "$url"
+  case "$name" in
+    *.glsl|*.hook) ;;
+    *) echo "fetch_shaders: unexpected extension for $name" >&2; exit 1 ;;
+  esac
+  curl -sfL --retry 3 -o "$OUT/$name" "$url"
   count=$((count + 1))
 done < "$ROOT/tools/shaders/manifest.txt"
 if [ "$count" -eq 0 ]; then

@@ -7,7 +7,8 @@ ROOT=$(pwd)
 UP="$ROOT/enhance/src/main/assets/shaders/upstream"
 PD="$ROOT/enhance/src/main/assets/shaders/patched"
 fail=0
-for patched in "$PD"/*.glsl; do
+for patched in "$PD"/*.glsl "$PD"/*.hook; do
+  [ -f "$patched" ] || continue
   base=$(basename "$patched")
   upstream="$UP/$base"
   if [ ! -f "$upstream" ]; then

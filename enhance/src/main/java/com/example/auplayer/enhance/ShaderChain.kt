@@ -40,10 +40,10 @@ object ShaderChainBuilder {
     }
 
     private fun standardRung(rung: Int): List<ShaderPass> {
-        // rung 1 (FSR) ships once its source is license-verified (MS-026);
+        // rung 1 (FSR EASU/RCAS) ships once an mpv-ready MIT port exists;
         // until then the governor steps straight to Off.
         return when (rung) {
-            0 -> listOf(ShaderPass(patched("FSRCNNX_x2_8-0-4-1")))
+            0 -> listOf(ShaderPass("shaders/patched/ravu-lite-r4.hook"))
             else -> emptyList()
         }
     }

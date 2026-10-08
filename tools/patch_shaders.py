@@ -35,7 +35,7 @@ def patch_one(src: pathlib.Path, dst: pathlib.Path) -> tuple[int, int]:
 
 
 def main() -> int:
-    sources = sorted(UPSTREAM.glob("*.glsl"))
+    sources = sorted(UPSTREAM.glob("*.glsl")) + sorted(UPSTREAM.glob("*.hook"))
     if not sources:
         print("patch_shaders: no upstream files (run fetch_shaders.sh first)", file=sys.stderr)
         return 1

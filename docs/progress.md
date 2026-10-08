@@ -107,6 +107,12 @@
 - QUEUED (owner/device-blocked, not attempted): MS-054/MS-061 FTL (needs Firebase H6), MS-056 buffer process, MS-057-T2/T3 (Robolectric/screenshots/emulator), MS-059 desktop-mpv suite, MS-060 emulator suite, MS-063 release smoke (needs emulator), MS-064 fuzz/prop/arch gates, MS-067 font files + visual goldens, MS-068-full screenshots, MS-074 automated a11y, native self-build (critical path, MS-004 verdict)
 - Partial completions recorded per-entry above (Standard rung, DAO/Robolectric, Compose interaction, PdfRenderer binding, session binding, FGS rules, font files, ar screenshots)
 
+## P1.1 Standard shaders — RESOLVED (RAVU, FSRCNNX rejected)
+- FSRCNNX rejected: igv/FSRCNN-TensorFlow is GPL-3.0; dotfile copies are not license evidence
+- Standard top rung = RAVU Lite R4 (bjin/mpv-prescalers @b3f0a59, LGPL-3.0 verified in-file + LICENSE; self-contained LUT; .hook loads via glsl-shaders)
+- FSR rung: AMD source MIT verified, no mpv-ready port (agyild missing) → follow-up own port; ladder is RAVU → Off
+- Pipeline extended to .hook (fetch/patch/check); chain + controller tests updated
+
 ## P0 native self-build (OPENCODE_COMMAND §3) — recipe landed, first build running
 - native/README.md + pins.txt (mpv v0.41.0, ffmpeg n9.0, libplacebo v7.360.1, dav1d 1.5.4, libass 0.17.5, NDK r30, scripts @c2e02fe) + apply_patches.py (exact-once: --disable-gpl, -Dgpl=false, tag pins) + native.yml (arm64 first; armv7l+x86_64 after green) + docs/native-licenses.md
 - Key evidence: official ffmpeg.sh uses --enable-gpl (confirmed), mpv.sh passes no -Dgpl (defaults GPL), loadarch already sets 16KB max-page-size, buildall.sh builds per-target/per-arch (mpv without app)

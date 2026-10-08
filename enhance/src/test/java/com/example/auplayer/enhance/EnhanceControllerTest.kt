@@ -72,7 +72,7 @@ class EnhanceControllerTest {
         val (controller, sender) = controller()
         assertEquals(EnhanceResult.Applied, controller.applyAsync(EnhanceMode.STANDARD, 720))
         assertTrue(
-            sender.sent.any { command -> command.any { it.contains("FSRCNNX_x2_8-0-4-1") } }
+            sender.sent.any { command -> command.any { it.contains("ravu-lite-r4") } }
         )
     }
 }

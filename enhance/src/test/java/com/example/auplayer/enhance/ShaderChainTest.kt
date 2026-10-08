@@ -32,9 +32,9 @@ class ShaderChainTest {
     }
 
     @Test
-    fun `standard top rung is fsrcnnx`() {
+    fun `standard top rung is ravu lite`() {
         assertEquals(
-            listOf(ShaderPass("shaders/patched/FSRCNNX_x2_8-0-4-1.glsl")),
+            listOf(ShaderPass("shaders/patched/ravu-lite-r4.hook")),
             ShaderChainBuilder.build(EnhanceMode.STANDARD, 720)
         )
         assertTrue(ShaderChainBuilder.build(EnhanceMode.STANDARD, 720, rung = 1).isEmpty())
