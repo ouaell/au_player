@@ -113,6 +113,12 @@
 - Applies scale opts + change-list set (shapes per §6.3; native proof = MS-059), clear restores bilinear, failures clear + Diag + Failed(rung); shader cache via MS-008, Preparing UI in MS-029
 - Tests added: EnhanceControllerTest (exact command sequence, clear, unavailable, throwing-bridge, async)
 
+## MS-033 + MS-034 — Page model + archive/folder providers (stacked)
+- Status: in review (pushed; CI pending)
+- Sections used: §7.2, §15 (rows)
+- MS-033: PageRef + validated ref(); PageRefTest
+- MS-034: NaturalOrder (zero-pad aware), ArchiveLimits caps, ZipProvider/SevenZProvider (stream-by-entry, SAF variant deferred), FolderProvider (local; SAF tree = device work), SUPPORTED_IMAGE_EXTS + __MACOSX/hidden filters; size() needs BitmapFactory (device); ArchiveProvidersTest incl. 7z round-trip
+
 ## MS-029 + MS-030 — Enhance sheet + governor (stacked)
 - Status: in review (pushed; CI pending)
 - Sections used: §6.1, §6.4, §10, §15 (rows)
