@@ -14,15 +14,22 @@ object NaturalOrder : Comparator<String> {
     }
 
     private fun partCompare(left: Part, right: Part): Int {
-        if (left.digits && right.digits) {
-            val leftValue = left.text.trimStart('0')
-            val rightValue = right.text.trimStart('0')
-            val byLength = leftValue.length.compareTo(rightValue.length)
-            if (byLength != 0) return byLength
-            val byValue = leftValue.compareTo(rightValue)
-            if (byValue != 0) return byValue
+        val numeric = if (left.digits && right.digits) {
+            numericCompare(left.text, right.text)
+        } else {
+            null
         }
-        return left.text.compareTo(right.text)
+        return numeric ?: left.text.compareTo(right.text)
+    }
+
+    private fun numericCompare(left: String, right: String): Int? {
+        val leftValue = left.trimStart('0')
+        val rightValue = right.trimStart('0')
+        if (leftValue.length != rightValue.length) {
+            return leftValue.length.compareTo(rightValue.length)
+        }
+        val byValue = leftValue.compareTo(rightValue)
+        return if (byValue == 0) null else byValue
     }
 
     private fun split(value: String): List<Part> {
@@ -69,11 +76,12 @@ val SUPPORTED_IMAGE_EXTS: Set<String> = setOf("jpg", "jpeg", "png", "webp", "gif
 
 fun isImageName(name: String): Boolean {
     val lower = name.lowercase()
-    if (lower.contains("__macosx")) return false
+    if (lower.contains(MACOSX_MARKER)) return false
     val base = lower.substringAfterLast('/')
-    if (base.startsWith(".")) return false
-    return base.substringAfterLast('.', "") in SUPPORTED_IMAGE_EXTS
+    return !base.startsWith(".") && base.substringAfterLast('.', "") in SUPPORTED_IMAGE_EXTS
 }
+
+private const val MACOSX_MARKER = "__macosx"
 
 private const val MAX_ENTRIES = 10_000
 private const val MAX_ENTRY_BYTES = 200L * 1024L * 1024L
