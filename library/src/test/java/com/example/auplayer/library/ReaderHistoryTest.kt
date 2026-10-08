@@ -19,7 +19,7 @@ class ReaderHistoryTest {
     @Test
     fun `recent lists unfinished books`() = runBlocking {
         val history = ReaderHistory(InMemoryResumeStore())
-        history.savePage("done", "D", 199, 200, 9)
+        history.savePage("done", "D", 200, 200, 9)
         history.savePage("open", "O", 3, 200, 10)
         assertEquals(listOf("open"), history.recent(5).map { it.uri })
     }
