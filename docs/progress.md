@@ -81,3 +81,9 @@
 - Sections used: §5.2, §15 (rows)
 - MS-011: PlayerState enum + PlayerStateMachine (illegal throws) + immutable PlayerUiState; PlayerStateMachineTest incl. 8 illegal pairs
 - MS-012: AutoHide + formatTime (pure, JVM-tested) + thin PlayerControls composable (T2 Compose tests deferred); compose-icons dep added (allowlisted)
+
+## MS-013 + MS-014 — Gesture engine + overlay indicators (stacked)
+- Status: in review (pushed; CI pending)
+- Sections used: §5.1, §15 (rows)
+- MS-013: TapZone/GestureAction/GestureConfig + pure GestureMapper (locked→Ignored); GesturesTest table-driven incl. full locked matrix
+- MS-014: GestureIndicator + indicatorText (pure, JVM-tested) + thin GestureOverlay (T2-tested); :player uses own Surface (no upward dep on :app)
