@@ -37,7 +37,7 @@ class LibmpvBridge(private val paths: MpvPaths, traceDir: File? = null) : MpvBri
         }
         MpvNative.nativeObserve(handle, TIME_POS_ID, "time-pos")
         MpvEvents.nativeStartEvents(handle, eventCallback)
-        traceDir?.let { File(it, TRACE_NAME).delete() }
+        tracer.clear()
         Log.i("AuPlayer", "libmpv initialized")
     }
 
@@ -110,6 +110,11 @@ internal class EventTracer(private val dir: File?) {
         } catch (error: IOException) {
             Diag.record("trace", "write failed: " + error.message.toString())
         }
+    }
+
+    fun clear() {
+        val target = dir ?: return
+        File(target, TRACE_NAME).delete()
     }
 }
 }
