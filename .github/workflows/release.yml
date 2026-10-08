@@ -23,6 +23,9 @@ jobs:
       - name: Restore keystore (release signing, optional)
         env:
           AU_KEYSTORE_B64: ${{ secrets.AU_KEYSTORE_B64 }}
+          AU_KEYSTORE_PASSWORD: ${{ secrets.AU_KEYSTORE_PASSWORD }}
+          AU_KEY_ALIAS: ${{ secrets.AU_KEY_ALIAS }}
+          AU_KEY_PASSWORD: ${{ secrets.AU_KEY_PASSWORD }}
         run: |
           if [ -n "$AU_KEYSTORE_B64" ]; then
             echo "$AU_KEYSTORE_B64" | base64 -d > release.keystore
@@ -30,10 +33,6 @@ jobs:
           else
             echo "No AU_KEYSTORE_B64 secret: release builds use the debug key (see docs/signing.md)."
           fi
-        env:
-          AU_KEYSTORE_PASSWORD: ${{ secrets.AU_KEYSTORE_PASSWORD }}
-          AU_KEY_ALIAS: ${{ secrets.AU_KEY_ALIAS }}
-          AU_KEY_PASSWORD: ${{ secrets.AU_KEY_PASSWORD }}
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: "8.13"
