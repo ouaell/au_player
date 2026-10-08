@@ -5,6 +5,32 @@ plugins {
     alias(libs.plugins.detekt)
 }
 
+import javax.inject.Inject
+import org.gradle.api.DefaultTask
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.TaskAction
+import org.gradle.process.ExecOperations
+
+/** Stages pinned native libs (CC-safe: no project captures in the action). */
+abstract class FetchNativeLibs : DefaultTask() {
+    @get:Inject
+    abstract val execOps: ExecOperations
+
+    @get:Input
+    abstract val tag: Property<String>
+
+    @get:Input
+    abstract val script: Property<String>
+
+    @TaskAction
+    fun run() {
+        execOps.exec {
+            commandLine("sh", script.get(), tag.get())
+        }
+    }
+}
+
 android {
     namespace = "com.example.auplayer.player"
     compileSdk = 36
@@ -45,16 +71,14 @@ dependencies {
 }
 
 /** Stages pinned native libs (no binaries in git); up-to-date when present. */
-tasks.register("fetchNativeLibs") {
-    outputs.dir("src/main/jniLibs")
-    doLast {
-        val tag = rootProject.file("native/pins.txt").readLines()
+tasks.register<FetchNativeLibs>("fetchNativeLibs") {
+    tag.set(
+        rootProject.file("native/pins.txt").readLines()
             .first { it.startsWith("NATIVE_RELEASE_TAG=") }
             .substringAfter('=')
-        exec {
-            commandLine("sh", rootProject.file("tools/fetch_native.sh").absolutePath, tag)
-        }
-    }
+    )
+    script.set(rootProject.file("tools/fetch_native.sh").absolutePath)
+    outputs.dir("src/main/jniLibs")
 }
 
 tasks.named("preBuild") { dependsOn("fetchNativeLibs") }
