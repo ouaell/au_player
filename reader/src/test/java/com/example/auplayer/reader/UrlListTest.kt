@@ -55,7 +55,7 @@ class UrlListTest {
     fun `redirect is followed`() = runBlocking {
         server(
             MockResponse().setResponseCode(302).addHeader("Location", "/a.jpg"),
-            image("/a.jpg")
+            image()
         ).use { web ->
             val data = provider(web, "/start").open(0).readBytes()
             assertArrayEquals(bytes, data)
