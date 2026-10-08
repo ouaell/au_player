@@ -75,3 +75,9 @@
 - Sections used: §5.1, §5.2, §7.2 (intents), §15 (rows)
 - MS-009: SurfaceHost guard (create→attach, destroy→detach, recreate→re-attach, null-safe); FakeMpvBridge attach/detach counters; SurfaceHostTest 6-case matrix
 - MS-010: MediaSource sealed + PlayerError taxonomy + pure SourceResolver + PlayerOpener; content:// fd resolution deferred to device testing; SourceResolverTest 10 tests
+
+## MS-011 + MS-012 — State machine/UiState + controller UI logic (stacked)
+- Status: in review (pushed; CI pending)
+- Sections used: §5.2, §15 (rows)
+- MS-011: PlayerState enum + PlayerStateMachine (illegal throws) + immutable PlayerUiState; PlayerStateMachineTest incl. 8 illegal pairs
+- MS-012: AutoHide + formatTime (pure, JVM-tested) + thin PlayerControls composable (T2 Compose tests deferred); compose-icons dep added (allowlisted)

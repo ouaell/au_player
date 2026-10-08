@@ -7,6 +7,7 @@ activity-compose = androidx.activity:activity-compose = Apache-2.0
 compose-bom = androidx.compose:compose-bom = Apache-2.0
 compose-ui = androidx.compose.ui:ui = Apache-2.0
 compose-material3 = androidx.compose.material3:material3 = Apache-2.0
+compose-icons = androidx.compose.material:material-icons-core = Apache-2.0
 compose-preview = androidx.compose.ui:ui-tooling-preview = Apache-2.0
 lifecycle-runtime = androidx.lifecycle:lifecycle-runtime-compose = Apache-2.0
 navigation-compose = androidx.navigation:navigation-compose = Apache-2.0
