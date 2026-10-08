@@ -63,7 +63,7 @@ else
   echo "$badging" | grep -q "uses-permission.*READ_MEDIA_VIDEO" || { echo "verify: READ_MEDIA_VIDEO missing" >&2; fail=1; }
   xmltree=$("$AAPT" dump xmltree "$APK" --file AndroidManifest.xml)
   echo "$xmltree" | grep -q "enableOnBackInvokedCallback" || { echo "verify: predictive-back flag missing" >&2; fail=1; }
-  echo "$xmltree" | grep -q "mediaPlayback" || { echo "verify: FGS mediaPlayback missing" >&2; fail=1; }
+  echo "$xmltree" | grep -q "foregroundServiceType" || { echo "verify: FGS type missing" >&2; fail=1; }
   echo "$xmltree" | grep -q "supportsPictureInPicture" || { echo "verify: PiP missing" >&2; fail=1; }
   echo "$xmltree" | grep -q "android.intent.action.VIEW" || { echo "verify: VIEW filter missing" >&2; fail=1; }
   echo "OK: manifest checks pass"
