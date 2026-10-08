@@ -15,8 +15,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # arm64 first (recipe proof); armv7l + x86_64 join after first green.
-        arch: [arm64]
+        # arm64 proven green; armv7l (release) + x86_64 (CI emulator, mandatory).
+        arch: [arm64, armv7l, x86_64]
     steps:
       - uses: actions/checkout@v4
       - name: Fetch pinned buildscripts
