@@ -25,7 +25,7 @@ data class FetchHeaders(
 
 /**
  * Direct image URL list (MS-036): per-request Referer/UA, timeouts from the
- * client, 3 attempts with backoff, `image/*` gate, per-image size cap.
+ * client, 3 attempts with backoff, image-type gate, per-image size cap.
  * `WebSourceProvider` (MS-044) wraps this with WebView-captured headers.
  */
 class UrlListProvider(
