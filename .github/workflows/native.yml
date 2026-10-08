@@ -39,10 +39,12 @@ jobs:
           echo "scripts ready"
       - name: Apply LGPL patches
         run: python3 native/apply_patches.py buildscripts
-      - name: Cache prefix
+      - name: Cache prefix + sources
         uses: actions/cache@v4
         with:
-          path: buildscripts/prefix/${{ matrix.arch }}
+          path: |
+            buildscripts/prefix/${{ matrix.arch }}
+            buildscripts/deps
           key: native-${{ matrix.arch }}-${{ hashFiles('native/pins.txt') }}
       - name: Download deps + SDK/NDK
         working-directory: buildscripts
