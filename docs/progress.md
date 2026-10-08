@@ -123,6 +123,10 @@
 - Key evidence: official ffmpeg.sh uses --enable-gpl (confirmed), mpv.sh passes no -Dgpl (defaults GPL), loadarch already sets 16KB max-page-size, buildall.sh builds per-target/per-arch (mpv without app)
 - check_16kb.sh now takes raw .so files too (64-bit rule preserved)
 
+## E1 split-brain fix — trace file crosses the process boundary
+- Test-process engine is always Fake (no .so there); app-process events are proven by e1-trace.txt (workflow awk gate: span ≥ 2s + eof) while the test proves native-load + motion pixels + no crash
+- LibmpvBridge writes trace lines; AppContainer passes external files dir; logcat gate scoped to our package
+
 ## E1 dispatched — first real-engine playback (run 37845440428)
 - API 30 x86_64 emulator, corpus clip via run-as, VIEW intent, time-pos + EOF + screenshot + logcat gates
 

@@ -1,6 +1,6 @@
 #!/bin/sh
 # E1 scenario (MS-060): corpus → install → push clip → connectedCheck →
-# screenshots/logcat gates. Runs INSIDE the emulator job (device up).
+# trace/screenshot/logcat gates. Runs INSIDE the emulator job (device up).
 # Single-purpose file because the emulator action mangles multi-line
 # inline scripts (each line via sh -c breaks functions and if-blocks).
 set -eu
@@ -26,13 +26,33 @@ gradle :app:installDirectDebug --stacktrace
 adb_retry adb push test-corpus/h264-720p.mp4 /data/local/tmp/e1.mp4
 adb_retry adb shell "run-as com.example.auplayer mkdir -p /data/data/com.example.auplayer/files"
 adb_retry adb shell "run-as com.example.auplayer cp /data/local/tmp/e1.mp4 /data/data/com.example.auplayer/files/e1.mp4"
-  adb_retry adb shell "run-as com.example.auplayer ls -l /data/data/com.example.auplayer/files/e1.mp4"
+adb_retry adb shell "run-as com.example.auplayer ls -l /data/data/com.example.auplayer/files/e1.mp4"
 TEST_FAILED=0
 gradle :app:connectedDirectDebugAndroidTest --stacktrace || TEST_FAILED=1
 echo "=== androidTest results ==="
 find app/build -name "*.xml" -path "*androidTest-results*" -exec grep -h "<testsuite " {} \; || true
 adb_retry adb pull /sdcard/Android/data/com.example.auplayer/files/e1-shot-1.png "$GITHUB_WORKSPACE/e1-shot-1.png" || true
 adb_retry adb pull /sdcard/Android/data/com.example.auplayer/files/e1-shot-2.png "$GITHUB_WORKSPACE/e1-shot-2.png" || true
+adb_retry adb pull /sdcard/Android/data/com.example.auplayer/files/e1-trace.txt "$GITHUB_WORKSPACE/e1-trace.txt" || true
+echo "=== E1 trace gate (time-pos span + clean EOF) ==="
+python3 - "$GITHUB_WORKSPACE/e1-trace.txt" <<'EOF'
+import sys
+times = []
+eof = False
+with open(sys.argv[1]) as handle:
+    for line in handle:
+        line = line.strip()
+        if line.startswith('time='):
+            times.append(float(line[5:]))
+        elif line == 'eof':
+            eof = True
+assert times, 'no time-pos in trace'
+span = max(times) - min(times)
+print(f'samples={len(times)} span={span:.2f}s eof={eof}')
+assert span >= 2.0, f'span too small: {span}'
+assert eof, 'no clean EOF'
+print('E: trace gate pass')
+EOF
 adb_retry adb logcat -d > "$GITHUB_WORKSPACE/logcat.txt" || echo "logcat unavailable" > "$GITHUB_WORKSPACE/logcat.txt"
 # Package-scoped crash gate (unscoped greps catch GMS/system noise).
 CRASHED=0

@@ -4,6 +4,8 @@ import android.util.Log
 import android.view.Surface
 import com.example.auplayer.core.Diag
 import com.example.auplayer.core.MpvCommandException
+import java.io.File
+import java.io.IOException
 
 /**
  * Real bridge over the self-built libmpv (Push B2). Options flow from
@@ -11,7 +13,7 @@ import com.example.auplayer.core.MpvCommandException
  * Events arrive by name (`end-file`, `property-change`). Instantiation on a
  * JVM without native libs throws — tests guard with `assumeTrue(load())`.
  */
-class LibmpvBridge(private val paths: MpvPaths) : MpvBridge {
+class LibmpvBridge(private val paths: MpvPaths, private val traceDir: File? = null) : MpvBridge {
     private var handle: Long = 0L
     private var listener: ((MpvEvent) -> Unit)? = null
 
@@ -34,6 +36,7 @@ class LibmpvBridge(private val paths: MpvPaths) : MpvBridge {
         }
         MpvNative.nativeObserve(handle, TIME_POS_ID, "time-pos")
         MpvEvents.nativeStartEvents(handle, eventCallback)
+        traceDir?.let { File(it, TRACE_NAME).delete() }
         Log.i("AuPlayer", "libmpv initialized")
     }
 
@@ -80,15 +83,32 @@ class LibmpvBridge(private val paths: MpvPaths) : MpvBridge {
     private val eventCallback = object : MpvEvents.MpvEventCallback {
         override fun onEvent(name: String, replyUserdata: Long) {
             when {
-                name == "end-file" -> listener?.invoke(MpvEvent.Eof)
+                name == "end-file" -> {
+                    trace("eof")
+                    listener?.invoke(MpvEvent.Eof)
+                }
                 name == "property-change" && replyUserdata == TIME_POS_ID -> {
                     val seconds = MpvNative.nativeGetProperty(handle, "time-pos")?.toDoubleOrNull()
-                    if (seconds != null) listener?.invoke(MpvEvent.TimePos(seconds))
+                    if (seconds != null) {
+                        trace("time=$seconds")
+                        listener?.invoke(MpvEvent.TimePos(seconds))
+                    }
                 }
                 else -> Unit
             }
         }
     }
+
+    /** E-test trace (E1): time-pos + eof lines for workflow assertions. */
+    private fun trace(line: String) {
+        val dir = traceDir ?: return
+        try {
+            File(dir, TRACE_NAME).appendText(line + "\n")
+        } catch (error: IOException) {
+            Diag.record("trace", "write failed: " + error.message.toString())
+        }
+    }
 }
 
 private const val TIME_POS_ID = 1L
+private const val TRACE_NAME = "e1-trace.txt"

@@ -64,4 +64,5 @@ jobs:
             **/build/outputs/androidTest-results/
             e1-shot-1.png
             e1-shot-2.png
+            e1-trace.txt
             logcat.txt

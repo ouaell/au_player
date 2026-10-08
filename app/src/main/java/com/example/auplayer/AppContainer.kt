@@ -25,7 +25,7 @@ class AppContainer(context: Context) {
      */
     val playerEngine: PlayerEngine by lazy {
         if (MpvNative.load()) {
-            PlayerEngine(LibmpvBridge(mpvPaths))
+            PlayerEngine(LibmpvBridge(mpvPaths, context.getExternalFilesDir(null)))
         } else {
             PlayerEngine(FakeMpvBridge())
         }
