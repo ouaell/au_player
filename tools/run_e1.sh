@@ -23,9 +23,9 @@ adb kill-server || true
 adb start-server
 adb wait-for-device
 gradle :app:installDirectDebug --stacktrace
-adb_retry adb push test-corpus/h264-720p.mp4 /data/local/tmp/e1.mp4
-adb_retry adb shell "run-as com.example.auplayer cp /data/local/tmp/e1.mp4 files/e1.mp4"
-adb_retry adb shell "run-as com.example.auplayer ls -l files/e1.mp4"
+  adb_retry adb push test-corpus/h264-720p.mp4 /data/local/tmp/e1.mp4
+  adb_retry adb shell "run-as com.example.auplayer cp /data/local/tmp/e1.mp4 /data/data/com.example.auplayer/files/e1.mp4"
+  adb_retry adb shell "run-as com.example.auplayer ls -l /data/data/com.example.auplayer/files/e1.mp4"
 TEST_FAILED=0
 gradle :app:connectedDirectDebugAndroidTest --stacktrace || TEST_FAILED=1
 echo "=== androidTest results ==="
