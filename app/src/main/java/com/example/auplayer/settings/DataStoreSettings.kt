@@ -117,7 +117,7 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
     }
 
     private inline fun <reified T : Enum<T>> String.toEnum(): T? =
-        runCatching { enumValueOf<T>() }.getOrNull()
+        runCatching { enumValueOf<T>(this) }.getOrNull()
 
     // Preference keys are conventionally SCREAMING; they are immutable key
     // instances, never magic values.
