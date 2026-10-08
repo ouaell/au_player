@@ -35,7 +35,7 @@ object ImagePicker {
     fun resolveUrl(pageUrl: String, raw: String): String? {
         return when {
             raw.startsWith(HTTPS) || raw.startsWith(HTTP) -> raw
-            raw.startsWith(PROTOCOL_RELATIVE) -> HTTPS + raw.removePrefix(PROTOCOL_RELATIVE)
+            raw.startsWith(PROTOCOL_RELATIVE) -> HTTPS + raw
             raw.startsWith(DATA_PREFIX) -> null
             raw.startsWith(ROOT_PATH) -> resolveRoot(pageUrl, raw)
             else -> resolveRelative(pageUrl, raw)
