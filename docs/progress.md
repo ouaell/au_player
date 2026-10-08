@@ -101,14 +101,20 @@
 - MS-024: AppSettings (full final list, EnhanceMode OFF default) + SettingsStore/InMemory (JVM-tested) + DataStoreSettingsStore (all keys; persistence = T2); datastore dep added (allowlisted)
 - MS-025: CrashLogger (install/onCrash/list) + buildDiagnosticsReport + DiagnosticsScreen (share wiring; reactive entries + self-test = MS-065); CrashLoggerTest
 
+## Sprint close-out — Day-2 + Day-3 stacked green (run 37786144798)
+- ~199 JVM tests green (×debug/release variants), detekt + ktlint + lint + assemble + 16KB + verify_native + corpus all pass
+- Notable fixes en route: enhance/player cycle broken via function injection (MpvCommandException→core); KDoc nested-comment parse break; xz runtime for 7z; protocol-relative slashes; BROWSABLE + lowercase MIME (lint); aapt enum-hex grep; Standard/FSR files PENDING license (documented §16 fallback, chain ready)
+- QUEUED (owner/device-blocked, not attempted): MS-054/MS-061 FTL (needs Firebase H6), MS-056 buffer process, MS-057-T2/T3 (Robolectric/screenshots/emulator), MS-059 desktop-mpv suite, MS-060 emulator suite, MS-063 release smoke (needs emulator), MS-064 fuzz/prop/arch gates, MS-067 font files + visual goldens, MS-068-full screenshots, MS-074 automated a11y, native self-build (critical path, MS-004 verdict)
+- Partial completions recorded per-entry above (Standard rung, DAO/Robolectric, Compose interaction, PdfRenderer binding, session binding, FGS rules, font files, ar screenshots)
+
 ## MS-068 + MS-073 — Locales + isolation (stacked)
-- Status: in review (pushed; CI pending)
+- Status: DONE (shared green run 37786144798)
 - Sections used: §15/§17.9 rows, §17.7
 - MS-068-part: en/ar/fr strings.xml (enhance + share strings) + DiagnosticsScreen wired; full externalization + ar screenshots = T2
 - MS-073-part: IsolationPolicy (2 crashes → disabled) + :enhance process service skeleton/manifest; binding + watchdog = device work
 
 ## MS-065 + MS-066 + MS-069 + MS-070 + MS-072 + MS-075 — Small pure tasks (stacked)
-- Status: in review (pushed; CI pending)
+- Status: DONE (shared green run 37786144798)
 - Sections used: §15/§17.9 rows
 - MS-065: SelfTest JVM probes + reportJson schema (device probes PENDING); SelfTestTest
 - MS-066: matchSidecars (stem+lang+ext gate); SidecarTest (encodings = device work)
@@ -117,91 +123,91 @@
 - MS-075-part: UpdateChecker tag parse + numeric compare; UpdateCheckerTest (verification-metadata needs a trusted CI run — queued)
 
 ## MS-058 + MS-062 + MS-071 — Corpus + native verifier + intent filters (stacked)
-- Status: in review (pushed; CI pending)
+- Status: DONE (shared green run 37786144798)
 - Sections used: §15/§17.9 (rows), §17.5, §17.7, §17.2
 - MS-058: gen_corpus.sh (H.264 480/720/1080, HEVC-10, VP9, AV1-tiny, HDR tags; sha manifest; T1 artifact)
 - MS-062: verify_native.sh (16KB reuse, GPL-strings, JNI/R8 + bundletool degrade-to-SKIP honestly, aapt2 targetSdk/perms/back/PiP/VIEW checks) wired into T1
 - MS-071: VIEW/SEND filters for player + reader mimes (in-app IntentRouter decides)
 
 ## MS-053 + MS-055 — Release hardening + gate docs (stacked)
-- Status: in review (pushed; CI pending)
+- Status: DONE (shared green run 37786144798)
 - Sections used: §13, §15 (rows), §17.7-10 (signing), §17.8 (session)
 - MS-053: R8 minify+shrink on, JNI keep rules, conditional release signing (debug key without secrets), manual release.yml (AAB+APK+16KB); docs/signing.md (H8 recipe)
 - MS-054: BLOCKED on owner (Firebase service account H6 + device session H7) — recorded, not attempted
 - MS-055: device-test-checklist (10 checks), tuning.md (perf table shell for MS-061), this entry
 
 ## MS-026 + MS-027 — Shader assets + chain builder (stacked)
-- Status: in review (pushed; CI pending)
+- Status: DONE (shared green run 37786144798)
 - Sections used: §6.2, §6.3, §15 (rows)
 - MS-026: fetch (pinned SHA manifest) + patch (drop OUTPUT-gated WHEN) + static check (no OUTPUT-WHEN, headers intact, deletions-only); Anime4K MIT verified (bloc97 @7684e95); Standard files PENDING license (documented §16 fallback); assets-licenses.md created; CI step added
 - MS-027: ShaderChainBuilder (Anime 2 rungs, Standard top rung, >1440p/Off → empty); ShaderChainTest exact-list
 
 ## MS-050 + MS-051 + MS-052 — Monetization shell + licenses + legal docs (stacked)
-- Status: in review (pushed; CI pending)
+- Status: DONE (shared green run 37786144798)
 - Sections used: §11, §13, §15 (rows)
 - MS-050: AdProvider/NoOpAdProvider (isReady=false, all shows Unavailable) + ConsentManager stub; AdProviderTest
 - MS-051: THIRD_PARTY_NOTICES curated list + LicensesScreen + check_notices.sh alias→token CI gate (wired into T1); NoticesTest
 - MS-052: privacy/terms/store-listing (honest claims)/data-safety docs
 
 ## MS-046 + MS-048 + MS-049 — Model select + queue/cache + reader enhance UI (stacked)
-- Status: in review (pushed; CI pending)
+- Status: DONE (shared green run 37786144798)
 - Sections used: §9, §15 (rows)
 - MS-046: ModelSelect (compact realesr 2×; weights packaging/verification = follow-up with real NCNN); ModelSelectTest 1.5× rule
 - MS-048: PrefetchOrder (current+3, stale-drop) + PageCache (keyed files, oldest-first eviction, 500MB); QueueCacheTest
 - MS-049: ReaderEnhanceState + shouldPauseEnhance guard; ReaderEnhanceTest (hold-compare reuses MS-031 pattern)
 
 ## MS-045 + MS-047 — NCNN seam + tiler golden (stacked)
-- Status: in review (pushed; CI pending)
+- Status: DONE (shared green run 37786144798)
 - Sections used: §9, §15 (rows)
 - MS-045: NcnnBridge/JniNcnnBridge (loadLibrary try/catch)/FakeNcnnBridge + NcnnEngine backend policy (Vulkan→small-CPU→disabled); NcnnTest incl. graceful-missing-native
 - MS-047: Tiler split/stitch over shared Tiling + nearest stub; stub-model golden (stitched == direct); seam-free by construction
 
 ## MS-040 + MS-041 — Intent routing + reader history (stacked)
-- Status: in review (pushed; CI pending)
+- Status: DONE (shared green run 37786144798)
 - Sections used: §7.2, §17.7 (intents), §15 (rows)
 - MS-040: Incoming/IntentRouter (VIEW video→player, images/archive/pdf/text-urls→reader); IntentRouterTest matrix
 - MS-041: ReaderHistory over shared ResumeStore (no second schema); ReaderHistoryTest
 
 ## MS-042 + MS-043 + MS-044 — Web source (stacked)
-- Status: in review (pushed; CI pending)
+- Status: DONE (shared green run 37786144798)
 - Sections used: §8, §15 (rows)
 - MS-042: WebPolicy (https-only, scheme blocks) + locked WebSettings; WebView screen = T2/instrumented; WebPolicyTest
 - MS-043: ImagePicker pipeline (order/dedupe/300px/ad/data-URI) + JsCollector (scroll step + required selectors); ExtractorTest fixtures
 - MS-044: PageDownloader over UrlListProvider (cookies/Referer, cache files, Failed placeholders); MockWebServer tests
 
 ## MS-037 + MS-038 + MS-039 — Reader viewers + UI logic + memory (stacked)
-- Status: in review (pushed; CI pending)
+- Status: DONE (shared green run 37786144798)
 - Sections used: §7.1, §7.3, §7.4, §15 (rows)
 - MS-037: fallback decision (own Compose viewers; Mihon is View-system) — PagedReader/WebtoonReader/ZoomablePage; interaction = T2; compose-foundation added (allowlisted)
 - MS-038: TapZoneConfig/actionFor, readerProgress, filterMatrix, isPagedMode; ReaderUiTest
 - MS-039: MemoryBudget (25% cap, inSampleSize, webtoon slices via shared Tiling); device release paths noted; MemoryTest
 
 ## MS-035 + MS-036 — PDF tiling + URL provider (stacked)
-- Status: in review (pushed; CI pending)
+- Status: DONE (shared green run 37786144798)
 - Sections used: §7.2, §15 (rows)
 - MS-035: Tiling grid (row-major, edge-clamped, webtoon column) shared by PDF zoom + NCNN; PdfRenderer binding = device work; TilingTest incl. 1500×22000 strip
 - MS-036: UrlListProvider (headers, 3 tries, image/* gate, size cap) + MockWebServer tests (headers/redirect/403/type/cap/timeout); mockwebserver dep added (allowlisted, test-only)
 
 ## MS-028 — EnhanceController (stacked)
-- Status: in review (pushed; CI pending)
+- Status: DONE (shared green run 37786144798)
 - Sections used: §6.3, §6.4 (failure signal), §15 (row)
 - Applies scale opts + change-list set (shapes per §6.3; native proof = MS-059), clear restores bilinear, failures clear + Diag + Failed(rung); shader cache via MS-008, Preparing UI in MS-029
 - Tests added: EnhanceControllerTest (exact command sequence, clear, unavailable, throwing-bridge, async)
 
 ## MS-033 + MS-034 — Page model + archive/folder providers (stacked)
-- Status: in review (pushed; CI pending)
+- Status: DONE (shared green run 37786144798)
 - Sections used: §7.2, §15 (rows)
 - MS-033: PageRef + validated ref(); PageRefTest
 - MS-034: NaturalOrder (zero-pad aware), ArchiveLimits caps, ZipProvider/SevenZProvider (stream-by-entry, SAF variant deferred), FolderProvider (local; SAF tree = device work), SUPPORTED_IMAGE_EXTS + __MACOSX/hidden filters; size() needs BitmapFactory (device); ArchiveProvidersTest incl. 7z round-trip
 
 ## MS-029 + MS-030 — Enhance sheet + governor (stacked)
-- Status: in review (pushed; CI pending)
+- Status: DONE (shared green run 37786144798)
 - Sections used: §6.1, §6.4, §10, §15 (rows)
 - MS-029: EnhanceSheet (Off/Anime/Standard, 1440p rule with message) + enhanceLabel incl. lowered state; interaction = T2; :player now depends on :enhance
 - MS-030: EnhanceGovernor (3-strike drops, immediate thermal, no step-up, battery start-lower, per-video reset); GovernorTest incl. never-steps-up stream
 
 ## MS-031 + MS-032 — Hold-to-compare + edge cases (stacked)
-- Status: in review (pushed; CI pending)
+- Status: DONE (shared green run 37786144798)
 - Sections used: §3.3, §6.5, §15 (rows)
 - MS-031: CompareHolder (snapshot/clear/restore, mid-hold rung change ignored); CompareHolderTest
 - MS-032: EnhanceEdgeCases (surface-loss re-attach, safe seek, hwdec software fallback + Diag); EnhanceEdgeCasesTest
