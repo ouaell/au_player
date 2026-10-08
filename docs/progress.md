@@ -48,3 +48,9 @@
 - Tests added: ThemeTokensTest (palette/spacing/type exactness, JVM)
 - Screenshot gate: deferred to T2 per §17.1 (screenshot tool itself is [VERIFY] in MS-057); no screenshots in T1 by design
 - T1 workflow: concurrency cancel-in-progress (sprint hygiene)
+
+## MS-006 — Navigation shell, predictive back, destinations
+- Status: in review (pushed; CI pending)
+- Sections used: §2 (predictive back), §4, §15 (MS-006 row)
+- NavDest sealed (home/player/reader/web/settings) + pure Navigator (JVM-tested back-stack) + NavHost wiring; predictive back via manifest flag
+- Tests added: NavigatorTest (root/deep/unwind)
