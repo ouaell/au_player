@@ -1,5 +1,6 @@
 package com.example.auplayer.player
 
+import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import androidx.compose.runtime.Composable
@@ -36,13 +37,10 @@ fun PlayerScreen(
             SurfaceView(context).apply {
                 holder.addCallback(object : SurfaceHolder.Callback {
                     override fun surfaceCreated(holder: SurfaceHolder) {
-                        val surface = holder.surface
-                        surfaces.onSurfaceCreated(surface)
-                        val frame = holder.surfaceFrame
-                        if (surface != null && surface.isValid &&
-                            frame.width() > 0 && frame.height() > 0
-                        ) {
-                            render?.start(surface, frame.width(), frame.height())
+                        surfaces.onSurfaceCreated(holder.surface)
+                        val frame = usableFrame(holder)
+                        if (frame != null) {
+                            render?.start(frame.surface, frame.width, frame.height)
                         }
                     }
 
@@ -62,4 +60,18 @@ fun PlayerScreen(
         },
         modifier = modifier
     )
+}
+
+private data class Frame(val surface: Surface, val width: Int, val height: Int)
+
+private fun usableFrame(holder: SurfaceHolder): Frame? {
+    val surface = holder.surface
+    if (surface == null || !surface.isValid) return null
+    return sizedFrame(holder, surface)
+}
+
+private fun sizedFrame(holder: SurfaceHolder, surface: Surface): Frame? {
+    val frame = holder.surfaceFrame
+    if (frame.width() <= 0 || frame.height() <= 0) return null
+    return Frame(surface, frame.width(), frame.height())
 }
