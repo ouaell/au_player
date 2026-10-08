@@ -29,14 +29,32 @@ jobs:
         with:
           gradle-version: "8.13"
           cache-read-only: false
-      - name: E-tests on CI emulator (MS-060 scaffold)
+      - name: E1 scenario on CI emulator (real engine, corpus clip)
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ inputs.api-level }}
           target: google_apis
           arch: x86_64
           profile: Nexus 6
-          script: gradle :app:connectedDirectDebugAndroidTest --stacktrace
+          script: |
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq ffmpeg
+            sh tools/gen_corpus.sh test-corpus
+            gradle :app:installDirectDebug --stacktrace
+            adb push test-corpus/h264-720p.mp4 /data/local/tmp/e1.mp4
+            adb shell "run-as com.example.auplayer cp /data/local/tmp/e1.mp4 files/e1.mp4"
+            adb shell "run-as com.example.auplayer ls -l files/e1.mp4"
+            TEST_FAILED=0
+            gradle :app:connectedDirectDebugAndroidTest --stacktrace || TEST_FAILED=1
+            adb pull /sdcard/Android/data/com.example.auplayer/files/e1-shot-1.png "$GITHUB_WORKSPACE/e1-shot-1.png" || true
+            adb pull /sdcard/Android/data/com.example.auplayer/files/e1-shot-2.png "$GITHUB_WORKSPACE/e1-shot-2.png" || true
+            adb logcat -d > "$GITHUB_WORKSPACE/logcat.txt"
+            if grep -aiE 'FATAL EXCEPTION|native crash|ANR in' "$GITHUB_WORKSPACE/logcat.txt"; then
+              echo "E: crash/ANR in logcat" >&2
+              exit 1
+            fi
+            echo "E: logcat clean"
+            exit $TEST_FAILED
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -44,3 +62,6 @@ jobs:
           path: |
             **/build/reports/androidTests/
             **/build/outputs/androidTest-results/
+            e1-shot-1.png
+            e1-shot-2.png
+            logcat.txt

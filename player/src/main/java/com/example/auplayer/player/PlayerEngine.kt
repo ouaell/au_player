@@ -19,7 +19,7 @@ import java.util.concurrent.Executors
  * MS-011/MS-008; surface lifecycle in MS-009.
  */
 class PlayerEngine(
-    private val bridge: MpvBridge,
+    val bridge: MpvBridge,
     dispatcher: CoroutineDispatcher = Executors.newSingleThreadExecutor { runnable ->
         Thread(runnable, "mpv-cmd").apply { isDaemon = true }
     }.asCoroutineDispatcher(),

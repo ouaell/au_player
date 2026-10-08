@@ -123,6 +123,12 @@
 - Key evidence: official ffmpeg.sh uses --enable-gpl (confirmed), mpv.sh passes no -Dgpl (defaults GPL), loadarch already sets 16KB max-page-size, buildall.sh builds per-target/per-arch (mpv without app)
 - check_16kb.sh now takes raw .so files too (64-bit rule preserved)
 
+## Push B3 — PlayerScreen + E1 harness (E-verification pending)
+- Status: in review (pushed; CI pending)
+- PlayerScreen (SurfaceView → SurfaceHost + RenderLoop), MainActivity VIEW routing (+ test-only EXTRA_DEBUG_PATH), engine.bridge accessor
+- E1PlayerTest (time-pos span + clean EOF + non-blank differing screenshots) + emulator.yml (corpus, run-as clip push, logcat FATAL gate, shot artifacts)
+- Per §8.2: nothing is "player complete" before E1 is green
+
 ## P0 app integration B2 — real bridge + EGL + render loop
 - Status: in review (pushed; CI pending)
 - EglHost (app-owned EGL14 display/context/window, GLES3, fail-closed), LibmpvBridge (startup map, string props/events, render helpers, assume-guarded test), RenderLoop (redraw-on-update thread), AppContainer picks real bridge when native loads
