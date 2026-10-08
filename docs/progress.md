@@ -101,6 +101,13 @@
 - MS-024: AppSettings (full final list, EnhanceMode OFF default) + SettingsStore/InMemory (JVM-tested) + DataStoreSettingsStore (all keys; persistence = T2); datastore dep added (allowlisted)
 - MS-025: CrashLogger (install/onCrash/list) + buildDiagnosticsReport + DiagnosticsScreen (share wiring; reactive entries + self-test = MS-065); CrashLoggerTest
 
+## MS-053 + MS-055 — Release hardening + gate docs (stacked)
+- Status: in review (pushed; CI pending)
+- Sections used: §13, §15 (rows), §17.7-10 (signing), §17.8 (session)
+- MS-053: R8 minify+shrink on, JNI keep rules, conditional release signing (debug key without secrets), manual release.yml (AAB+APK+16KB); docs/signing.md (H8 recipe)
+- MS-054: BLOCKED on owner (Firebase service account H6 + device session H7) — recorded, not attempted
+- MS-055: device-test-checklist (10 checks), tuning.md (perf table shell for MS-061), this entry
+
 ## MS-026 + MS-027 — Shader assets + chain builder (stacked)
 - Status: in review (pushed; CI pending)
 - Sections used: §6.2, §6.3, §15 (rows)

@@ -39,11 +39,28 @@ android {
         }
         release {
             ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a") }
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            // Debug key unless release secrets exist (docs/signing.md, owner H8).
+            signingConfig = signingConfigs.getByName(
+                if (System.getenv("AU_KEYSTORE_PATH").isNullOrBlank()) "debug" else "ciRelease"
+            )
+        }
+    }
+
+    signingConfigs {
+        create("ciRelease") {
+            val keystorePath = System.getenv("AU_KEYSTORE_PATH")
+            if (!keystorePath.isNullOrBlank()) {
+                storeFile = file(keystorePath)
+                storePassword = System.getenv("AU_KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("AU_KEY_ALIAS")
+                keyPassword = System.getenv("AU_KEY_PASSWORD")
+            }
         }
     }
 
