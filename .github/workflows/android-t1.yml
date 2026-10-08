@@ -59,6 +59,16 @@ jobs:
         env:
           AU_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Native linkage manifest (DT_NEEDED per ABI)
+        run: |
+          for abi in arm64-v8a armeabi-v7a x86_64; do
+            echo "== $abi =="
+            for so in player/src/main/jniLibs/$abi/*.so; do
+              [ -f "$so" ] || continue
+              echo "-- $(basename $so)"
+              readelf -d "$so" | grep -E 'NEEDED|SONAME' || true
+            done
+          done
       - name: 16KB alignment check (MS-002)
         run: sh tools/check_16kb.sh app/build/outputs/apk/direct/debug/*.apk
       - name: Native + release verifiers (MS-062)
