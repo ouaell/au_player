@@ -107,6 +107,11 @@
 - QUEUED (owner/device-blocked, not attempted): MS-054/MS-061 FTL (needs Firebase H6), MS-056 buffer process, MS-057-T2/T3 (Robolectric/screenshots/emulator), MS-059 desktop-mpv suite, MS-060 emulator suite, MS-063 release smoke (needs emulator), MS-064 fuzz/prop/arch gates, MS-067 font files + visual goldens, MS-068-full screenshots, MS-074 automated a11y, native self-build (critical path, MS-004 verdict)
 - Partial completions recorded per-entry above (Standard rung, DAO/Robolectric, Compose interaction, PdfRenderer binding, session binding, FGS rules, font files, ar screenshots)
 
+## P0 native self-build (OPENCODE_COMMAND §3) — recipe landed, first build running
+- native/README.md + pins.txt (mpv v0.41.0, ffmpeg n9.0, libplacebo v7.360.1, dav1d 1.5.4, libass 0.17.5, NDK r30, scripts @c2e02fe) + apply_patches.py (exact-once: --disable-gpl, -Dgpl=false, tag pins) + native.yml (arm64 first; armv7l+x86_64 after green) + docs/native-licenses.md
+- Key evidence: official ffmpeg.sh uses --enable-gpl (confirmed), mpv.sh passes no -Dgpl (defaults GPL), loadarch already sets 16KB max-page-size, buildall.sh builds per-target/per-arch (mpv without app)
+- check_16kb.sh now takes raw .so files too (64-bit rule preserved)
+
 ## MS-068 + MS-073 — Locales + isolation (stacked)
 - Status: DONE (shared green run 37786144798)
 - Sections used: §15/§17.9 rows, §17.7

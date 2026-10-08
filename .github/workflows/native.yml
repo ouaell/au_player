@@ -1,0 +1,57 @@
+name: native
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - native/**
+      - .github/workflows/native.yml
+      - tools/verify_native.sh
+      - tools/check_16kb.sh
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    strategy:
+      fail-fast: false
+      matrix:
+        # arm64 first (recipe proof); armv7l + x86_64 join after first green.
+        arch: [arm64]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch pinned buildscripts
+        run: |
+          sha=$(grep '^MPV_ANDROID_SHA=' native/pins.txt | cut -d= -f2)
+          git init buildscripts
+          git -C buildscripts remote add origin https://github.com/mpv-android/mpv-android.git
+          git -C buildscripts fetch --depth 1 origin "$sha"
+          git -C buildscripts checkout "$sha"
+          git -C buildscripts rev-parse HEAD
+      - name: Apply LGPL patches
+        run: python3 native/apply_patches.py buildscripts
+      - name: Cache prefix
+        uses: actions/cache@v4
+        with:
+          path: buildscripts/prefix/${{ matrix.arch }}
+          key: native-${{ matrix.arch }}-${{ hashFiles('native/pins.txt') }}
+      - name: Download deps + SDK/NDK
+        working-directory: buildscripts
+        run: ./download.sh
+      - name: Build mpv + deps
+        working-directory: buildscripts
+        run: ./buildall.sh --arch ${{ matrix.arch }} mpv
+      - name: Verify LGPL + alignment
+        run: |
+          # shellcheck disable=SC2046
+          sh tools/check_16kb.sh $(find "buildscripts/prefix/${{ matrix.arch }}/lib" -name '*.so')
+          echo "--- license strings (libmpv must be GPL-free) ---"
+          if strings "buildscripts/prefix/${{ matrix.arch }}/lib/libmpv.so" | grep -aiE 'General Public License|AGPL|nonfree|enable-gpl' | grep -av 'Lesser General Public'; then
+            echo "GPL markers in libmpv.so" >&2
+            exit 1
+          fi
+          echo "OK: no GPL markers"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-${{ matrix.arch }}
+          path: buildscripts/prefix/${{ matrix.arch }}/

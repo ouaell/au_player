@@ -14,7 +14,10 @@ for art in "$@"; do
     echo "check_16kb: artifact not found: $art" >&2
     exit 2
   fi
-  unzip -o -q "$art" '*.so' -d "$tmp" || true
+  case "$art" in
+    *.apk|*.aab) unzip -o -q "$art" '*.so' -d "$tmp" || true ;;
+    *) cp "$art" "$tmp/" ;;
+  esac
 done
 if [ -z "$(find "$tmp" -name '*.so' -print -quit)" ]; then
   echo "check_16kb: no native libs in artifacts (ok for MS-002 shell)"
