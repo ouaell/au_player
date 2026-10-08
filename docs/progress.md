@@ -88,6 +88,12 @@
 - MS-015: AspectMode cycle/size, OrientationPref resolution, ZoomState; DisplayTest
 - MS-016: speed presets/clamp/cycle, ABRepeat, LoopMode/EofAction, SleepTimer (injected clock); PlaybackModesTest
 
+## MS-017 + MS-018 — Tracks + subtitle style props (stacked)
+- Status: in review (pushed; CI pending)
+- Sections used: §5.1, §15 (rows)
+- MS-017: Track/TrackKind/TrackList (aid/sid/sub-add mapping, srt/ass/vtt gate); engine gains setAudioTrack/setSubtitleTrack/addSubtitleFile/setProperties; TracksTest incl. engine commands
+- MS-018: SubtitleStyle→props, mpvColor #AARRGGBB ([VERIFY] order in §17.4 goldens), delayProps; SubtitleStyleTest prop-mapping
+
 ## MS-013 + MS-014 — Gesture engine + overlay indicators (stacked)
 - Status: in review (pushed; CI pending)
 - Sections used: §5.1, §15 (rows)

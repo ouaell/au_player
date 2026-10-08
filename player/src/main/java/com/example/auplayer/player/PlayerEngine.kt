@@ -63,6 +63,30 @@ class PlayerEngine(
         scope.launch { bridge.detach() }
     }
 
+    fun setAudioTrack(id: Int) {
+        scope.launch { bridge.command("set", "aid", id.toString()) }
+    }
+
+    fun setSubtitleTrack(id: Int?) {
+        scope.launch {
+            if (id == null) {
+                bridge.command("set", "sid", "no")
+            } else {
+                bridge.command("set", "sid", id.toString())
+            }
+        }
+    }
+
+    fun addSubtitleFile(path: String) {
+        scope.launch { bridge.command("sub-add", path) }
+    }
+
+    fun setProperties(props: Map<String, String>) {
+        scope.launch {
+            props.forEach { (key, value) -> bridge.command("set", key, value) }
+        }
+    }
+
     fun release() {
         scope.cancel()
         bridge.destroy()
