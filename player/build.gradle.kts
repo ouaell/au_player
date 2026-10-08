@@ -40,6 +40,10 @@ android {
     compileSdk = 36
     ndkVersion = "30.0.16248370"
     defaultConfig { minSdk = 26 }
+    ndk {
+        // Must match native/ prebuilts (arm64 + arm32 release, x86_64 CI).
+        abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86_64")
+    }
     buildFeatures {
         buildConfig = true
         compose = true
