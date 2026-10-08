@@ -177,9 +177,9 @@ Java_com_example_auplayer_player_MpvRender_nativeRenderInit(
     if (ctx == nullptr || ctx->mpv == nullptr || ctx->render != nullptr) {
         return MPV_ERROR_UNINITIALIZED;
     }
-    mpv_opengl_init_params gl = {gl_get_proc_address, nullptr, nullptr};
+    mpv_opengl_init_params gl = {gl_get_proc_address, nullptr};
     mpv_render_param params[] = {
-        {MPV_RENDER_PARAM_API_TYPE, reinterpret_cast<void*>(MPV_RENDER_API_TYPE_OPENGL)},
+        {MPV_RENDER_PARAM_API_TYPE, const_cast<char*>(MPV_RENDER_API_TYPE_OPENGL)},
         {MPV_RENDER_PARAM_OPENGL_INIT_PARAMS, &gl},
         {MPV_RENDER_PARAM_INVALID, nullptr},
     };
