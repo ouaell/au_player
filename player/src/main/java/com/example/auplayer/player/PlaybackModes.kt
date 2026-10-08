@@ -21,7 +21,8 @@ class ABRepeat {
 
     fun setA(positionMs: Long) {
         aMs = positionMs
-        if (bMs != null && bMs <= positionMs) bMs = null
+        val b = bMs
+        if (b != null && b <= positionMs) bMs = null
     }
 
     /** Returns false (and keeps state) when B does not land after A. */

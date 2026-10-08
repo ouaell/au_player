@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Pause
-import androidx.compose.material.icons.filled.Play
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Slider
@@ -67,7 +67,7 @@ fun PlayerControls(
         Row {
             IconButton(onClick = { if (playing) controller.pause() else controller.play() }) {
                 Icon(
-                    imageVector = if (playing) Icons.Filled.Pause else Icons.Filled.Play,
+                    imageVector = if (playing) Icons.Filled.Pause else Icons.Filled.PlayArrow,
                     contentDescription = if (playing) "Pause" else "Play"
                 )
             }

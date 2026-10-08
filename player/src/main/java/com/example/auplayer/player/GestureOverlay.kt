@@ -2,7 +2,7 @@ package com.example.auplayer.player
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Pause
-import androidx.compose.material.icons.filled.Play
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -51,7 +51,7 @@ fun GestureOverlay(indicator: GestureIndicator?) {
         shape = MaterialTheme.shapes.medium
     ) {
         if (indicator.kind == IndicatorKind.SPEED) {
-            Icon(imageVector = Icons.Filled.Play, contentDescription = SPEED_LABEL)
+            Icon(imageVector = Icons.Filled.PlayArrow, contentDescription = SPEED_LABEL)
         } else if (indicator.kind == IndicatorKind.SEEK && indicator.fraction < ZERO_FRACTION) {
             Icon(imageVector = Icons.Filled.Pause, contentDescription = "Seek")
         }
