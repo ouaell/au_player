@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="share_report">Partager le rapport</string>
+    <string name="enhance_off">Désactivé</string>
+    <string name="enhance_anime">Anime</string>
+    <string name="enhance_standard">Standard</string>
+    <string name="enhance_lowered">· réduit</string>
+    <string name="already_high_res">Résolution déjà élevée</string>
+</resources>

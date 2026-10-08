@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import com.example.auplayer.R
 import com.example.auplayer.core.Diag
 import com.example.auplayer.core.buildDiagnosticsReport
 
@@ -14,7 +16,7 @@ fun DiagnosticsScreen(version: String, onShare: (String) -> Unit) {
     Column {
         Text(text = report)
         Button(onClick = { onShare(report) }) {
-            Text(text = "Share report")
+            Text(text = stringResource(R.string.share_report))
         }
     }
 }

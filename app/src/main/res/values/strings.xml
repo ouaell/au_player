@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- MS-068 en: user-facing strings (full externalization + ar screenshots = T2). -->
+    <string name="share_report">Share report</string>
+    <string name="enhance_off">Off</string>
+    <string name="enhance_anime">Anime</string>
+    <string name="enhance_standard">Standard</string>
+    <string name="enhance_lowered">· lowered</string>
+    <string name="already_high_res">Already high resolution</string>
+</resources>

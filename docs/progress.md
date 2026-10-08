@@ -101,6 +101,12 @@
 - MS-024: AppSettings (full final list, EnhanceMode OFF default) + SettingsStore/InMemory (JVM-tested) + DataStoreSettingsStore (all keys; persistence = T2); datastore dep added (allowlisted)
 - MS-025: CrashLogger (install/onCrash/list) + buildDiagnosticsReport + DiagnosticsScreen (share wiring; reactive entries + self-test = MS-065); CrashLoggerTest
 
+## MS-068 + MS-073 — Locales + isolation (stacked)
+- Status: in review (pushed; CI pending)
+- Sections used: §15/§17.9 rows, §17.7
+- MS-068-part: en/ar/fr strings.xml (enhance + share strings) + DiagnosticsScreen wired; full externalization + ar screenshots = T2
+- MS-073-part: IsolationPolicy (2 crashes → disabled) + :enhance process service skeleton/manifest; binding + watchdog = device work
+
 ## MS-065 + MS-066 + MS-069 + MS-070 + MS-072 + MS-075 — Small pure tasks (stacked)
 - Status: in review (pushed; CI pending)
 - Sections used: §15/§17.9 rows

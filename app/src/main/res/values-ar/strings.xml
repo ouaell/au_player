@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="share_report">مشاركة التقرير</string>
+    <string name="enhance_off">إيقاف</string>
+    <string name="enhance_anime">أنمي</string>
+    <string name="enhance_standard">قياسي</string>
+    <string name="enhance_lowered">· مخفّض</string>
+    <string name="already_high_res">الدقة عالية أصلاً</string>
+</resources>
