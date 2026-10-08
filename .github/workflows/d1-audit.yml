@@ -1,0 +1,23 @@
+name: d1-audit
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - tools/audit_libmpv.sh
+      - .github/workflows/d1-audit.yml
+      - player/build.gradle.kts
+      - docs/decisions.md
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: D1 libmpv audit (MS-004, report-only)
+        run: sh tools/audit_libmpv.sh 2>&1 | tee d1-audit-report.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: d1-audit-report
+          path: d1-audit-report.txt
