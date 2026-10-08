@@ -5,6 +5,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.Response
+import okhttp3.ResponseBody
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.IOException
@@ -58,24 +60,33 @@ class UrlListProvider(
         }.build()
         try {
             client.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) {
-                    throw UrlFetchException("fetch failed ${response.code}", response.code)
-                }
-                val body = response.body ?: throw ContentTypeException(null)
-                val contentType = body.contentType()?.toString()
-                if (contentType == null || !contentType.startsWith(IMAGE_PREFIX)) {
-                    throw ContentTypeException(contentType)
-                }
-                val bytes = body.byteStream().readCapped(maxBytes)
-                return ByteArrayInputStream(bytes)
+                return validatedStream(response, maxBytes)
             }
+        } catch (error: ContentTypeException) {
+            throw error
+        } catch (error: SizeCapException) {
+            throw error
         } catch (error: IOException) {
-            if (error is ContentTypeException || error is SizeCapException || attemptsLeft <= 1) {
-                throw error
-            }
+            if (attemptsLeft <= 1) throw error
             delay(retryDelayMs)
             return fetch(url, attemptsLeft - 1)
         }
+    }
+
+    private fun validatedStream(response: Response, maxBytes: Long): InputStream {
+        val body = checkedBody(response)
+        val contentType = body.contentType()?.toString()
+        if (contentType == null || !contentType.startsWith(IMAGE_PREFIX)) {
+            throw ContentTypeException(contentType)
+        }
+        return ByteArrayInputStream(body.byteStream().readCapped(maxBytes))
+    }
+
+    private fun checkedBody(response: Response): ResponseBody {
+        if (!response.isSuccessful) {
+            throw UrlFetchException("fetch failed ${response.code}", response.code)
+        }
+        return response.body ?: throw ContentTypeException(null)
     }
 
     private fun InputStream.readCapped(cap: Long): ByteArray {
