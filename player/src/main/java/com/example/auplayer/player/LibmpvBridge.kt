@@ -13,9 +13,10 @@ import java.io.IOException
  * Events arrive by name (`end-file`, `property-change`). Instantiation on a
  * JVM without native libs throws — tests guard with `assumeTrue(load())`.
  */
-class LibmpvBridge(private val paths: MpvPaths, private val traceDir: File? = null) : MpvBridge {
+class LibmpvBridge(private val paths: MpvPaths, traceDir: File? = null) : MpvBridge {
     private var handle: Long = 0L
     private var listener: ((MpvEvent) -> Unit)? = null
+    private val tracer = EventTracer(traceDir)
 
     @Volatile
     var surface: Surface? = null
@@ -84,13 +85,13 @@ class LibmpvBridge(private val paths: MpvPaths, private val traceDir: File? = nu
         override fun onEvent(name: String, replyUserdata: Long) {
             when {
                 name == "end-file" -> {
-                    trace("eof")
+                    tracer.line("eof")
                     listener?.invoke(MpvEvent.Eof)
                 }
                 name == "property-change" && replyUserdata == TIME_POS_ID -> {
                     val seconds = MpvNative.nativeGetProperty(handle, "time-pos")?.toDoubleOrNull()
                     if (seconds != null) {
-                        trace("time=$seconds")
+                        tracer.line("time=$seconds")
                         listener?.invoke(MpvEvent.TimePos(seconds))
                     }
                 }
@@ -98,16 +99,19 @@ class LibmpvBridge(private val paths: MpvPaths, private val traceDir: File? = nu
             }
         }
     }
+}
 
-    /** E-test trace (E1): time-pos + eof lines for workflow assertions. */
-    private fun trace(line: String) {
-        val dir = traceDir ?: return
+/** E-test trace writer (E1): time-pos + eof lines for workflow assertions. */
+internal class EventTracer(private val dir: File?) {
+    fun line(text: String) {
+        val target = dir ?: return
         try {
-            File(dir, TRACE_NAME).appendText(line + "\n")
+            File(target, TRACE_NAME).appendText(text + "\n")
         } catch (error: IOException) {
             Diag.record("trace", "write failed: " + error.message.toString())
         }
     }
+}
 }
 
 private const val TIME_POS_ID = 1L
