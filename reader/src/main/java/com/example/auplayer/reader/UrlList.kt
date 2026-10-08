@@ -98,3 +98,4 @@ private const val DEFAULT_MAX_BYTES = 20_000_000L
 private const val DEFAULT_RETRY_DELAY_MS = 1_000L
 private const val IMAGE_PREFIX = "image/"
 private const val READ_BUFFER = 8192
+private const val NO_CODE = -1
