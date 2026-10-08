@@ -95,6 +95,12 @@
 - MS-020: permission mapping (33+/≤32) + Android 14 partial flag; MediaStore/SAF bodies deferred to device; PermissionsTest
 - MS-021: Playlist reusing afterEof (ALL wraps, ONE replays); PlaylistTest
 
+## MS-022 + MS-023 — Session/focus + PiP (stacked)
+- Status: in review (pushed; CI pending)
+- Sections used: §5.2, §5.3, §15 (rows)
+- MS-022: AudioFocusHandler pure policy (loss/transient/duck/gain) + AudioFocusTest matrix; AuPlaybackService skeleton + FGS permissions/manifest (session binding + notification = device work)
+- MS-023: PipCalc aspect reduction + MainActivity.enterAuPip; behavior device-verified later; PipCalcTest
+
 ## MS-017 + MS-018 — Tracks + subtitle style props (stacked)
 - Status: in review (pushed; CI pending)
 - Sections used: §5.1, §15 (rows)

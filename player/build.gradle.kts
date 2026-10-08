@@ -28,8 +28,8 @@ kotlin {
 dependencies {
     implementation(project(":core"))
     implementation(libs.coroutines.core)
-    implementation(platform(libs.compose.bom))
-    implementation(libs.compose.ui)
+    implementation(libs.media3.session)
+    implementation(platform(libs.compose.bom))    implementation(libs.compose.ui)
     implementation(libs.compose.material3)
     implementation(libs.compose.icons)
     testImplementation(libs.junit)
