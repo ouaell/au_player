@@ -17,8 +17,10 @@ PATCHES = [
     ),
     (
         "scripts/mpv.sh",
-        "-Dlibmpv=true -Dcplayer=false \\",
-        "-Dlibmpv=true -Dcplayer=false -Dgpl=false \\",
+        "-Diconv=disabled -D{lua,libcurl}=enabled \\",
+        # v0.41.0 removed the libcurl option (curl autodetects via pkg-config);
+        # lua stays (MIT). -Dgpl=false is ours.
+        "-Diconv=disabled -Dlua=enabled -Dgpl=false \\",
     ),
     (
         "include/download-deps.sh",
