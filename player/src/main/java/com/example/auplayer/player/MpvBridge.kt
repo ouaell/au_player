@@ -23,6 +23,9 @@ sealed interface MpvEvent {
     data class Error(val message: String) : MpvEvent
 }
 
+/** Thrown by bridge implementations when a native command fails. */
+class MpvCommandException(message: String) : RuntimeException(message)
+
 /** Fake for unit tests (§4: every interface has a fake). */
 class FakeMpvBridge : MpvBridge {
     val options = mutableMapOf<String, String>()

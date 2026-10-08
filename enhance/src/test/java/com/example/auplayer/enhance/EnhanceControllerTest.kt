@@ -3,6 +3,7 @@ package com.example.auplayer.enhance
 import com.example.auplayer.core.EnhanceMode
 import com.example.auplayer.player.FakeMpvBridge
 import com.example.auplayer.player.MpvBridge
+import com.example.auplayer.player.MpvCommandException
 import com.example.auplayer.player.PlayerEngine
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -59,8 +60,8 @@ class EnhanceControllerTest {
     @Test
     fun `bridge failure clears and reports the rung`() {
         val failing = object : MpvBridge by FakeMpvBridge() {
-            override fun command(args: List<String>): Nothing =
-                throw RuntimeException("gl exploded")
+            override fun command(args: List<String>): Unit =
+                throw MpvCommandException("gl exploded")
         }
         val engine = PlayerEngine(failing, Dispatchers.Unconfined)
         val controller = EnhanceController(engine)

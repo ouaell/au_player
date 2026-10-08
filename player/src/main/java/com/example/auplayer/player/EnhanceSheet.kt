@@ -16,6 +16,12 @@ fun enhanceLabel(mode: EnhanceMode, lowered: Boolean): String {
     }
 }
 
+private fun enabledSuffix(mode: EnhanceMode, enabled: Boolean): String {
+    return if (!enabled && mode != EnhanceMode.OFF) " (Already high resolution)" else ""
+}
+
+private const val SELECTED_PREFIX = "✓ "
+
 /**
  * Enhance sheet (MS-029): exactly Off/Anime/Standard. Disabled with
  * "Already high resolution" above 1440p (§6.1). Interaction tests are T2.
@@ -31,15 +37,16 @@ fun EnhanceSheet(
         EnhanceMode.entries.forEach { mode ->
             val enabled = mode == EnhanceMode.OFF ||
                 ShaderChainBuilder.available(mode, sourceHeightPx)
+            val label = enhanceLabel(mode, lowered)
             TextButton(
                 onClick = { onSelect(mode) },
                 enabled = enabled
             ) {
                 Text(
-                    text = if (!enabled && mode != EnhanceMode.OFF) {
-                        enhanceLabel(mode, lowered) + " (Already high resolution)"
+                    text = if (mode == selected) {
+                        SELECTED_PREFIX + label + enabledSuffix(mode, enabled)
                     } else {
-                        enhanceLabel(mode, lowered)
+                        label + enabledSuffix(mode, enabled)
                     }
                 )
             }

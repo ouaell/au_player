@@ -2,6 +2,7 @@ package com.example.auplayer.enhance
 
 import com.example.auplayer.core.Diag
 import com.example.auplayer.core.EnhanceMode
+import com.example.auplayer.player.MpvCommandException
 import com.example.auplayer.player.PlayerEngine
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -49,7 +50,7 @@ class EnhanceController(
             currentMode = mode
             currentRung = rung
             EnhanceResult.Applied
-        } catch (error: RuntimeException) {
+        } catch (error: MpvCommandException) {
             Diag.record("enhance", "apply failed rung $rung: ${error.message}")
             clear()
             EnhanceResult.Failed(rung)

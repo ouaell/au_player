@@ -28,18 +28,15 @@ class EnhanceGovernor(private val maxRung: Int = 1) {
         val drops = (droppedTotal - lastDropped) + (decoderDroppedTotal - lastDecoderDropped)
         lastDropped = droppedTotal
         lastDecoderDropped = decoderDroppedTotal
-        if (thermal >= THERMAL_MODERATE) {
-            return stepDown()
+        val forced = thermal >= THERMAL_MODERATE
+        if (!forced) {
+            if (drops >= DROPS_PER_SAMPLE) {
+                badStreak++
+            } else {
+                badStreak = 0
+            }
         }
-        if (drops >= DROPS_PER_SAMPLE) {
-            badStreak++
-        } else {
-            badStreak = 0
-        }
-        if (badStreak >= BAD_SAMPLES) {
-            return stepDown()
-        }
-        return GovernorDecision.STAY
+        return if (forced || badStreak >= BAD_SAMPLES) stepDown() else GovernorDecision.STAY
     }
 
     private fun stepDown(): GovernorDecision {
