@@ -101,6 +101,22 @@
 - MS-024: AppSettings (full final list, EnhanceMode OFF default) + SettingsStore/InMemory (JVM-tested) + DataStoreSettingsStore (all keys; persistence = T2); datastore dep added (allowlisted)
 - MS-025: CrashLogger (install/onCrash/list) + buildDiagnosticsReport + DiagnosticsScreen (share wiring; reactive entries + self-test = MS-065); CrashLoggerTest
 
+## MS-065 + MS-066 + MS-069 + MS-070 + MS-072 + MS-075 — Small pure tasks (stacked)
+- Status: in review (pushed; CI pending)
+- Sections used: §15/§17.9 rows
+- MS-065: SelfTest JVM probes + reportJson schema (device probes PENDING); SelfTestTest
+- MS-066: matchSidecars (stem+lang+ext gate); SidecarTest (encodings = device work)
+- MS-069: windowClass compact/medium/expanded; MS-070: shouldKeepScreenOn; WindowTest
+- MS-072: ChapterNav siblings/prompt; ChapterNavTest (format matrix in code note)
+- MS-075-part: UpdateChecker tag parse + numeric compare; UpdateCheckerTest (verification-metadata needs a trusted CI run — queued)
+
+## MS-058 + MS-062 + MS-071 — Corpus + native verifier + intent filters (stacked)
+- Status: in review (pushed; CI pending)
+- Sections used: §15/§17.9 (rows), §17.5, §17.7, §17.2
+- MS-058: gen_corpus.sh (H.264 480/720/1080, HEVC-10, VP9, AV1-tiny, HDR tags; sha manifest; T1 artifact)
+- MS-062: verify_native.sh (16KB reuse, GPL-strings, JNI/R8 + bundletool degrade-to-SKIP honestly, aapt2 targetSdk/perms/back/PiP/VIEW checks) wired into T1
+- MS-071: VIEW/SEND filters for player + reader mimes (in-app IntentRouter decides)
+
 ## MS-053 + MS-055 — Release hardening + gate docs (stacked)
 - Status: in review (pushed; CI pending)
 - Sections used: §13, §15 (rows), §17.7-10 (signing), §17.8 (session)

@@ -38,6 +38,8 @@ jobs:
           sh tools/fetch_shaders.sh
           python3 tools/patch_shaders.py
           sh tools/check_shaders.sh
+      - name: Test media corpus (MS-058)
+        run: sh tools/gen_corpus.sh test-corpus
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: "8.13"
@@ -46,11 +48,20 @@ jobs:
         run: gradle detekt ktlintCheck test lint assembleDirectDebug --stacktrace
       - name: 16KB alignment check (MS-002)
         run: sh tools/check_16kb.sh app/build/outputs/apk/direct/debug/*.apk
+      - name: Native + release verifiers (MS-062)
+        env:
+          ANDROID_HOME: /usr/local/lib/android/sdk
+        run: sh tools/verify_native.sh app/build/outputs/apk/direct/debug/*.apk
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: direct-debug-apk
           path: app/build/outputs/apk/direct/debug/*.apk
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-corpus
+          path: test-corpus/
       - uses: actions/upload-artifact@v4
         if: always()
         with:
