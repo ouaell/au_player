@@ -1,0 +1,48 @@
+package com.example.auplayer.player
+
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import com.example.auplayer.core.EnhanceMode
+import com.example.auplayer.enhance.ShaderChainBuilder
+
+/** Chip/sheet label with live governor state (§10: "Anime · lowered"). */
+fun enhanceLabel(mode: EnhanceMode, lowered: Boolean): String {
+    return when (mode) {
+        EnhanceMode.OFF -> "Off"
+        EnhanceMode.ANIME -> if (lowered) "Anime · lowered" else "Anime"
+        EnhanceMode.STANDARD -> if (lowered) "Standard · lowered" else "Standard"
+    }
+}
+
+/**
+ * Enhance sheet (MS-029): exactly Off/Anime/Standard. Disabled with
+ * "Already high resolution" above 1440p (§6.1). Interaction tests are T2.
+ */
+@Composable
+fun EnhanceSheet(
+    selected: EnhanceMode,
+    lowered: Boolean,
+    sourceHeightPx: Int,
+    onSelect: (EnhanceMode) -> Unit
+) {
+    Column {
+        EnhanceMode.entries.forEach { mode ->
+            val enabled = mode == EnhanceMode.OFF ||
+                ShaderChainBuilder.available(mode, sourceHeightPx)
+            TextButton(
+                onClick = { onSelect(mode) },
+                enabled = enabled
+            ) {
+                Text(
+                    text = if (!enabled && mode != EnhanceMode.OFF) {
+                        enhanceLabel(mode, lowered) + " (Already high resolution)"
+                    } else {
+                        enhanceLabel(mode, lowered)
+                    }
+                )
+            }
+        }
+    }
+}

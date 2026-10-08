@@ -27,6 +27,7 @@ kotlin {
 
 dependencies {
     implementation(project(":core"))
+    implementation(project(":enhance"))
     implementation(libs.coroutines.core)
     implementation(libs.media3.session)
     implementation(platform(libs.compose.bom))

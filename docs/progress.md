@@ -113,6 +113,12 @@
 - Applies scale opts + change-list set (shapes per §6.3; native proof = MS-059), clear restores bilinear, failures clear + Diag + Failed(rung); shader cache via MS-008, Preparing UI in MS-029
 - Tests added: EnhanceControllerTest (exact command sequence, clear, unavailable, throwing-bridge, async)
 
+## MS-029 + MS-030 — Enhance sheet + governor (stacked)
+- Status: in review (pushed; CI pending)
+- Sections used: §6.1, §6.4, §10, §15 (rows)
+- MS-029: EnhanceSheet (Off/Anime/Standard, 1440p rule with message) + enhanceLabel incl. lowered state; interaction = T2; :player now depends on :enhance
+- MS-030: EnhanceGovernor (3-strike drops, immediate thermal, no step-up, battery start-lower, per-video reset); GovernorTest incl. never-steps-up stream
+
 ## MS-022 + MS-023 — Session/focus + PiP (stacked)
 - Status: DONE (shared green run 37716823563)
 - Sections used: §5.2, §5.3, §15 (rows)
