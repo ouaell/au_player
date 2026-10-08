@@ -34,9 +34,20 @@ find app/build -name "*.xml" -path "*androidTest-results*" -exec grep -h "<tests
 adb_retry adb pull /sdcard/Android/data/com.example.auplayer/files/e1-shot-1.png "$GITHUB_WORKSPACE/e1-shot-1.png" || true
 adb_retry adb pull /sdcard/Android/data/com.example.auplayer/files/e1-shot-2.png "$GITHUB_WORKSPACE/e1-shot-2.png" || true
 adb_retry adb logcat -d > "$GITHUB_WORKSPACE/logcat.txt" || echo "logcat unavailable" > "$GITHUB_WORKSPACE/logcat.txt"
-if grep -aiE 'FATAL EXCEPTION|native crash|ANR in' "$GITHUB_WORKSPACE/logcat.txt"; then
-  echo "E: crash/ANR in logcat" >&2
-  exit 1
+# Package-scoped crash gate (unscoped greps catch GMS/system noise).
+CRASHED=0
+if grep -A4 'FATAL EXCEPTION' "$GITHUB_WORKSPACE/logcat.txt" | grep -q 'com.example.auplayer'; then
+  echo "E: java crash in our process" >&2
+  CRASHED=1
 fi
+if grep -q 'ANR in com.example.auplayer' "$GITHUB_WORKSPACE/logcat.txt"; then
+  echo "E: ANR in our process" >&2
+  CRASHED=1
+fi
+if grep -B15 '>>> com.example.auplayer <<<' "$GITHUB_WORKSPACE/logcat.txt" | grep -aiqE 'signal [0-9]+|abort'; then
+  echo "E: native crash in our process" >&2
+  CRASHED=1
+fi
+if [ "$CRASHED" -ne 0 ]; then exit 1; fi
 echo "E: logcat clean"
 exit $TEST_FAILED

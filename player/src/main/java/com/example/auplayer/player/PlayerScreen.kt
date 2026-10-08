@@ -1,6 +1,7 @@
 package com.example.auplayer.player
 
 import android.view.Surface
+import android.util.Log
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import androidx.compose.runtime.Composable
@@ -27,6 +28,7 @@ fun PlayerScreen(
         (engine.bridge as? LibmpvBridge)?.let { RenderLoop(it) }
     }
     LaunchedEffect(uri) {
+        Log.i("AuPlayer", "open $uri")
         engine.open(uri)
     }
     DisposableEffect(Unit) {

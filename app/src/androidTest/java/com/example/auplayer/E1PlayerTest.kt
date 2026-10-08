@@ -10,6 +10,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import com.example.auplayer.player.MpvEvent
+import com.example.auplayer.player.MpvNative
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -30,6 +31,7 @@ import kotlin.math.abs
 class E1PlayerTest {
     @Test
     fun realEngineAdvancesTimePosAndEndsCleanly() {
+        assertTrue("native libmpv missing on device", MpvNative.load())
         val context = ApplicationProvider.getApplicationContext<Context>()
         val clip = File(context.filesDir, "e1.mp4")
         assertTrue("missing pushed clip: $clip", clip.isFile)

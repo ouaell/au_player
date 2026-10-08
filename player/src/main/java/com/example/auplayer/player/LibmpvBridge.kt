@@ -1,5 +1,6 @@
 package com.example.auplayer.player
 
+import android.util.Log
 import android.view.Surface
 import com.example.auplayer.core.Diag
 import com.example.auplayer.core.MpvCommandException
@@ -20,6 +21,7 @@ class LibmpvBridge(private val paths: MpvPaths) : MpvBridge {
 
     override fun init() {
         if (!MpvNative.load()) {
+            Log.i("AuPlayer", "native libmpv absent")
             throw MpvCommandException("native libmpv absent")
         }
         val created = MpvNative.nativeCreate()
@@ -32,6 +34,7 @@ class LibmpvBridge(private val paths: MpvPaths) : MpvBridge {
         }
         MpvNative.nativeObserve(handle, TIME_POS_ID, "time-pos")
         MpvEvents.nativeStartEvents(handle, eventCallback)
+        Log.i("AuPlayer", "libmpv initialized")
     }
 
     override fun setOption(key: String, value: String) {

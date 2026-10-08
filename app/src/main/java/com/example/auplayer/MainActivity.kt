@@ -4,6 +4,7 @@ import android.app.PictureInPictureParams
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.util.Rational
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -22,6 +23,7 @@ class MainActivity : ComponentActivity() {
         } else {
             null
         }
+        Log.i("AuPlayer", "route viewUri=$viewUri action=${intent?.action}")
         setContent {
             AuTheme {
                 if (viewUri != null) {
