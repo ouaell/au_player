@@ -18,7 +18,7 @@ object Tiler {
         overlap: Int
     ): List<TilePixels> {
         return Tiling.grid(width, height, tile, overlap).map { rect ->
-            TilePixels(rect, extract(pixels, width, rect))
+            extract(pixels, width, rect)
         }
     }
 
