@@ -114,6 +114,11 @@
 - Pipeline extended to .hook (fetch/patch/check); chain + controller tests updated
 
 ## P0 native self-build (OPENCODE_COMMAND §3) — recipe landed, first build running
+
+## P0 milestone — all 3 ABIs green (run 37825642552)
+- arm64 8m1s, armv7l 12m0s, x86_64 14m23s; in-workflow verify (64-bit 16KB + GPL-string scan) passed per ABI
+- Publish flaked on missing git context (fixed via GH_REPO); release hosting next
+- Next: app consumes versioned tarballs (jniLibs + headers) → own JNI wrapper → E1
 - native/README.md + pins.txt (mpv v0.41.0, ffmpeg n9.0, libplacebo v7.360.1, dav1d 1.5.4, libass 0.17.5, NDK r30, scripts @c2e02fe) + apply_patches.py (exact-once: --disable-gpl, -Dgpl=false, tag pins) + native.yml (arm64 first; armv7l+x86_64 after green) + docs/native-licenses.md
 - Key evidence: official ffmpeg.sh uses --enable-gpl (confirmed), mpv.sh passes no -Dgpl (defaults GPL), loadarch already sets 16KB max-page-size, buildall.sh builds per-target/per-arch (mpv without app)
 - check_16kb.sh now takes raw .so files too (64-bit rule preserved)
