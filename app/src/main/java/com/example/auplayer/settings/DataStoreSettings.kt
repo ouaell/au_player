@@ -44,8 +44,8 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
             gestureBrightness = prefs[G_BRIGHT] ?: true,
             gestureVolume = prefs[G_VOL] ?: true,
             doubleTapSeconds = prefs[TAP_SECONDS] ?: 10L,
-            decoder = prefs[DECODER]?.toDecoder() ?: DecoderPref.HARDWARE,
-            enhanceMode = prefs[ENHANCE]?.toEnhance() ?: EnhanceMode.OFF
+            decoder = prefs[DECODER]?.toEnum() ?: DecoderPref.HARDWARE,
+            enhanceMode = prefs[ENHANCE]?.toEnum() ?: EnhanceMode.OFF
         )
     }
 
@@ -65,11 +65,11 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
 
     private fun withReader(base: AppSettings, prefs: Preferences): AppSettings {
         return base.copy(
-            orientation = prefs[ORIENT]?.toOrientation() ?: OrientationSetting.AUTO,
-            defaultAspect = prefs[ASPECT]?.toAspect() ?: AspectSetting.FIT,
-            readerMode = prefs[R_MODE]?.toReaderMode() ?: ReaderModeSetting.LTR,
+            orientation = prefs[ORIENT]?.toEnum() ?: OrientationSetting.AUTO,
+            defaultAspect = prefs[ASPECT]?.toEnum() ?: AspectSetting.FIT,
+            readerMode = prefs[R_MODE]?.toEnum() ?: ReaderModeSetting.LTR,
             readerKeepScreenOn = prefs[R_KEEP_ON] ?: true,
-            readerFilter = prefs[R_FILTER]?.toFilter() ?: ReaderFilter.NONE,
+            readerFilter = prefs[R_FILTER]?.toEnum() ?: ReaderFilter.NONE,
             readerCropBorders = prefs[R_CROP] ?: false
         )
     }
@@ -116,23 +116,8 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
         }
     }
 
-    private fun String.toOrientation() =
-        runCatching { OrientationSetting.valueOf(this) }.getOrNull()
-
-    private fun String.toAspect() =
-        runCatching { AspectSetting.valueOf(this) }.getOrNull()
-
-    private fun String.toDecoder() =
-        runCatching { DecoderPref.valueOf(this) }.getOrNull()
-
-    private fun String.toReaderMode() =
-        runCatching { ReaderModeSetting.valueOf(this) }.getOrNull()
-
-    private fun String.toFilter() =
-        runCatching { ReaderFilter.valueOf(this) }.getOrNull()
-
-    private fun String.toEnhance() =
-        runCatching { EnhanceMode.valueOf(this) }.getOrNull()
+    private inline fun <reified T : Enum<T>> String.toEnum(): T? =
+        runCatching { enumValueOf<T>() }.getOrNull()
 
     // Preference keys are conventionally SCREAMING; they are immutable key
     // instances, never magic values.
