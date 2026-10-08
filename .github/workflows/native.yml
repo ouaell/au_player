@@ -8,6 +8,10 @@ on:
       - tools/verify_native.sh
       - tools/check_16kb.sh
 
+concurrency:
+  group: native-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
