@@ -38,6 +38,15 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
           ls -la /dev/kvm
+      - name: Pre-start adb + disk check
+        env:
+          ANDROID_HOME: /usr/local/lib/android/sdk
+        run: |
+          df -h / | tail -1
+          export PATH="$ANDROID_HOME/platform-tools:$PATH"
+          adb kill-server || true
+          adb start-server
+          adb devices
       - name: E1 scenario on CI emulator (real engine, corpus clip)
         uses: reactivecircus/android-emulator-runner@v2
         with:
