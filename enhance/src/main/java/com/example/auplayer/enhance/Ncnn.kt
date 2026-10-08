@@ -1,5 +1,7 @@
 package com.example.auplayer.enhance
 
+import com.example.auplayer.core.Diag
+
 /**
  * NCNN seam (MS-045). Prebuilt Android+Vulkan libs land with the native
  * build; until then nothing links native code. `JniNcnnBridge` degrades to
@@ -21,6 +23,7 @@ object JniNcnnBridge : NcnnBridge {
             System.loadLibrary("ncnn_jni")
             true
         } catch (error: UnsatisfiedLinkError) {
+            Diag.record("ncnn", "native missing: " + error.message.toString())
             false
         }
         return available

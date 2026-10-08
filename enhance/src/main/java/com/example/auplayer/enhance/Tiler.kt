@@ -33,8 +33,9 @@ object Tiler {
         val outH = height * scale
         val out = IntArray(outW * outH)
         val weight = IntArray(outW * outH)
+        val stitcher = Stitcher(outW, overlap, scale)
         tiles.forEach { tilePixels ->
-            splatTile(out, weight, outW, tilePixels, overlap, scale)
+            stitcher.splatTile(out, weight, tilePixels)
         }
         for (index in out.indices) {
             val total = weight[index]
@@ -43,25 +44,24 @@ object Tiler {
         return out
     }
 
-    private fun splatTile(
-        out: IntArray,
-        weight: IntArray,
-        outW: Int,
-        tilePixels: TilePixels,
-        overlap: Int,
-        scale: Int
+    private class Stitcher(
+        private val outW: Int,
+        private val overlap: Int,
+        private val scale: Int
     ) {
-        val rect = tilePixels.rect
-        val tileW = (rect.right - rect.left) * scale
-        for (oy in rect.top * scale until rect.bottom * scale) {
-            for (ox in rect.left * scale until rect.right * scale) {
-                val lx = ox - rect.left * scale
-                val ly = oy - rect.top * scale
-                val px = tilePixels.pixels[ly * tileW + lx]
-                val blend = blendWeight(ox / scale, oy / scale, rect, overlap)
-                val at = oy * outW + ox
-                out[at] = out[at] + px * blend
-                weight[at] = weight[at] + blend
+        fun splatTile(out: IntArray, weight: IntArray, tilePixels: TilePixels) {
+            val rect = tilePixels.rect
+            val tileW = (rect.right - rect.left) * scale
+            for (oy in rect.top * scale until rect.bottom * scale) {
+                for (ox in rect.left * scale until rect.right * scale) {
+                    val lx = ox - rect.left * scale
+                    val ly = oy - rect.top * scale
+                    val px = tilePixels.pixels[ly * tileW + lx]
+                    val blend = blendWeight(ox / scale, oy / scale, rect, overlap)
+                    val at = oy * outW + ox
+                    out[at] = out[at] + px * blend
+                    weight[at] = weight[at] + blend
+                }
             }
         }
     }
