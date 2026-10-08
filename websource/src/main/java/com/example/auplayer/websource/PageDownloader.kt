@@ -7,7 +7,7 @@ import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import java.io.File
 import java.io.IOException
-import kotlin.math.absoluteValue
+import kotlin.math.abs
 
 /** Per-page download outcome (MS-044): placeholders render on [Failed]. */
 sealed interface PageResult {
@@ -43,7 +43,7 @@ class PageDownloader(
         val last = url.substringAfterLast('/').takeLast(MAX_NAME)
         val clean = last.filter { it.isLetterOrDigit() || it == '.' || it == '-' || it == '_' }
         if (clean.contains('.')) return clean
-        return "page-" + absoluteValue(url.hashCode()).toString() + ".img"
+        return "page-" + abs(url.hashCode()).toString() + ".img"
     }
 }
 

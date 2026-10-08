@@ -1,29 +1,33 @@
 package com.example.auplayer.enhance
 
 import com.example.auplayer.core.EnhanceMode
-import com.example.auplayer.player.FakeMpvBridge
-import com.example.auplayer.player.MpvBridge
-import com.example.auplayer.player.MpvCommandException
-import com.example.auplayer.player.PlayerEngine
-import kotlinx.coroutines.Dispatchers
+import com.example.auplayer.core.MpvCommandException
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
+/** Local command sink (no :player dep in :enhance tests). */
+class FakeSender(var fail: Boolean = false) : (List<String>) -> Unit {
+    val sent = mutableListOf<List<String>>()
+    override fun invoke(args: List<String>) {
+        if (fail) throw MpvCommandException("gl exploded")
+        sent += args
+    }
+}
+
 class EnhanceControllerTest {
     private fun controller(
-        bridge: FakeMpvBridge = FakeMpvBridge()
-    ): Pair<EnhanceController, FakeMpvBridge> {
-        val engine = PlayerEngine(bridge, Dispatchers.Unconfined)
-        return EnhanceController(engine) to bridge
+        sender: FakeSender = FakeSender()
+    ): Pair<EnhanceController, FakeSender> {
+        return EnhanceController(sender::send) to sender
     }
 
     @Test
     fun `anime applies scale opts then chain`() {
-        val (controller, bridge) = controller()
+        val (controller, sender) = controller()
         assertEquals(EnhanceResult.Applied, controller.apply(EnhanceMode.ANIME, 1080))
-        val commands = bridge.commands.map { it.joinToString(" ") }
+        val commands = sender.sent.map { it.joinToString(" ") }
         assertEquals(
             listOf(
                 "set scale lanczos",
@@ -42,38 +46,33 @@ class EnhanceControllerTest {
 
     @Test
     fun `off clears and restores bilinear`() {
-        val (controller, bridge) = controller()
+        val (controller, sender) = controller()
         controller.apply(EnhanceMode.ANIME, 1080)
         assertEquals(EnhanceResult.Cleared, controller.apply(EnhanceMode.OFF, 1080))
-        assertTrue(bridge.commands.last().joinToString(" ") == "set dscale bilinear")
+        assertTrue(sender.sent.last().joinToString(" ") == "set dscale bilinear")
     }
 
     @Test
     fun `oversize and unknown rungs are unavailable`() {
-        val (controller, bridge) = controller()
+        val (controller, sender) = controller()
         val result = controller.apply(EnhanceMode.ANIME, 2160)
         assertTrue(result is EnhanceResult.Unavailable)
         assertEquals(EnhanceMode.OFF, controller.currentMode)
-        assertTrue(bridge.commands.any { it.contains("clr") })
+        assertTrue(sender.sent.any { it.contains("clr") })
     }
 
     @Test
     fun `bridge failure clears and reports the rung`() {
-        val failing = object : MpvBridge by FakeMpvBridge() {
-            override fun command(args: List<String>): Unit =
-                throw MpvCommandException("gl exploded")
-        }
-        val engine = PlayerEngine(failing, Dispatchers.Unconfined)
-        val controller = EnhanceController(engine)
+        val (controller, _) = controller(FakeSender(fail = true))
         assertEquals(EnhanceResult.Failed(0), controller.apply(EnhanceMode.ANIME, 1080))
     }
 
     @Test
     fun `async apply matches sync apply`() = runBlocking {
-        val (controller, bridge) = controller()
+        val (controller, sender) = controller()
         assertEquals(EnhanceResult.Applied, controller.applyAsync(EnhanceMode.STANDARD, 720))
         assertTrue(
-            bridge.commands.any { command -> command.any { it.contains("FSRCNNX_x2_8-0-4-1") } }
+            sender.sent.any { command -> command.any { it.contains("FSRCNNX_x2_8-0-4-1") } }
         )
     }
 }

@@ -1,33 +1,30 @@
 package com.example.auplayer.enhance
 
 import com.example.auplayer.core.EnhanceMode
-import com.example.auplayer.player.FakeMpvBridge
-import com.example.auplayer.player.PlayerEngine
-import kotlinx.coroutines.Dispatchers
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class CompareHolderTest {
-    private fun setup(): Triple<CompareHolder, EnhanceController, FakeMpvBridge> {
-        val bridge = FakeMpvBridge()
-        val controller = EnhanceController(PlayerEngine(bridge, Dispatchers.Unconfined))
-        return Triple(CompareHolder(controller), controller, bridge)
+    private fun setup(): Triple<CompareHolder, EnhanceController, FakeSender> {
+        val sender = FakeSender()
+        val controller = EnhanceController(sender::send)
+        return Triple(CompareHolder(controller), controller, sender)
     }
 
     @Test
     fun `press clears and release restores`() {
-        val (holder, controller, bridge) = setup()
+        val (holder, controller, sender) = setup()
         controller.apply(EnhanceMode.ANIME, 1080)
-        val applied = bridge.commands.size
+        val applied = sender.sent.size
         holder.press(EnhanceMode.ANIME, 0)
         assertTrue(holder.holding())
-        assertTrue(bridge.commands.size > applied)
+        assertTrue(sender.sent.size > applied)
         holder.release(1080)
         assertFalse(holder.holding())
         assertEquals(EnhanceMode.ANIME, controller.currentMode)
-        assertTrue(bridge.commands.last().joinToString(" ").contains("Anime4K_Upscale_CNN_x2_M"))
+        assertTrue(sender.sent.last().joinToString(" ").contains("Anime4K_Upscale_CNN_x2_M"))
     }
 
     @Test
@@ -41,10 +38,10 @@ class CompareHolderTest {
 
     @Test
     fun `release without press is a no-op`() {
-        val (holder, controller, bridge) = setup()
-        val before = bridge.commands.size
+        val (holder, controller, sender) = setup()
+        val before = sender.sent.size
         holder.release(1080)
-        assertEquals(before, bridge.commands.size)
+        assertEquals(before, sender.sent.size)
         assertEquals(EnhanceMode.OFF, controller.currentMode)
     }
 }

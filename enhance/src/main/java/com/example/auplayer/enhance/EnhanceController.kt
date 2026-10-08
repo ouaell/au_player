@@ -2,8 +2,7 @@ package com.example.auplayer.enhance
 
 import com.example.auplayer.core.Diag
 import com.example.auplayer.core.EnhanceMode
-import com.example.auplayer.player.MpvCommandException
-import com.example.auplayer.player.PlayerEngine
+import com.example.auplayer.core.MpvCommandException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -16,13 +15,15 @@ sealed interface EnhanceResult {
 }
 
 /**
- * Applies built chains to the engine (§6.3). mpv command shapes
- * (`change-list glsl-shaders set/clr`, `:` separator) are per §6.3 and get
- * proven on native by the MS-059 shader suite. Shader compile cache dir is
- * set at startup (MS-008); first-activation "Preparing…" is UI-owned (MS-029).
+ * Applies built chains to mpv (§6.3). Takes a plain command sender (wired to
+ * `PlayerEngine::send` in AppContainer) so `:enhance` never depends on
+ * `:player` — no module cycle. Command shapes (`change-list glsl-shaders
+ * set/clr`, `:` separator) are per §6.3 and get proven on native by the
+ * MS-059 shader suite. Shader compile cache dir is set at startup (MS-008);
+ * first-activation "Preparing…" is UI-owned (MS-029).
  */
 class EnhanceController(
-    private val engine: PlayerEngine,
+    private val send: (List<String>) -> Unit,
     private val pathResolver: (String) -> String = { it }
 ) {
     var currentMode: EnhanceMode = EnhanceMode.OFF
@@ -41,12 +42,12 @@ class EnhanceController(
             }
         }
         return try {
-            engine.send(listOf("set", "scale", "lanczos"))
-            engine.send(listOf("set", "dscale", "mitchell"))
-            engine.send(listOf("set", "correct-downscaling", "yes"))
-            engine.send(listOf("set", "linear-downscaling", "no"))
+            send(listOf("set", "scale", "lanczos"))
+            send(listOf("set", "dscale", "mitchell"))
+            send(listOf("set", "correct-downscaling", "yes"))
+            send(listOf("set", "linear-downscaling", "no"))
             val paths = passes.joinToString(GLSL_SEPARATOR) { pathResolver(it.assetPath) }
-            engine.send(listOf("change-list", "glsl-shaders", "set", paths))
+            send(listOf("change-list", "glsl-shaders", "set", paths))
             currentMode = mode
             currentRung = rung
             EnhanceResult.Applied
@@ -66,9 +67,9 @@ class EnhanceController(
     }
 
     fun clear() {
-        engine.send(listOf("change-list", "glsl-shaders", "clr", ""))
-        engine.send(listOf("set", "scale", "bilinear"))
-        engine.send(listOf("set", "dscale", "bilinear"))
+        send(listOf("change-list", "glsl-shaders", "clr", ""))
+        send(listOf("set", "scale", "bilinear"))
+        send(listOf("set", "dscale", "bilinear"))
         currentMode = EnhanceMode.OFF
         currentRung = 0
     }
