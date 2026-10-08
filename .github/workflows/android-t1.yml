@@ -55,7 +55,7 @@ jobs:
             player/src/main/cpp/thirdparty
           key: staged-native-${{ hashFiles('native/pins.txt') }}
       - name: Gates + unit tests + build (MS-002)
-        run: gradle detekt ktlintCheck test lint assembleDirectDebug --stacktrace
+        run: gradle detekt ktlintCheck test lint assembleDirectDebug assembleDirectDebugAndroidTest --stacktrace
         env:
           AU_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
