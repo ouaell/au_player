@@ -119,6 +119,12 @@
 - MS-029: EnhanceSheet (Off/Anime/Standard, 1440p rule with message) + enhanceLabel incl. lowered state; interaction = T2; :player now depends on :enhance
 - MS-030: EnhanceGovernor (3-strike drops, immediate thermal, no step-up, battery start-lower, per-video reset); GovernorTest incl. never-steps-up stream
 
+## MS-031 + MS-032 — Hold-to-compare + edge cases (stacked)
+- Status: in review (pushed; CI pending)
+- Sections used: §3.3, §6.5, §15 (rows)
+- MS-031: CompareHolder (snapshot/clear/restore, mid-hold rung change ignored); CompareHolderTest
+- MS-032: EnhanceEdgeCases (surface-loss re-attach, safe seek, hwdec software fallback + Diag); EnhanceEdgeCasesTest
+
 ## MS-022 + MS-023 — Session/focus + PiP (stacked)
 - Status: DONE (shared green run 37716823563)
 - Sections used: §5.2, §5.3, §15 (rows)
