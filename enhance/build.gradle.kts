@@ -22,6 +22,7 @@ kotlin {
 
 dependencies {
     implementation(project(":core"))
+    implementation(project(":reader"))
     implementation(libs.coroutines.core)
     testImplementation(libs.junit)
 }

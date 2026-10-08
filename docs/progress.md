@@ -107,6 +107,12 @@
 - MS-026: fetch (pinned SHA manifest) + patch (drop OUTPUT-gated WHEN) + static check (no OUTPUT-WHEN, headers intact, deletions-only); Anime4K MIT verified (bloc97 @7684e95); Standard files PENDING license (documented §16 fallback); assets-licenses.md created; CI step added
 - MS-027: ShaderChainBuilder (Anime 2 rungs, Standard top rung, >1440p/Off → empty); ShaderChainTest exact-list
 
+## MS-045 + MS-047 — NCNN seam + tiler golden (stacked)
+- Status: in review (pushed; CI pending)
+- Sections used: §9, §15 (rows)
+- MS-045: NcnnBridge/JniNcnnBridge (loadLibrary try/catch)/FakeNcnnBridge + NcnnEngine backend policy (Vulkan→small-CPU→disabled); NcnnTest incl. graceful-missing-native
+- MS-047: Tiler split/stitch over shared Tiling + nearest stub; stub-model golden (stitched == direct); seam-free by construction
+
 ## MS-040 + MS-041 — Intent routing + reader history (stacked)
 - Status: in review (pushed; CI pending)
 - Sections used: §7.2, §17.7 (intents), §15 (rows)
