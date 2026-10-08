@@ -107,6 +107,12 @@
 - MS-026: fetch (pinned SHA manifest) + patch (drop OUTPUT-gated WHEN) + static check (no OUTPUT-WHEN, headers intact, deletions-only); Anime4K MIT verified (bloc97 @7684e95); Standard files PENDING license (documented §16 fallback); assets-licenses.md created; CI step added
 - MS-027: ShaderChainBuilder (Anime 2 rungs, Standard top rung, >1440p/Off → empty); ShaderChainTest exact-list
 
+## MS-035 + MS-036 — PDF tiling + URL provider (stacked)
+- Status: in review (pushed; CI pending)
+- Sections used: §7.2, §15 (rows)
+- MS-035: Tiling grid (row-major, edge-clamped, webtoon column) shared by PDF zoom + NCNN; PdfRenderer binding = device work; TilingTest incl. 1500×22000 strip
+- MS-036: UrlListProvider (headers, 3 tries, image/* gate, size cap) + MockWebServer tests (headers/redirect/403/type/cap/timeout); mockwebserver dep added (allowlisted, test-only)
+
 ## MS-028 — EnhanceController (stacked)
 - Status: in review (pushed; CI pending)
 - Sections used: §6.3, §6.4 (failure signal), §15 (row)

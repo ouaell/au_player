@@ -26,8 +26,10 @@ dependencies {
     implementation(project(":core"))
     implementation(libs.coroutines.core)
     implementation(libs.commons.compress)
+    implementation(libs.okhttp)
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.ui)
     implementation(libs.compose.material3)
     testImplementation(libs.junit)
+    testImplementation(libs.mockwebserver)
 }

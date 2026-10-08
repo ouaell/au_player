@@ -18,6 +18,7 @@ datastore = androidx.datastore:datastore-preferences = Apache-2.0
 coroutines-core = org.jetbrains.kotlinx:kotlinx-coroutines-core = Apache-2.0
 coroutines-android = org.jetbrains.kotlinx:kotlinx-coroutines-android = Apache-2.0
 okhttp = com.squareup.okhttp3:okhttp = Apache-2.0
+mockwebserver = com.squareup.okhttp3:mockwebserver = Apache-2.0 (test-only)
 coil-compose = io.coil-kt:coil-compose = Apache-2.0
 coil-video = io.coil-kt:coil-video = Apache-2.0
 media3-session = androidx.media3:media3-session = Apache-2.0
