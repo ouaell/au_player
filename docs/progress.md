@@ -82,6 +82,12 @@
 - MS-011: PlayerState enum + PlayerStateMachine (illegal throws) + immutable PlayerUiState; PlayerStateMachineTest incl. 8 illegal pairs
 - MS-012: AutoHide + formatTime (pure, JVM-tested) + thin PlayerControls composable (T2 Compose tests deferred); compose-icons dep added (allowlisted)
 
+## MS-015 + MS-016 — Display modes + playback modes (stacked)
+- Status: in review (pushed; CI pending)
+- Sections used: §5.1, §15 (rows)
+- MS-015: AspectMode cycle/size, OrientationPref resolution, ZoomState; DisplayTest
+- MS-016: speed presets/clamp/cycle, ABRepeat, LoopMode/EofAction, SleepTimer (injected clock); PlaybackModesTest
+
 ## MS-013 + MS-014 — Gesture engine + overlay indicators (stacked)
 - Status: in review (pushed; CI pending)
 - Sections used: §5.1, §15 (rows)

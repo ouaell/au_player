@@ -56,7 +56,7 @@ data class PlayerUiState(
     val state: PlayerState = PlayerState.Idle,
     val positionMs: Long = 0,
     val durationMs: Long = 0,
-    val speed: Float = 1f,
+    val speed: Float = DEFAULT_SPEED,
     val locked: Boolean = false
 ) {
     val progress: Float
@@ -68,3 +68,4 @@ data class PlayerUiState(
 }
 
 private const val NO_PROGRESS = 0f
+private const val DEFAULT_SPEED = 1f
