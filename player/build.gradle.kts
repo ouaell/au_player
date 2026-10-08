@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.detekt)
 }
 
+import java.io.File
 import javax.inject.Inject
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.Property
@@ -26,7 +27,7 @@ abstract class FetchNativeLibs : DefaultTask() {
     @TaskAction
     fun run() {
         // Repo root derived from the script path (never capture project at execution).
-        val root = java.io.File(script.get()).parentFile.parentFile
+        val root = File(script.get()).parentFile.parentFile
         execOps.exec {
             workingDir(root)
             commandLine("sh", script.get(), tag.get())
