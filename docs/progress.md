@@ -123,6 +123,11 @@
 - Key evidence: official ffmpeg.sh uses --enable-gpl (confirmed), mpv.sh passes no -Dgpl (defaults GPL), loadarch already sets 16KB max-page-size, buildall.sh builds per-target/per-arch (mpv without app)
 - check_16kb.sh now takes raw .so files too (64-bit rule preserved)
 
+## P0 app integration B1 — own JNI layer (compiles in T1, runs on emulator)
+- Status: in review (pushed; CI pending)
+- MpvNative (load guarded, header-symbol-only bindings, string events) + au_mpv.cpp (create/init/options/commands/props/observe/render/events/destroy) + CMake (pinned NDK r30) ; NDK+cmake in T1 SDK step
+- EGL host + LibmpvBridge + PlayerScreen wiring = Push B2 (after B1 compiles)
+
 ## P0 app integration A — staged native libs
 - Status: in review (pushed; CI pending)
 - tools/fetch_native.sh (pinned release tag → jniLibs/<abi> + cpp headers) + :player fetchNativeLibs task (preBuild, up-to-date aware) + T1 cache + pins NATIVE_RELEASE_TAG; nothing committed (gitignored)

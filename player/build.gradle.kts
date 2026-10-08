@@ -8,10 +8,17 @@ plugins {
 android {
     namespace = "com.example.auplayer.player"
     compileSdk = 36
+    ndkVersion = "30.0.16248370"
     defaultConfig { minSdk = 26 }
     buildFeatures {
         buildConfig = true
         compose = true
+    }
+    externalNativeBuild {
+        cmake {
+            path = file("src/main/cpp/CMakeLists.txt")
+            version = "3.22.1"
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
