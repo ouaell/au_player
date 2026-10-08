@@ -29,6 +29,7 @@ dependencies {
     implementation(libs.okhttp)
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.ui)
+    implementation(libs.compose.foundation)
     implementation(libs.compose.material3)
     testImplementation(libs.junit)
     testImplementation(libs.mockwebserver)

@@ -6,6 +6,7 @@ core-ktx = androidx.core:core-ktx = Apache-2.0
 activity-compose = androidx.activity:activity-compose = Apache-2.0
 compose-bom = androidx.compose:compose-bom = Apache-2.0
 compose-ui = androidx.compose.ui:ui = Apache-2.0
+compose-foundation = androidx.compose.foundation:foundation = Apache-2.0
 compose-material3 = androidx.compose.material3:material3 = Apache-2.0
 compose-icons = androidx.compose.material:material-icons-core = Apache-2.0
 compose-preview = androidx.compose.ui:ui-tooling-preview = Apache-2.0

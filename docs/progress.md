@@ -107,6 +107,13 @@
 - MS-026: fetch (pinned SHA manifest) + patch (drop OUTPUT-gated WHEN) + static check (no OUTPUT-WHEN, headers intact, deletions-only); Anime4K MIT verified (bloc97 @7684e95); Standard files PENDING license (documented §16 fallback); assets-licenses.md created; CI step added
 - MS-027: ShaderChainBuilder (Anime 2 rungs, Standard top rung, >1440p/Off → empty); ShaderChainTest exact-list
 
+## MS-037 + MS-038 + MS-039 — Reader viewers + UI logic + memory (stacked)
+- Status: in review (pushed; CI pending)
+- Sections used: §7.1, §7.3, §7.4, §15 (rows)
+- MS-037: fallback decision (own Compose viewers; Mihon is View-system) — PagedReader/WebtoonReader/ZoomablePage; interaction = T2; compose-foundation added (allowlisted)
+- MS-038: TapZoneConfig/actionFor, readerProgress, filterMatrix, isPagedMode; ReaderUiTest
+- MS-039: MemoryBudget (25% cap, inSampleSize, webtoon slices via shared Tiling); device release paths noted; MemoryTest
+
 ## MS-035 + MS-036 — PDF tiling + URL provider (stacked)
 - Status: in review (pushed; CI pending)
 - Sections used: §7.2, §15 (rows)
