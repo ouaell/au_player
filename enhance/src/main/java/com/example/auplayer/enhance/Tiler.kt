@@ -69,18 +69,25 @@ object Tiler {
     /** Stub "model" (MS-047 golden): nearest-neighbor ×[scale]. */
     fun upscaleNearest(pixels: IntArray, width: Int, height: Int, scale: Int = 2): IntArray {
         val out = IntArray(width * scale * height * scale)
+        val doubler = Doubler(out, width, scale)
         for (y in 0 until height) {
             for (x in 0 until width) {
-                splatPixel(out, width, x, y, pixels[y * width + x], scale)
+                doubler.splat(x, y, pixels[y * width + x])
             }
         }
         return out
     }
 
-    private fun splatPixel(out: IntArray, width: Int, x: Int, y: Int, px: Int, scale: Int) {
-        for (sy in 0 until scale) {
-            for (sx in 0 until scale) {
-                out[(y * scale + sy) * width * scale + x * scale + sx] = px
+    private class Doubler(
+        private val out: IntArray,
+        private val width: Int,
+        private val scale: Int
+    ) {
+        fun splat(x: Int, y: Int, px: Int) {
+            for (sy in 0 until scale) {
+                for (sx in 0 until scale) {
+                    out[(y * scale + sy) * width * scale + x * scale + sx] = px
+                }
             }
         }
     }
