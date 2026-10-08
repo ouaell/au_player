@@ -88,6 +88,13 @@
 - MS-015: AspectMode cycle/size, OrientationPref resolution, ZoomState; DisplayTest
 - MS-016: speed presets/clamp/cycle, ABRepeat, LoopMode/EofAction, SleepTimer (injected clock); PlaybackModesTest
 
+## MS-019 + MS-020 + MS-021 — Resume, permissions, playlist (stacked)
+- Status: in review (pushed; CI pending)
+- Sections used: §5.2, §5.4, §15 (rows)
+- MS-019: ResumeStore + InMemoryResumeStore (continue-watching filter/sort/limit) + Room entity/DAO/database compile-checked (DAO tests = T2/Robolectric); HistoryTest
+- MS-020: permission mapping (33+/≤32) + Android 14 partial flag; MediaStore/SAF bodies deferred to device; PermissionsTest
+- MS-021: Playlist reusing afterEof (ALL wraps, ONE replays); PlaylistTest
+
 ## MS-017 + MS-018 — Tracks + subtitle style props (stacked)
 - Status: in review (pushed; CI pending)
 - Sections used: §5.1, §15 (rows)
