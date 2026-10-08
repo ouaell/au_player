@@ -1,9 +1,5 @@
 package com.example.auplayer.player
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Pause
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -50,14 +46,8 @@ fun GestureOverlay(indicator: GestureIndicator?) {
         color = MaterialTheme.colorScheme.surface.copy(alpha = OVERLAY_ALPHA),
         shape = MaterialTheme.shapes.medium
     ) {
-        if (indicator.kind == IndicatorKind.SPEED) {
-            Icon(imageVector = Icons.Filled.PlayArrow, contentDescription = SPEED_LABEL)
-        } else if (indicator.kind == IndicatorKind.SEEK && indicator.fraction < ZERO_FRACTION) {
-            Icon(imageVector = Icons.Filled.Pause, contentDescription = "Seek")
-        }
         Text(text = indicatorText(indicator))
     }
 }
 
 private const val OVERLAY_ALPHA = 0.72f
-private const val ZERO_FRACTION = 0f
