@@ -39,7 +39,10 @@ jobs:
           python3 tools/patch_shaders.py
           sh tools/check_shaders.sh
       - name: Test media corpus (MS-058)
-        run: sh tools/gen_corpus.sh test-corpus
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          sh tools/gen_corpus.sh test-corpus
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: "8.13"
