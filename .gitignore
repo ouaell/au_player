@@ -10,3 +10,5 @@ captures
 *.ap_
 *.aab
 local.defaults.properties
+# Generated shader artifacts (MS-026: fetched + patched in CI, never committed).
+enhance/src/main/assets/shaders/

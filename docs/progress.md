@@ -101,6 +101,12 @@
 - MS-024: AppSettings (full final list, EnhanceMode OFF default) + SettingsStore/InMemory (JVM-tested) + DataStoreSettingsStore (all keys; persistence = T2); datastore dep added (allowlisted)
 - MS-025: CrashLogger (install/onCrash/list) + buildDiagnosticsReport + DiagnosticsScreen (share wiring; reactive entries + self-test = MS-065); CrashLoggerTest
 
+## MS-026 + MS-027 — Shader assets + chain builder (stacked)
+- Status: in review (pushed; CI pending)
+- Sections used: §6.2, §6.3, §15 (rows)
+- MS-026: fetch (pinned SHA manifest) + patch (drop OUTPUT-gated WHEN) + static check (no OUTPUT-WHEN, headers intact, deletions-only); Anime4K MIT verified (bloc97 @7684e95); Standard files PENDING license (documented §16 fallback); assets-licenses.md created; CI step added
+- MS-027: ShaderChainBuilder (Anime 2 rungs, Standard top rung, >1440p/Off → empty); ShaderChainTest exact-list
+
 ## MS-022 + MS-023 — Session/focus + PiP (stacked)
 - Status: DONE (shared green run 37716823563)
 - Sections used: §5.2, §5.3, §15 (rows)
