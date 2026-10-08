@@ -24,37 +24,48 @@ sealed interface ResolveOutcome {
     data class Err(val error: PlayerError) : ResolveOutcome
 }
 
+private const val SCHEME_SEP = "://"
+private const val FILE_PREFIX = "file://"
+private const val M3U8_MIME = "application/x-mpegurl"
+private const val M3U8_MIME_ALT = "application/vnd.apple.mpegurl"
+private const val M3U8_EXT = ".m3u8"
+private const val DASH_MIME = "application/dash+xml"
+private const val MPD_EXT = ".mpd"
+private const val VIDEO_PREFIX = "video/"
+private const val AUDIO_PREFIX = "audio/"
+
 /** Pure intent/URI → source routing. */
 object SourceResolver {
     fun resolve(uriString: String, mimeType: String?): ResolveOutcome {
         if (uriString.isBlank()) return ResolveOutcome.Err(PlayerError.EmptyUri)
-        val scheme = uriString.substringBefore("://", missingDelimiterValue = "")
-        if (scheme.isEmpty()) return ResolveOutcome.Err(PlayerError.UnsupportedScheme(null))
+        val scheme = uriString.substringBefore(SCHEME_SEP, missingDelimiterValue = "").lowercase()
+        return when (scheme) {
+            "http", "https" -> resolveHttp(uriString, mimeType)
+            "file" -> ResolveOutcome.Ok(MediaSource.File(uriString.lowercase().removePrefix(FILE_PREFIX)))
+            "content" -> resolveContent(uriString, mimeType)
+            else -> ResolveOutcome.Err(PlayerError.UnsupportedScheme(scheme.ifEmpty { null }))
+        }
+    }
+
+    private fun resolveHttp(uriString: String, mimeType: String?): ResolveOutcome {
         val lower = uriString.lowercase()
-        return when (scheme.lowercase()) {
-            "http", "https" -> {
-                if (mimeType == "application/x-mpegurl" || mimeType == "application/vnd.apple.mpegurl" ||
-                    lower.contains(".m3u8")
-                ) {
-                    ResolveOutcome.Ok(MediaSource.Hls(uriString))
-                } else if (mimeType == "application/dash+xml" || lower.contains(".mpd")) {
-                    ResolveOutcome.Ok(MediaSource.Dash(uriString))
-                } else {
-                    ResolveOutcome.Ok(MediaSource.Http(uriString))
-                }
-            }
-            "file" -> ResolveOutcome.Ok(MediaSource.File(lower.removePrefix("file://")))
-            "content" -> {
-                val playable = mimeType == null ||
-                    mimeType.startsWith("video/") ||
-                    mimeType.startsWith("audio/")
-                if (playable) {
-                    ResolveOutcome.Ok(MediaSource.Content(uriString))
-                } else {
-                    ResolveOutcome.Err(PlayerError.UnsupportedMime(mimeType ?: ""))
-                }
-            }
-            else -> ResolveOutcome.Err(PlayerError.UnsupportedScheme(scheme))
+        return if (mimeType == M3U8_MIME || mimeType == M3U8_MIME_ALT || lower.contains(M3U8_EXT)) {
+            ResolveOutcome.Ok(MediaSource.Hls(uriString))
+        } else if (mimeType == DASH_MIME || lower.contains(MPD_EXT)) {
+            ResolveOutcome.Ok(MediaSource.Dash(uriString))
+        } else {
+            ResolveOutcome.Ok(MediaSource.Http(uriString))
+        }
+    }
+
+    private fun resolveContent(uriString: String, mimeType: String?): ResolveOutcome {
+        val playable = mimeType == null ||
+            mimeType.startsWith(VIDEO_PREFIX) ||
+            mimeType.startsWith(AUDIO_PREFIX)
+        return if (playable) {
+            ResolveOutcome.Ok(MediaSource.Content(uriString))
+        } else {
+            ResolveOutcome.Err(PlayerError.UnsupportedMime(mimeType ?: ""))
         }
     }
 
