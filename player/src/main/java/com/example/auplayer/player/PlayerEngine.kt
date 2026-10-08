@@ -3,6 +3,7 @@ package com.example.auplayer.player
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -21,7 +22,7 @@ class PlayerEngine(
     private val bridge: MpvBridge,
     dispatcher: CoroutineDispatcher = Executors.newSingleThreadExecutor { runnable ->
         Thread(runnable, "mpv-cmd").apply { isDaemon = true }
-    },
+    }.asCoroutineDispatcher(),
 ) {
     private val scope = CoroutineScope(SupervisorJob() + dispatcher)
 
