@@ -12,3 +12,6 @@ captures
 local.defaults.properties
 # Generated shader artifacts (MS-026: fetched + patched in CI, never committed).
 enhance/src/main/assets/shaders/
+# Staged native libs + headers (tools/fetch_native.sh, never committed).
+player/src/main/jniLibs/
+player/src/main/cpp/thirdparty/

@@ -36,3 +36,18 @@ dependencies {
     implementation(libs.compose.icons)
     testImplementation(libs.junit)
 }
+
+/** Stages pinned native libs (no binaries in git); up-to-date when present. */
+tasks.register("fetchNativeLibs") {
+    outputs.dir("src/main/jniLibs")
+    doLast {
+        val tag = rootProject.file("native/pins.txt").readLines()
+            .first { it.startsWith("NATIVE_RELEASE_TAG=") }
+            .substringAfter('=')
+        exec {
+            commandLine("sh", rootProject.file("tools/fetch_native.sh").absolutePath, tag)
+        }
+    }
+}
+
+tasks.named("preBuild") { dependsOn("fetchNativeLibs") }

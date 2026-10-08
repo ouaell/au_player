@@ -123,6 +123,10 @@
 - Key evidence: official ffmpeg.sh uses --enable-gpl (confirmed), mpv.sh passes no -Dgpl (defaults GPL), loadarch already sets 16KB max-page-size, buildall.sh builds per-target/per-arch (mpv without app)
 - check_16kb.sh now takes raw .so files too (64-bit rule preserved)
 
+## P0 app integration A — staged native libs
+- Status: in review (pushed; CI pending)
+- tools/fetch_native.sh (pinned release tag → jniLibs/<abi> + cpp headers) + :player fetchNativeLibs task (preBuild, up-to-date aware) + T1 cache + pins NATIVE_RELEASE_TAG; nothing committed (gitignored)
+
 ## P1 batch — Standard resolved, probe, E-scaffold, headless, pre-launch
 - Status: in review (pushed; CI pending)
 - P1.1: RAVU Lite R4 wired (manifest/patch/check/.hook, chain + controller tests); FSRCNNX rejected (igv GPL-3.0); FSR port = follow-up
