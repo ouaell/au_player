@@ -38,5 +38,10 @@ private val light = lightColorScheme(
 
 @Composable
 fun AuTheme(darkTheme: Boolean = true, content: @Composable () -> Unit) {
-    MaterialTheme(colorScheme = if (darkTheme) dark else light, content = content)
+    MaterialTheme(
+        colorScheme = if (darkTheme) dark else light,
+        typography = auType,
+        shapes = auShapes,
+        content = content
+    )
 }

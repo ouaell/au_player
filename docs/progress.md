@@ -40,3 +40,11 @@
 - **Consequence:** no third-party AAR in `:player` (would violate §13 + 16KB gate); self-build is now the critical path (follow-up task); audit script reused for acceptance
 - Tests added: none (report-only audit; gates unchanged and green)
 - UNVERIFIED-on-device: everything (unchanged)
+
+## MS-005 — Design tokens, theme, base components
+- Status: in review (pushed; CI pending)
+- Sections used: §10, §15 (MS-005 row)
+- Added Type.kt (12/14/16/20/28/36), Spacing.kt (4–32 + card 20/sheet 28), Shape.kt, AuComponents (AuChip, AuGlassPanel); AuTheme wires color/type/shapes
+- Tests added: ThemeTokensTest (palette/spacing/type exactness, JVM)
+- Screenshot gate: deferred to T2 per §17.1 (screenshot tool itself is [VERIFY] in MS-057); no screenshots in T1 by design
+- T1 workflow: concurrency cancel-in-progress (sprint hygiene)
