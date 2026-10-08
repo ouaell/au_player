@@ -46,10 +46,15 @@ object IntentRouter {
     }
 
     private fun isPlayableStream(mime: String, uris: List<String>): Boolean {
-        if (mime.startsWith(VIDEO_PREFIX) || mime.startsWith(AUDIO_PREFIX)) return true
-        if (mime == HLS_MIME || mime == HLS_MIME_ALT || mime == DASH_MIME) return true
+        if (mime.startsWith(VIDEO_PREFIX) || mime.startsWith(AUDIO_PREFIX) || isStreamMime(mime)) {
+            return true
+        }
         val first = uris.first().lowercase()
         return first.contains(M3U8_EXT) || first.contains(MPD_EXT)
+    }
+
+    private fun isStreamMime(mime: String): Boolean {
+        return mime == HLS_MIME || mime == HLS_MIME_ALT || mime == DASH_MIME
     }
 
     private fun isImage(mime: String): Boolean = mime.startsWith(IMAGE_PREFIX)

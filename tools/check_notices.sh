@@ -2,7 +2,7 @@
 # MS-051 CI check: every dependency-allowlist module must be covered by a
 # THIRD_PARTY_NOTICES entry (matched by module path in Notices.kt).
 set -eu
-NOTICES=core/src/main/java/com/example/auplayer/core/Notices.kt
+NOTICES=core/src/main/java/com/example/auplayer/core/LicenseEntry.kt
 token_for() {
   case "$1" in
     core-ktx|activity-compose) echo "AndroidX" ;;
