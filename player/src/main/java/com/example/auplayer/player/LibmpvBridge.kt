@@ -2,6 +2,7 @@ package com.example.auplayer.player
 
 import android.view.Surface
 import com.example.auplayer.core.Diag
+import com.example.auplayer.core.MpvCommandException
 
 /**
  * Real bridge over the self-built libmpv (Push B2). Options flow from

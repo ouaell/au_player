@@ -88,7 +88,7 @@ class EglHost {
             EGL14.EGL_GREEN_SIZE, COLOR_BITS,
             EGL14.EGL_BLUE_SIZE, COLOR_BITS,
             EGL14.EGL_ALPHA_SIZE, COLOR_BITS,
-            EGL14.EGL_RENDERABLE_TYPE, EGL14.EGL_OPENGL_ES3_BIT_KHR,
+            EGL14.EGL_RENDERABLE_TYPE, EGL_OPENGL_ES3_BIT,
             EGL14.EGL_SURFACE_TYPE, EGL14.EGL_WINDOW_BIT,
             EGL14.EGL_NONE
         )
@@ -103,3 +103,4 @@ class EglHost {
 private const val VERSION_LEN = 2
 private const val GLES_VERSION = 3
 private const val COLOR_BITS = 8
+private const val EGL_OPENGL_ES3_BIT = 0x40
