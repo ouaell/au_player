@@ -8,9 +8,7 @@ package com.example.auplayer.websource
 object WebPolicy {
     fun shouldBlockUrl(url: String): Boolean {
         val lower = url.lowercase()
-        if (lower.startsWith("http://")) return true
-        if (lower.startsWith("https://")) return false
-        return true
+        return lower.startsWith(HTTP_CLEAR) || !lower.startsWith(HTTPS)
     }
 
     fun externalAppScheme(url: String): Boolean {
@@ -18,6 +16,9 @@ object WebPolicy {
         return lower.startsWith("intent:") || lower.startsWith("market:")
     }
 }
+
+private const val HTTP_CLEAR = "http://"
+private const val HTTPS = "https:"
 
 /** WebSettings contract asserted by the hardening test. */
 data class WebSettings(

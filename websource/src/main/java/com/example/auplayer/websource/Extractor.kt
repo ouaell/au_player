@@ -33,19 +33,26 @@ object ImagePicker {
     }
 
     fun resolveUrl(pageUrl: String, raw: String): String? {
-        if (raw.startsWith(HTTPS) || raw.startsWith(HTTP)) return raw
-        if (raw.startsWith(PROTOCOL_RELATIVE)) return HTTPS + raw.removePrefix(PROTOCOL_RELATIVE)
-        if (raw.startsWith(DATA_PREFIX)) return null
+        return when {
+            raw.startsWith(HTTPS) || raw.startsWith(HTTP) -> raw
+            raw.startsWith(PROTOCOL_RELATIVE) -> HTTPS + raw.removePrefix(PROTOCOL_RELATIVE)
+            raw.startsWith(DATA_PREFIX) -> null
+            raw.startsWith(ROOT_PATH) -> resolveRoot(pageUrl, raw)
+            else -> resolveRelative(pageUrl, raw)
+        }
+    }
+
+    private fun resolveRoot(pageUrl: String, raw: String): String? {
         val schemeEnd = pageUrl.indexOf(SCHEME_SEP)
         if (schemeEnd < 0) return null
-        if (raw.startsWith(ROOT_PATH)) {
-            val slash = pageUrl.indexOf('/', schemeEnd + SCHEME_SEP.length)
-            val root = if (slash < 0) pageUrl else pageUrl.substring(0, slash)
-            return root + raw
-        }
+        val slash = pageUrl.indexOf('/', schemeEnd + SCHEME_SEP.length)
+        val root = if (slash < 0) pageUrl else pageUrl.substring(0, slash)
+        return root + raw
+    }
+
+    private fun resolveRelative(pageUrl: String, raw: String): String? {
         val dir = pageUrl.substringBeforeLast('/', "")
-        if (dir.isEmpty()) return null
-        return dir + "/" + raw
+        return if (dir.isEmpty()) null else dir + "/" + raw
     }
 }
 
