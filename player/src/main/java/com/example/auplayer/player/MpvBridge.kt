@@ -29,6 +29,8 @@ class FakeMpvBridge : MpvBridge {
     val commands = mutableListOf<List<String>>()
     var listener: ((MpvEvent) -> Unit)? = null
     var attached: Any? = null
+    var attaches = 0
+    var detaches = 0
     var initialized = false
     var destroyed = false
 
@@ -50,10 +52,12 @@ class FakeMpvBridge : MpvBridge {
 
     override fun attach(token: Any?) {
         attached = token
+        attaches++
     }
 
     override fun detach() {
         attached = null
+        detaches++
     }
 
     override fun destroy() {
