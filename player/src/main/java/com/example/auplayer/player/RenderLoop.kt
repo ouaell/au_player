@@ -16,11 +16,8 @@ class RenderLoop(
     private var thread: Thread? = null
 
     fun start(surface: Surface, width: Int, height: Int): Boolean {
-        if (!egl.init() || !egl.makeWindowSurface(surface)) {
-            egl.release()
-            return false
-        }
-        if (bridge.renderInit() != 0) {
+        val ready = egl.init() && egl.makeWindowSurface(surface) && bridge.renderInit() == 0
+        if (!ready) {
             egl.release()
             return false
         }

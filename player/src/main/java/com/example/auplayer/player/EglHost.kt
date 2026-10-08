@@ -20,31 +20,21 @@ class EglHost {
 
     fun init(): Boolean {
         display = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY)
-        if (display === EGL14.EGL_NO_DISPLAY) return false
-        val version = IntArray(VERSION_LEN)
-        if (!EGL14.eglInitialize(display, version, 0, version, 1)) {
-            release()
-            return false
-        }
-        config = chooseConfig() ?: run {
-            release()
-            return false
-        }
-        val attrs = intArrayOf(EGL14.EGL_CONTEXT_CLIENT_VERSION, GLES_VERSION, EGL14.EGL_NONE)
-        context = EGL14.eglCreateContext(display, config, EGL14.EGL_NO_CONTEXT, attrs, 0)
-        if (context === EGL14.EGL_NO_CONTEXT) {
-            release()
-            return false
-        }
-        return true
+        val ready = display !== EGL14.EGL_NO_DISPLAY && initDisplay() && initContext()
+        if (!ready) release()
+        return ready
     }
 
     fun makeWindowSurface(surface: Surface): Boolean {
-        val cfg = config ?: return false
-        destroySurface()
-        val eglSurface = EGL14.eglCreateWindowSurface(display, cfg, surface, intArrayOf(EGL14.EGL_NONE), 0)
-        if (eglSurface === EGL14.EGL_NO_SURFACE) return false
-        this.surface = eglSurface
+        val cfg = config
+        val created = if (cfg == null) {
+            EGL14.EGL_NO_SURFACE
+        } else {
+            destroySurface()
+            EGL14.eglCreateWindowSurface(display, cfg, surface, intArrayOf(EGL14.EGL_NONE), 0)
+        }
+        if (created === EGL14.EGL_NO_SURFACE) return false
+        this.surface = created
         return makeCurrent()
     }
 
@@ -69,6 +59,20 @@ class EglHost {
             display = EGL14.EGL_NO_DISPLAY
         }
         config = null
+    }
+
+    private fun initDisplay(): Boolean {
+        val version = IntArray(VERSION_LEN)
+        if (!EGL14.eglInitialize(display, version, 0, version, 1)) return false
+        config = chooseConfig()
+        return config != null
+    }
+
+    private fun initContext(): Boolean {
+        val cfg = config ?: return false
+        val attrs = intArrayOf(EGL14.EGL_CONTEXT_CLIENT_VERSION, GLES_VERSION, EGL14.EGL_NONE)
+        context = EGL14.eglCreateContext(display, cfg, EGL14.EGL_NO_CONTEXT, attrs, 0)
+        return context !== EGL14.EGL_NO_CONTEXT
     }
 
     private fun destroySurface() {
