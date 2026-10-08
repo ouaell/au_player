@@ -55,3 +55,25 @@ jobs:
         with:
           name: direct-release-aab
           path: app/build/outputs/bundle/directRelease/*.aab
+
+  # Pre-launch reports without Firebase (MS-061'): uploads the AAB to the
+  # internal track when PLAY_SERVICE_JSON exists; otherwise skipped.
+  # Action version is verified on the first secret-bearing run (see
+  # docs/play-upload.md); until then this job never executes.
+  play-upload:
+    needs: [release]
+    if: secrets.PLAY_SERVICE_JSON != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: direct-release-aab
+          path: aab
+      - uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_JSON }}
+          packageName: com.example.auplayer
+          releaseFiles: aab/*.aab
+          track: internal
+          status: completed

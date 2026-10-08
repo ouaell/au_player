@@ -50,3 +50,20 @@ reference, not directly consumable).
   break the 16KB gate). Fakes carry MS-007+ unit tests until the self-built
   AAR lands; every self-built AAR must pass `tools/audit_libmpv.sh` before
   acceptance (follow-up native-build task).
+
+## D1 addendum — self-build lessons (P0, OPENCODE_COMMAND §2-3)
+
+- `--enable-version3` is NOT a GPL marker by itself: FFmpeg n9 REFUSES to
+  configure with mbedtls v3 unless it is present. With `--disable-gpl` and
+  no GPL external libs, the result is LGPLv3 — compliant (dynamic linking +
+  notices). The prebuilt AARs were rejected for `--enable-gpl`, not for
+  version3. License table updated accordingly.
+- mpv `-Dgpl=false` confirmed as a real meson option (v0.41.0
+  `meson.build`: `'gpl': get_option('gpl')`; desktop/GPL-only features
+  `require(get_option('gpl'))`). Our patch adds it; none are needed on
+  Android anyway.
+- Official `buildall.sh` builds per-target/per-arch (`mpv` without the
+  app); `loadarch` already sets `-Wl,-z,max-page-size=16384` for all
+  arches; NDK r30; min API 23 (ours is 26).
+- libplacebo v7.360.1 satisfies mpv v0.41.0 (`>= 6.338.2`); vulkan stays
+  off (no shaderc in the scripts) — our `vo=gpu` GLES path is unaffected.
