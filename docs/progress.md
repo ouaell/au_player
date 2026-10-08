@@ -107,6 +107,13 @@
 - MS-026: fetch (pinned SHA manifest) + patch (drop OUTPUT-gated WHEN) + static check (no OUTPUT-WHEN, headers intact, deletions-only); Anime4K MIT verified (bloc97 @7684e95); Standard files PENDING license (documented §16 fallback); assets-licenses.md created; CI step added
 - MS-027: ShaderChainBuilder (Anime 2 rungs, Standard top rung, >1440p/Off → empty); ShaderChainTest exact-list
 
+## MS-050 + MS-051 + MS-052 — Monetization shell + licenses + legal docs (stacked)
+- Status: in review (pushed; CI pending)
+- Sections used: §11, §13, §15 (rows)
+- MS-050: AdProvider/NoOpAdProvider (isReady=false, all shows Unavailable) + ConsentManager stub; AdProviderTest
+- MS-051: THIRD_PARTY_NOTICES curated list + LicensesScreen + check_notices.sh alias→token CI gate (wired into T1); NoticesTest
+- MS-052: privacy/terms/store-listing (honest claims)/data-safety docs
+
 ## MS-046 + MS-048 + MS-049 — Model select + queue/cache + reader enhance UI (stacked)
 - Status: in review (pushed; CI pending)
 - Sections used: §9, §15 (rows)

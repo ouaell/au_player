@@ -31,6 +31,8 @@ jobs:
         run: sh tools/check_forbidden.sh
       - name: License allowlist gate (MS-002)
         run: sh tools/check_licenses.sh
+      - name: Notices coverage gate (MS-051)
+        run: sh tools/check_notices.sh
       - name: Shader fetch + patch + static check (MS-026)
         run: |
           sh tools/fetch_shaders.sh
