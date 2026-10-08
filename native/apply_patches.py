@@ -11,7 +11,9 @@ PATCHES = [
     (
         "scripts/ffmpeg.sh",
         "--disable-static --enable-shared --enable-{gpl,version3}",
-        "--disable-static --enable-shared --disable-gpl",
+        # --disable-gpl keeps it LGPL; --enable-version3 is REQUIRED by
+        # FFmpeg n9 with mbedtls v3 (result: LGPLv3, no GPL parts linked).
+        "--disable-static --enable-shared --disable-gpl --enable-version3",
     ),
     (
         "scripts/mpv.sh",

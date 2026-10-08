@@ -7,7 +7,7 @@ is per each upstream LICENSE file; full-text audit is a release gate
 | dep | version | license | source |
 |---|---|---|---|
 | mpv | v0.41.0 | LGPL-2.1+ (gpl=false; project dual GPL2+/LGPL2.1+) | github.com/mpv-player/mpv |
-| ffmpeg | n9.0 | LGPL-2.1+ (`--disable-gpl`, no x264/x265/nonfree) | github.com/FFmpeg/FFmpeg |
+| ffmpeg | n9.0 | LGPL-3.0 (`--disable-gpl` + `--enable-version3`, the latter REQUIRED by FFmpeg n9 with mbedtls v3; no GPL parts linked) | github.com/FFmpeg/FFmpeg |
 | libass | 0.17.5 | ISC | github.com/libass/libass |
 | dav1d | 1.5.4 | BSD-2-Clause | github.com/videolan/dav1d |
 | libplacebo | v7.360.1 | LGPL-2.1+ (no vulkan in this build) | github.com/haasn/libplacebo |
