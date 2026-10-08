@@ -18,6 +18,7 @@ token_for() {
     commons-compress) echo "Commons Compress" ;;
     xz) echo "XZ for Java" ;;
     junit) echo "JUnit" ;;
+    test-*|espresso-*|uiautomator) echo "AndroidX Test" ;;
     *) echo "" ;;
   esac
 }

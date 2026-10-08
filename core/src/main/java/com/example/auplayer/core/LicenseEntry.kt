@@ -75,6 +75,7 @@ val THIRD_PARTY_NOTICES: List<LicenseEntry> = listOf(
         "https://tukaani.org/xz/java.html"
     ),
     LicenseEntry("JUnit4", "EPL-1.0", "https://github.com/junit-team/junit4"),
+    LicenseEntry("AndroidX Test", "Apache-2.0", "https://github.com/androidx/androidx"),
     LicenseEntry("Anime4K shaders", "MIT", "https://github.com/bloc97/Anime4K"),
     LicenseEntry(
         "mpv / FFmpeg / libass (self-built)",

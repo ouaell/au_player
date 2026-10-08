@@ -16,6 +16,7 @@ android {
         versionCode = 1
         versionName = "0.1.0-ms001"
         vectorDrawables { useSupportLibrary = true }
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildFeatures { buildConfig = true }
@@ -98,4 +99,8 @@ dependencies {
     implementation(libs.coroutines.android)
     implementation(libs.datastore)
     testImplementation(libs.junit)
+    androidTestImplementation(libs.test.core)
+    androidTestImplementation(libs.test.junit.ext)
+    androidTestImplementation(libs.espresso.core)
+    androidTestImplementation(libs.uiautomator)
 }

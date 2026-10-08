@@ -118,6 +118,11 @@
 - Key evidence: official ffmpeg.sh uses --enable-gpl (confirmed), mpv.sh passes no -Dgpl (defaults GPL), loadarch already sets 16KB max-page-size, buildall.sh builds per-target/per-arch (mpv without app)
 - check_16kb.sh now takes raw .so files too (64-bit rule preserved)
 
+## E-scaffold (MS-060 core) + P1.2 probe
+- Status: in review (pushed; CI pending)
+- emulator.yml (manual, KVM runner, swiftshader-capable matrix hook) + SmokeTest (boots without crash); androidTest deps allowlisted + notices; testInstrumentationRunner set
+- P1.2: RungProbe.choose math + tests (vo-passes orchestration = E3)
+
 ## P1.2 probe-first rung selection
 - Status: in review (pushed; CI pending)
 - RungProbe.choose (55% budget, 35% at ≥50 fps, null → Off); RungProbeTest incl. boundaries; vo-passes reading + pause/redraw/resume orchestration = E3 device work
