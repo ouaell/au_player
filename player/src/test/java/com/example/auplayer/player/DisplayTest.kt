@@ -12,8 +12,8 @@ class DisplayTest {
 
     @Test
     fun `fixed ratios scale to video height`() {
-        assertEquals(Pair(1920, 1080), aspectSize(AspectMode.SIXTEEN_NINE, 1280, 720, 1f))
-        assertEquals(Pair(640, 480), aspectSize(AspectMode.FOUR_THREE, 320, 240, 1f))
+        assertEquals(Pair(1280, 720), aspectSize(AspectMode.SIXTEEN_NINE, 1280, 720, 1f))
+        assertEquals(Pair(320, 240), aspectSize(AspectMode.FOUR_THREE, 320, 240, 1f))
         assertEquals(Pair(0, 0), aspectSize(AspectMode.FIT, 0, 0, 1f))
     }
 
