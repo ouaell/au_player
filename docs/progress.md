@@ -71,50 +71,50 @@
 - UNVERIFIED-on-device: everything (all playback/rendering needs device or self-built native + emulator suite)
 
 ## MS-009 + MS-010 — Surface lifecycle + source resolution (stacked)
-- Status: in review (pushed; CI pending)
+- Status: DONE (shared green run 37716823563)
 - Sections used: §5.1, §5.2, §7.2 (intents), §15 (rows)
 - MS-009: SurfaceHost guard (create→attach, destroy→detach, recreate→re-attach, null-safe); FakeMpvBridge attach/detach counters; SurfaceHostTest 6-case matrix
-- MS-010: MediaSource sealed + PlayerError taxonomy + pure SourceResolver + PlayerOpener; content:// fd resolution deferred to device testing; SourceResolverTest 10 tests
+- MS-010: MediaSource sealed + PlayerError taxonomy + pure SourceResolver (split for complexity/return gates) + PlayerOpener; content:// fd resolution deferred to device testing; SourceResolverTest 10 tests
 
 ## MS-011 + MS-012 — State machine/UiState + controller UI logic (stacked)
-- Status: in review (pushed; CI pending)
+- Status: DONE (shared green run 37716823563)
 - Sections used: §5.2, §15 (rows)
 - MS-011: PlayerState enum + PlayerStateMachine (illegal throws) + immutable PlayerUiState; PlayerStateMachineTest incl. 8 illegal pairs
-- MS-012: AutoHide + formatTime (pure, JVM-tested) + thin PlayerControls composable (T2 Compose tests deferred); compose-icons dep added (allowlisted)
+- MS-012: AutoHide + formatTime (pure, JVM-tested) + thin PlayerControls composable (T2 Compose tests deferred; text glyphs interim — icons land in MS-074); compose-icons dep added (allowlisted)
 
 ## MS-015 + MS-016 — Display modes + playback modes (stacked)
-- Status: in review (pushed; CI pending)
+- Status: DONE (shared green run 37716823563)
 - Sections used: §5.1, §15 (rows)
-- MS-015: AspectMode cycle/size, OrientationPref resolution, ZoomState; DisplayTest
-- MS-016: speed presets/clamp/cycle, ABRepeat, LoopMode/EofAction, SleepTimer (injected clock); PlaybackModesTest
+- MS-015: AspectMode cycle/size, OrientationPref resolution, ZoomState; DisplayTest (fixed wrong width expectations)
+- MS-016: speed presets/clamp/cycle, ABRepeat (smart-cast fix), LoopMode/EofAction, SleepTimer (injected clock); PlaybackModesTest
 
 ## MS-019 + MS-020 + MS-021 — Resume, permissions, playlist (stacked)
-- Status: in review (pushed; CI pending)
+- Status: DONE (shared green run 37716823563)
 - Sections used: §5.2, §5.4, §15 (rows)
 - MS-019: ResumeStore + InMemoryResumeStore (continue-watching filter/sort/limit) + Room entity/DAO/database compile-checked (DAO tests = T2/Robolectric); HistoryTest
 - MS-020: permission mapping (33+/≤32) + Android 14 partial flag; MediaStore/SAF bodies deferred to device; PermissionsTest
 - MS-021: Playlist reusing afterEof (ALL wraps, ONE replays); PlaylistTest
 
 ## MS-024 + MS-025 — Settings + diagnostics (stacked, Day-1 close)
-- Status: in review (pushed; CI pending)
+- Status: DONE (shared green run 37716823563)
 - Sections used: §10 (final list), §15 (rows)
 - MS-024: AppSettings (full final list, EnhanceMode OFF default) + SettingsStore/InMemory (JVM-tested) + DataStoreSettingsStore (all keys; persistence = T2); datastore dep added (allowlisted)
 - MS-025: CrashLogger (install/onCrash/list) + buildDiagnosticsReport + DiagnosticsScreen (share wiring; reactive entries + self-test = MS-065); CrashLoggerTest
 
 ## MS-022 + MS-023 — Session/focus + PiP (stacked)
-- Status: in review (pushed; CI pending)
+- Status: DONE (shared green run 37716823563)
 - Sections used: §5.2, §5.3, §15 (rows)
 - MS-022: AudioFocusHandler pure policy (loss/transient/duck/gain) + AudioFocusTest matrix; AuPlaybackService skeleton + FGS permissions/manifest (session binding + notification = device work)
 - MS-023: PipCalc aspect reduction + MainActivity.enterAuPip; behavior device-verified later; PipCalcTest
 
 ## MS-017 + MS-018 — Tracks + subtitle style props (stacked)
-- Status: in review (pushed; CI pending)
+- Status: DONE (shared green run 37716823563)
 - Sections used: §5.1, §15 (rows)
-- MS-017: Track/TrackKind/TrackList (aid/sid/sub-add mapping, srt/ass/vtt gate); engine gains setAudioTrack/setSubtitleTrack/addSubtitleFile/setProperties; TracksTest incl. engine commands
+- MS-017: Track/TrackKind/TrackList (aid/sid/sub-add mapping, srt/ass/vtt gate); engine routes via send(List) (consolidated for TooManyFunctions); TracksTest incl. engine commands
 - MS-018: SubtitleStyle→props, mpvColor #AARRGGBB ([VERIFY] order in §17.4 goldens), delayProps; SubtitleStyleTest prop-mapping
 
 ## MS-013 + MS-014 — Gesture engine + overlay indicators (stacked)
-- Status: in review (pushed; CI pending)
+- Status: DONE (shared green run 37716823563)
 - Sections used: §5.1, §15 (rows)
 - MS-013: TapZone/GestureAction/GestureConfig + pure GestureMapper (locked→Ignored); GesturesTest table-driven incl. full locked matrix
 - MS-014: GestureIndicator + indicatorText (pure, JVM-tested) + thin GestureOverlay (T2-tested); :player uses own Surface (no upward dep on :app)
