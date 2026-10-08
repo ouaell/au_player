@@ -47,6 +47,11 @@ jobs:
       - name: Download deps + SDK/NDK
         working-directory: buildscripts
         run: ./download.sh
+      - name: Upgrade meson (fontconfig needs >= 1.11)
+        run: |
+          pip3 install -U meson ninja
+          meson --version
+          ninja --version
       - name: Build mpv + deps
         working-directory: buildscripts
         run: ./buildall.sh --arch ${{ matrix.arch }} mpv
