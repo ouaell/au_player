@@ -118,6 +118,14 @@
 - Key evidence: official ffmpeg.sh uses --enable-gpl (confirmed), mpv.sh passes no -Dgpl (defaults GPL), loadarch already sets 16KB max-page-size, buildall.sh builds per-target/per-arch (mpv without app)
 - check_16kb.sh now takes raw .so files too (64-bit rule preserved)
 
+## P1 batch — Standard resolved, probe, E-scaffold, headless, pre-launch
+- Status: in review (pushed; CI pending)
+- P1.1: RAVU Lite R4 wired (manifest/patch/check/.hook, chain + controller tests); FSRCNNX rejected (igv GPL-3.0); FSR port = follow-up
+- P1.2: RungProbe.choose + tests (vo-passes orchestration = E3)
+- MS-060 core: emulator.yml + SmokeTest + androidTest deps (E1–E9 scenarios land with native engine)
+- Headless H1–H4 scripts ready (option lint, shader compile, SSIM golden); desktop-mpv build job queued
+- MS-061': play-upload job (secret-gated) + docs/play-upload.md (manual ≤6 clicks)
+
 ## E-scaffold (MS-060 core) + P1.2 probe
 - Status: in review (pushed; CI pending)
 - emulator.yml (manual, KVM runner, swiftshader-capable matrix hook) + SmokeTest (boots without crash); androidTest deps allowlisted + notices; testInstrumentationRunner set
