@@ -22,3 +22,11 @@
 - Tests added: 6 JVM unit tests (Diag, FakePlayerController, FakeEnhanceEngine, FakePageProvider, FakeWebSourceExtractor, FakeLibrarySource), all green; :app has no pure-logic unit yet (needs Context/Robolectric, T2)
 - Tokens.kt renamed to §10 lowercase semantic names (also satisfies detekt TopLevelPropertyNaming); file-level MagicNumber suppress with rationale
 - UNVERIFIED-on-device: everything (unchanged)
+
+## MS-003 — feature-spec.md + decisions.md skeleton
+- Status: DONE (partial: H2 screenshots missing, spec derived from plan text)
+- Sections used: §5, §7.4, §8, §10, §15 (MS-003 row)
+- `docs/feature-spec.md` lists every screen/control/setting with our own names; open checklist tracks H2 validation
+- decisions.md skeleton already exists (MS-001); D1 audit itself is MS-004
+- Tests added: none (docs only; forbidden-grep excludes docs/)
+- UNVERIFIED-on-device: everything (unchanged); plus spec-vs-screenshots validation open
