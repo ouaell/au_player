@@ -118,6 +118,10 @@
 - Key evidence: official ffmpeg.sh uses --enable-gpl (confirmed), mpv.sh passes no -Dgpl (defaults GPL), loadarch already sets 16KB max-page-size, buildall.sh builds per-target/per-arch (mpv without app)
 - check_16kb.sh now takes raw .so files too (64-bit rule preserved)
 
+## P1.2 probe-first rung selection
+- Status: in review (pushed; CI pending)
+- RungProbe.choose (55% budget, 35% at ≥50 fps, null → Off); RungProbeTest incl. boundaries; vo-passes reading + pause/redraw/resume orchestration = E3 device work
+
 ## MS-068 + MS-073 — Locales + isolation (stacked)
 - Status: DONE (shared green run 37786144798)
 - Sections used: §15/§17.9 rows, §17.7
