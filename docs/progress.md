@@ -107,6 +107,13 @@
 - MS-026: fetch (pinned SHA manifest) + patch (drop OUTPUT-gated WHEN) + static check (no OUTPUT-WHEN, headers intact, deletions-only); Anime4K MIT verified (bloc97 @7684e95); Standard files PENDING license (documented §16 fallback); assets-licenses.md created; CI step added
 - MS-027: ShaderChainBuilder (Anime 2 rungs, Standard top rung, >1440p/Off → empty); ShaderChainTest exact-list
 
+## MS-046 + MS-048 + MS-049 — Model select + queue/cache + reader enhance UI (stacked)
+- Status: in review (pushed; CI pending)
+- Sections used: §9, §15 (rows)
+- MS-046: ModelSelect (compact realesr 2×; weights packaging/verification = follow-up with real NCNN); ModelSelectTest 1.5× rule
+- MS-048: PrefetchOrder (current+3, stale-drop) + PageCache (keyed files, oldest-first eviction, 500MB); QueueCacheTest
+- MS-049: ReaderEnhanceState + shouldPauseEnhance guard; ReaderEnhanceTest (hold-compare reuses MS-031 pattern)
+
 ## MS-045 + MS-047 — NCNN seam + tiler golden (stacked)
 - Status: in review (pushed; CI pending)
 - Sections used: §9, §15 (rows)

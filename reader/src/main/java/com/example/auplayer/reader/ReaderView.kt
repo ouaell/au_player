@@ -22,8 +22,8 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 
 /**
- * Own viewers (MS-037 fallback path, pre-approved in §7.1: Mihon's viewers
- * are View-system; a Compose rewrite is cheaper and fully ours).
+ * Own viewers (MS-037 fallback path, pre-approved in §7.1: the upstream
+ * library's viewers are View-system; a Compose rewrite is cheaper and ours).
  * Viewer interaction tests run on T2; slicing/budget math is JVM-tested
  * (Tiling, Memory).
  */
