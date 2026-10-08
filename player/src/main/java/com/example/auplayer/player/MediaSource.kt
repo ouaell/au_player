@@ -64,8 +64,10 @@ object SourceResolver {
             mimeType.startsWith(AUDIO_PREFIX)
         return if (playable) {
             ResolveOutcome.Ok(MediaSource.Content(uriString))
+        } else if (mimeType != null) {
+            ResolveOutcome.Err(PlayerError.UnsupportedMime(mimeType))
         } else {
-            ResolveOutcome.Err(PlayerError.UnsupportedMime(mimeType ?: ""))
+            ResolveOutcome.Err(PlayerError.UnsupportedMime(""))
         }
     }
 

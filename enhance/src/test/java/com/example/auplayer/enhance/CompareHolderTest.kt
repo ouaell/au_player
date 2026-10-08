@@ -9,7 +9,7 @@ import org.junit.Test
 class CompareHolderTest {
     private fun setup(): Triple<CompareHolder, EnhanceController, FakeSender> {
         val sender = FakeSender()
-        val controller = EnhanceController(sender::send)
+        val controller = EnhanceController(sender)
         return Triple(CompareHolder(controller), controller, sender)
     }
 

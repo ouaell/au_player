@@ -20,7 +20,7 @@ class EnhanceControllerTest {
     private fun controller(
         sender: FakeSender = FakeSender()
     ): Pair<EnhanceController, FakeSender> {
-        return EnhanceController(sender::send) to sender
+        return EnhanceController(sender) to sender
     }
 
     @Test
