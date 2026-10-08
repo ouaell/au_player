@@ -12,13 +12,15 @@ object MemoryBudget {
 
     /** Power-of-two downsample so the decoded image covers [dstW]×[dstH]. */
     fun sampleSize(srcW: Int, srcH: Int, dstW: Int, dstH: Int): Int {
-        if (srcW <= 0 || srcH <= 0 || dstW <= 0 || dstH <= 0) return MIN_SAMPLE
+        if (!validSize(srcW, srcH) || !validSize(dstW, dstH)) return MIN_SAMPLE
         var sample = MIN_SAMPLE
         while (srcW / (sample * 2) >= dstW && srcH / (sample * 2) >= dstH) {
             sample *= 2
         }
         return sample
     }
+
+    private fun validSize(width: Int, height: Int): Boolean = width > 0 && height > 0
 
     /** Webtoon slice count for a strip of [heightPx] at most 2048 px/slice. */
     fun webtoonSlices(heightPx: Int): Int {
