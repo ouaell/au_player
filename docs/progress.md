@@ -30,3 +30,13 @@
 - decisions.md skeleton already exists (MS-001); D1 audit itself is MS-004
 - Tests added: none (docs only; forbidden-grep excludes docs/)
 - UNVERIFIED-on-device: everything (unchanged); plus spec-vs-screenshots validation open
+
+## MS-004 — D1 libmpv audit & integration decision
+- Status: DONE (verdict: build ourselves, option 4)
+- Sections used: §3.1, §3.2, §3.4, §13, §15 (MS-004 row)
+- CI: d1-audit run 37710115959 green (report artifact); android-t1 green on same push
+- **[VERIFY] results:** jdtech 1.0.0 REAL; mehiz 0.1.12 REAL; SnowMediaEnt DOES NOT EXIST
+- **Facts:** both ship `--enable-gpl --enable-version3` FFmpeg, no `-Dgpl=false` evidence → not LGPL-clean; both misaligned on armeabi-v7a/x86 → fail 16KB; both have x86_64; JNI pkgs recorded for MS-053
+- **Consequence:** no third-party AAR in `:player` (would violate §13 + 16KB gate); self-build is now the critical path (follow-up task); audit script reused for acceptance
+- Tests added: none (report-only audit; gates unchanged and green)
+- UNVERIFIED-on-device: everything (unchanged)
