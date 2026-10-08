@@ -20,16 +20,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Fetch pinned buildscripts
+        uses: actions/checkout@v4
+        with:
+          repository: mpv-android/mpv-android
+          ref: c2e02fe111541e4063ab8f868bf629649ed937a3
+          path: upstream
+          sparse-checkout: buildscripts
+      - name: Stage scripts + verify pin
         run: |
-          sha=$(grep '^MPV_ANDROID_SHA=' native/pins.txt | cut -d= -f2)
-          curl -sfL --retry 3 "https://github.com/mpv-android/mpv-android/archive/$sha.tar.gz" -o scripts.tgz
-          mkdir -p buildscripts
-          tar -xzf scripts.tgz -C buildscripts --strip-components=1
+          grep -q '^MPV_ANDROID_SHA=c2e02fe111541e4063ab8f868bf629649ed937a3$' native/pins.txt
+          rm -rf buildscripts
+          mv upstream/buildscripts ./buildscripts
+          rm -rf upstream scripts.tgz
           test -f buildscripts/scripts/ffmpeg.sh
           test -f buildscripts/scripts/mpv.sh
           test -f buildscripts/include/download-deps.sh
           test -f buildscripts/buildall.sh
-          echo "scripts at $sha ready"
+          echo "scripts ready"
       - name: Apply LGPL patches
         run: python3 native/apply_patches.py buildscripts
       - name: Cache prefix
