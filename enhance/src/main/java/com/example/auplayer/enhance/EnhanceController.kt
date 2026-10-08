@@ -53,7 +53,7 @@ class EnhanceController(
             EnhanceResult.Applied
         } catch (error: MpvCommandException) {
             Diag.record("enhance", "apply failed rung $rung: ${error.message}")
-            clear()
+            clearBestEffort()
             EnhanceResult.Failed(rung)
         }
     }
@@ -72,6 +72,15 @@ class EnhanceController(
         send(listOf("set", "dscale", "bilinear"))
         currentMode = EnhanceMode.OFF
         currentRung = 0
+    }
+
+    /** Best-effort reset on the failure path: a broken bridge must not throw twice. */
+    private fun clearBestEffort() {
+        try {
+            clear()
+        } catch (error: MpvCommandException) {
+            Diag.record("enhance", "clear also failed: " + error.message.toString())
+        }
     }
 }
 
