@@ -1,7 +1,7 @@
 package com.example.auplayer.player
 
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
@@ -44,9 +44,16 @@ class PlayerEngineTest {
         val bridge = FakeMpvBridge()
         val engine = engine(bridge)
         val received = mutableListOf<MpvEvent>()
-        val job = launch { received += withTimeout(5_000) { engine.events.first() } }
+        val job = launch(Dispatchers.Unconfined) {
+            engine.events.collect { received += it }
+        }
         bridge.emit(MpvEvent.TimePos(1.5))
-        job.join()
+        withTimeout(5_000) {
+            while (received.isEmpty()) {
+                delay(10)
+            }
+        }
+        job.cancel()
         assertEquals(listOf(MpvEvent.TimePos(1.5)), received)
     }
 
