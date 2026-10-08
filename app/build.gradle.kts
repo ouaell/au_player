@@ -79,5 +79,6 @@ dependencies {
     implementation(libs.navigation.compose)
     implementation(libs.coroutines.core)
     implementation(libs.coroutines.android)
+    implementation(libs.datastore)
     testImplementation(libs.junit)
 }

@@ -95,6 +95,12 @@
 - MS-020: permission mapping (33+/≤32) + Android 14 partial flag; MediaStore/SAF bodies deferred to device; PermissionsTest
 - MS-021: Playlist reusing afterEof (ALL wraps, ONE replays); PlaylistTest
 
+## MS-024 + MS-025 — Settings + diagnostics (stacked, Day-1 close)
+- Status: in review (pushed; CI pending)
+- Sections used: §10 (final list), §15 (rows)
+- MS-024: AppSettings (full final list, EnhanceMode OFF default) + SettingsStore/InMemory (JVM-tested) + DataStoreSettingsStore (all keys; persistence = T2); datastore dep added (allowlisted)
+- MS-025: CrashLogger (install/onCrash/list) + buildDiagnosticsReport + DiagnosticsScreen (share wiring; reactive entries + self-test = MS-065); CrashLoggerTest
+
 ## MS-022 + MS-023 — Session/focus + PiP (stacked)
 - Status: in review (pushed; CI pending)
 - Sections used: §5.2, §5.3, §15 (rows)
