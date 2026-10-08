@@ -24,4 +24,5 @@ coil-compose = io.coil-kt:coil-compose = Apache-2.0
 coil-video = io.coil-kt:coil-video = Apache-2.0
 media3-session = androidx.media3:media3-session = Apache-2.0
 commons-compress = org.apache.commons:commons-compress = Apache-2.0
+xz = org.tukaani:xz = Public-Domain
 junit = junit:junit = EPL-1.0 (test-only)

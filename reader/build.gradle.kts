@@ -26,6 +26,7 @@ dependencies {
     implementation(project(":core"))
     implementation(libs.coroutines.core)
     implementation(libs.commons.compress)
+    implementation(libs.xz)
     implementation(libs.okhttp)
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.ui)

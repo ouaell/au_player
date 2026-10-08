@@ -69,6 +69,11 @@ val THIRD_PARTY_NOTICES: List<LicenseEntry> = listOf(
         "Apache-2.0",
         "https://github.com/apache/commons-compress"
     ),
+    LicenseEntry(
+        "XZ for Java",
+        "Public-Domain",
+        "https://tukaani.org/xz/java.html"
+    ),
     LicenseEntry("JUnit4", "EPL-1.0", "https://github.com/junit-team/junit4"),
     LicenseEntry("Anime4K shaders", "MIT", "https://github.com/bloc97/Anime4K"),
     LicenseEntry(

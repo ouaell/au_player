@@ -16,6 +16,7 @@ token_for() {
     coil-*) echo "Coil" ;;
     media3-*) echo "Media3" ;;
     commons-compress) echo "Commons Compress" ;;
+    xz) echo "XZ for Java" ;;
     junit) echo "JUnit" ;;
     *) echo "" ;;
   esac
