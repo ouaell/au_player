@@ -81,6 +81,8 @@ jobs:
   # same-day reruns upload into it. App pins TAG in native/pins.txt.
   publish:
     needs: [build]
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
