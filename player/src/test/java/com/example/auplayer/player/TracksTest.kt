@@ -52,9 +52,10 @@ class TracksTest {
     fun `engine applies track commands`() {
         val bridge = FakeMpvBridge()
         val engine = PlayerEngine(bridge, Dispatchers.Unconfined)
-        engine.setAudioTrack(2)
-        engine.setSubtitleTrack(null)
-        engine.addSubtitleFile("/s/a.srt")
+        val tracks = TrackList(emptyList())
+        engine.send(tracks.audioCommand(2))
+        engine.send(tracks.subtitleCommand(null))
+        engine.send(tracks.externalSubCommand("/s/a.srt"))
         assertEquals(
             listOf(
                 listOf("set", "aid", "2"),

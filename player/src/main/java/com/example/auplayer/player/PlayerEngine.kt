@@ -40,19 +40,19 @@ class PlayerEngine(
     }
 
     fun open(uri: String) {
-        scope.launch { bridge.command("loadfile", uri) }
+        scope.launch { bridge.command(listOf("loadfile", uri)) }
     }
 
     fun play() {
-        scope.launch { bridge.command("set", "pause", "no") }
+        scope.launch { bridge.command(listOf("set", "pause", "no")) }
     }
 
     fun pause() {
-        scope.launch { bridge.command("set", "pause", "yes") }
+        scope.launch { bridge.command(listOf("set", "pause", "yes")) }
     }
 
     fun seekTo(seconds: Double) {
-        scope.launch { bridge.command("seek", seconds.toString(), "absolute") }
+        scope.launch { bridge.command(listOf("seek", seconds.toString(), "absolute")) }
     }
 
     fun attach(token: Any?) {
@@ -63,28 +63,10 @@ class PlayerEngine(
         scope.launch { bridge.detach() }
     }
 
-    fun setAudioTrack(id: Int) {
-        scope.launch { bridge.command("set", "aid", id.toString()) }
-    }
-
-    fun setSubtitleTrack(id: Int?) {
-        scope.launch {
-            if (id == null) {
-                bridge.command("set", "sid", "no")
-            } else {
-                bridge.command("set", "sid", id.toString())
-            }
-        }
-    }
-
-    fun addSubtitleFile(path: String) {
-        scope.launch { bridge.command("sub-add", path) }
-    }
-
-    fun setProperties(props: Map<String, String>) {
-        scope.launch {
-            props.forEach { (key, value) -> bridge.command("set", key, value) }
-        }
+    /** Track/prop/subtitle-file commands route here (MS-017/018); mapping lives
+     *  in [TrackList], subtitleProps and delayProps so it stays JVM-tested. */
+    fun send(args: List<String>) {
+        scope.launch { bridge.command(args) }
     }
 
     fun release() {

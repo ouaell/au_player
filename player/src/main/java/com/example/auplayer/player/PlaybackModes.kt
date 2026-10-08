@@ -26,10 +26,9 @@ class ABRepeat {
 
     /** Returns false (and keeps state) when B does not land after A. */
     fun setB(positionMs: Long): Boolean {
-        val a = aMs ?: return false
-        if (positionMs <= a) return false
-        bMs = positionMs
-        return true
+        val valid = aMs != null && positionMs > (aMs ?: 0L)
+        if (valid) bMs = positionMs
+        return valid
     }
 
     fun clear() {

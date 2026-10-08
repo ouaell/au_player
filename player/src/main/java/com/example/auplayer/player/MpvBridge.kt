@@ -9,7 +9,7 @@ package com.example.auplayer.player
 interface MpvBridge {
     fun init()
     fun setOption(key: String, value: String)
-    fun command(vararg args: String)
+    fun command(args: List<String>)
     fun setEventListener(listener: (MpvEvent) -> Unit)
     fun attach(token: Any?)
     fun detach()
@@ -42,8 +42,8 @@ class FakeMpvBridge : MpvBridge {
         options[key] = value
     }
 
-    override fun command(vararg args: String) {
-        commands += args.toList()
+    override fun command(args: List<String>) {
+        commands += args
     }
 
     override fun setEventListener(listener: (MpvEvent) -> Unit) {

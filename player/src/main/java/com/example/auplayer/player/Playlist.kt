@@ -30,7 +30,7 @@ class Playlist {
 
     /** Applies EOF: returns the item to play next, or null to stop. */
     fun moveOnEof(mode: LoopMode, autoNext: Boolean): QueueItem? {
-        if (items.isEmpty() || index < 0 || (!autoNext && mode == LoopMode.OFF)) return null
+        if (items.isEmpty() || index < 0 || haltedByUser(mode, autoNext)) return null
         if (mode == LoopMode.ALL && index == items.size - 1) index = BEFORE_FIRST
         return when (afterEof(mode, hasNextInPlaylist = index < items.size - 1)) {
             EofAction.REPLAY -> current()
@@ -41,6 +41,9 @@ class Playlist {
             EofAction.STOP -> null
         }
     }
+
+    private fun haltedByUser(mode: LoopMode, autoNext: Boolean): Boolean =
+        !autoNext && mode == LoopMode.OFF
 }
 
 private const val BEFORE_FIRST = -1
