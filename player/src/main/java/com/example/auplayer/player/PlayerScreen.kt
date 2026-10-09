@@ -48,6 +48,7 @@ fun PlayerScreen(
     val enhance = handle.enhance
     val surfaces = remember(engine) { SurfaceHost(engine) }
     var surfaceReady by remember { mutableStateOf(false) }
+    var openedUri by remember { mutableStateOf<String?>(null) }
     var controls by remember { mutableStateOf(true) }
     var showSheet by remember { mutableStateOf(false) }
     var enhanceMode by remember { mutableStateOf(EnhanceMode.OFF) }
@@ -58,7 +59,11 @@ fun PlayerScreen(
     val controller = remember(engine) { EnginePlayerController(engine) }
 
     LaunchedEffect(uri, surfaceReady) {
-        if (surfaceReady) {
+        // Open once per surface generation: a transient destroy/create cycle
+        // re-arms via openedUri=null below; created+changed without destroy
+        // must NOT double-load (second loadfile interrupts the first).
+        if (surfaceReady && openedUri != uri) {
+            openedUri = uri
             Log.i("AuPlayer", "open $uri")
             engine.open(uri)
         }
@@ -100,6 +105,7 @@ fun PlayerScreen(
 
                         override fun surfaceDestroyed(holder: SurfaceHolder) {
                             surfaceReady = false
+                            openedUri = null
                             surfaces.onSurfaceDestroyed()
                         }
                     })
