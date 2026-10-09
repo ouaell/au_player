@@ -40,9 +40,11 @@ adb_retry adb logcat -d > "$GITHUB_WORKSPACE/logcat.txt" || echo "logcat unavail
 # run-as for everything; text trace redirects directly (line parsing is
 # whitespace-tolerant), PNGs round-trip via base64 (shell mangles binary).
 # App + test use internal filesDir (same UID, run-as readable).
-adb_retry adb shell "run-as com.example.auplayer cat files/e1-trace.txt" > "$GITHUB_WORKSPACE/e1-trace.txt" || true
-adb_retry adb shell "run-as com.example.auplayer cat files/e1-shot-1.png | base64" > "$GITHUB_WORKSPACE/shot1.b64" || true
-adb_retry adb shell "run-as com.example.auplayer cat files/e1-shot-2.png | base64" > "$GITHUB_WORKSPACE/shot2.b64" || true
+# run-as CWD is not the data dir, so relative files/... misses (0-byte pulls);
+# use absolute /data/data/... paths like the working push/clip steps above.
+adb_retry adb shell "run-as com.example.auplayer cat /data/data/com.example.auplayer/files/e1-trace.txt" > "$GITHUB_WORKSPACE/e1-trace.txt" || true
+adb_retry adb shell "run-as com.example.auplayer cat /data/data/com.example.auplayer/files/e1-shot-1.png | base64" > "$GITHUB_WORKSPACE/shot1.b64" || true
+adb_retry adb shell "run-as com.example.auplayer cat /data/data/com.example.auplayer/files/e1-shot-2.png | base64" > "$GITHUB_WORKSPACE/shot2.b64" || true
 python3 - "$GITHUB_WORKSPACE" <<'EOF'
 import base64
 import os
