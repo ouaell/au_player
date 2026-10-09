@@ -30,3 +30,4 @@ test-core = androidx.test:core = Apache-2.0 (test-only)
 test-junit-ext = androidx.test.ext:junit = Apache-2.0 (test-only)
 espresso-core = androidx.test.espresso:espresso-core = Apache-2.0 (test-only)
 uiautomator = androidx.test.uiautomator:uiautomator = Apache-2.0 (test-only)
+kotlin-metadata-jvm = org.jetbrains.kotlin:kotlin-metadata-jvm = Apache-2.0
