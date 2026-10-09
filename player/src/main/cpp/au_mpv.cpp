@@ -17,16 +17,16 @@
 #include <mpv/render.h>
 #include <mpv/render_gl.h>
 
-// av_jni_set_java_vm from shared libavutil (DT_NEEDED via CMake). Declared
+// av_jni_set_java_vm from shared libavcodec (DT_NEEDED via CMake). Declared
 // locally: staged thirdparty headers carry mpv only, not FFmpeg. Signature
-// matches FFmpeg's libavutil/jni.h (stable API; the getter in the same TU is
-// proven present by mpv's own "No Java virtual machine" error path).
+// matches FFmpeg's libavcodec/jni.h: (void* vm, void* log_ctx). The getter in
+// the same TU is proven present by mpv's own "No Java virtual machine" path.
 
 #define AU_LOGI(...) __android_log_print(ANDROID_LOG_INFO, "AuPlayer", __VA_ARGS__)
 #define AU_LOGE(...) __android_log_print(ANDROID_LOG_ERROR, "AuPlayer", __VA_ARGS__)
 
 extern "C" {
-int av_jni_set_java_vm(JNIEnv* env, void* log_ctx);
+int av_jni_set_java_vm(void* vm, void* log_ctx);
 }  // extern "C"
 
 // mpv's android backends (vo/gpu android-context, ao audiotrack) fetch the
@@ -35,11 +35,7 @@ int av_jni_set_java_vm(JNIEnv* env, void* log_ctx);
 // while audio fell back to opensles). Register once at library load.
 extern "C" {
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void*) {
-    JNIEnv* env = nullptr;
-    if (vm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6) != JNI_OK) {
-        return JNI_ERR;
-    }
-    if (av_jni_set_java_vm(env, nullptr) < 0) {
+    if (av_jni_set_java_vm(vm, nullptr) < 0) {
         __android_log_print(ANDROID_LOG_ERROR, "AuPlayer", "av_jni_set_java_vm failed");
         return JNI_ERR;
     }
