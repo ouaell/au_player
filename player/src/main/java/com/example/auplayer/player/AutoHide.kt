@@ -2,9 +2,9 @@ package com.example.auplayer.player
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
@@ -68,14 +68,12 @@ fun PlayerControls(
             modifier = Modifier.semantics { contentDescription = SEEK_DESCRIPTION }
         )
         Row {
-            IconButton(
-                onClick = { if (playing) controller.pause() else controller.play() },
-                modifier = Modifier.semantics {
-                    contentDescription = if (playing) PAUSE_DESCRIPTION else PLAY_DESCRIPTION
-                }
+            TextButton(
+                onClick = { if (playing) controller.pause() else controller.play() }
             ) {
-                // Glyphs are interim; Material Symbols land with the icon pass (MS-074).
-                Text(text = if (playing) "❚❚" else "▶")
+                // Text label (not glyph-only): readable, TalkBack-friendly,
+                // and stable under UiAutomator (icon nodes proved flaky).
+                Text(text = if (playing) PAUSE_LABEL else PLAY_LABEL)
             }
             Text(text = formatTime(state.positionMs) + " / " + formatTime(state.durationMs))
         }
@@ -83,5 +81,5 @@ fun PlayerControls(
 }
 
 private const val SEEK_DESCRIPTION = "Seek position"
-private const val PAUSE_DESCRIPTION = "Pause"
-private const val PLAY_DESCRIPTION = "Play"
+private const val PAUSE_LABEL = "Pause"
+private const val PLAY_LABEL = "Play"

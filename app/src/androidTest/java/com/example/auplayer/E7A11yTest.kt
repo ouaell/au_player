@@ -94,17 +94,22 @@ class E7A11yTest {
                 Log.i(
                     GATE_TAG,
                     "node class=${node.className} clickable=${node.isClickable} " +
-                        "text=${node.text} desc=${node.contentDescription}"
+                        "bounds=${node.visibleBounds} text=${node.text} desc=${node.contentDescription}"
                 )
             } catch (_: StaleObjectException) {
             }
         }
         // The hierarchy churns under us (time text ticks); stale nodes
         // vanished on their own — only judge the ones still standing.
+        // Edge-to-edge system scrims (status/nav backgrounds: full-width
+        // strips at the display edges, no text) are not app content.
+        val displayW = device.displayWidth
+        val displayH = device.displayHeight
         val unlabeled = nodes.filter { node ->
             try {
                 node.isClickable &&
-                    node.text.isNullOrBlank() && node.contentDescription.isNullOrBlank()
+                    node.text.isNullOrBlank() && node.contentDescription.isNullOrBlank() &&
+                    !isEdgeChrome(node, displayW, displayH)
             } catch (_: StaleObjectException) {
                 false
             }
@@ -114,6 +119,18 @@ class E7A11yTest {
             unlabeled.isEmpty()
         )
     }
+
+    private fun isEdgeChrome(node: androidx.test.uiautomator.UiObject2, displayW: Int, displayH: Int): Boolean {
+        if (node.className != "android.view.View") return false
+        return try {
+            val bounds = node.visibleBounds
+            bounds.width() == displayW &&
+                bounds.height() < displayH / CHROME_MAX_HEIGHT_FRACTION &&
+                (bounds.top == 0 || bounds.bottom == displayH)
+        } catch (_: StaleObjectException) {
+            false
+        }
+    }
 }
 
 private const val UI_TIMEOUT_MS = 15_000L
@@ -121,3 +138,4 @@ private const val SETTLE_MS = 2_000L
 private const val POLL_MS = 250L
 private const val GROWTH_TIMEOUT_MS = 20_000L
 private const val GATE_TAG = "E7GATE"
+private const val CHROME_MAX_HEIGHT_FRACTION = 8
