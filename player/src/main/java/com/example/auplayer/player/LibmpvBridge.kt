@@ -117,7 +117,6 @@ internal class EventTracer(private val dir: File?) {
         File(target, TRACE_NAME).delete()
     }
 }
-}
 
 private const val TIME_POS_ID = 1L
 private const val TRACE_NAME = "e1-trace.txt"
