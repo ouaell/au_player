@@ -123,6 +123,15 @@
 - Key evidence: official ffmpeg.sh uses --enable-gpl (confirmed), mpv.sh passes no -Dgpl (defaults GPL), loadarch already sets 16KB max-page-size, buildall.sh builds per-target/per-arch (mpv without app)
 - check_16kb.sh now takes raw .so files too (64-bit rule preserved)
 
+## E1 round 37875455035 — pump alive, render ctx ok, silence after open
+- Logcat: route viewUri ok → event pump started → libmpv v0.41.0 → pump alive first event id=22 (PROPERTY_CHANGE, pre-open = initial observe notification, time-pos null → correctly silent) → render start code=0 → open logged — then ZERO further events, no trace, identical screenshots (non-blank = black surface + system chrome)
+- Native pump audited clean: NewGlobalRef callback, Attach/DetachCurrentThread, mpv_event_name strings (no hardcoded ABI numbers); event mapping sound (trace iff real time-pos values)
+- Conclusion: loadfile result was invisible (MpvCommandException → Diag only); mpv usually accepts loadfile async, so silence implies synchronous throw OR async failure with no end-file — need the error text
+
+## E1 fix — loud command failures + Log.e on drop path
+- PlayerEngine.cmd catch now Log.e("AuPlayer", "command dropped: ...") (JVM-safe: executes only on real failures, never in unit tests); LibmpvBridge.command already includes mpv_error_string; JNI nativeErrorString exists (au_mpv.cpp)
+- T1 green run 37876551255; emulator redispatched run 37877271123 — verdict hinges on `command dropped:` line in logcat
+
 ## E1 root cause — commands raced mpv_initialize
 - `MpvCommandException: command failed: core not initialized`: nobody called init before open
 - Fix: engine auto-inits in constructor; all commands await readiness (specific catches only); LibmpvBridge.init idempotent
