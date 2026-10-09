@@ -215,13 +215,25 @@ fun rememberPlayerUiState(engine: PlayerEngine): State<PlayerUiState> {
     val state = remember(engine) { mutableStateOf(PlayerUiState()) }
     LaunchedEffect(engine) {
         var paused = false
+        var lastTickMs = 0L
         engine.events.collect { event ->
             val current = state.value
             state.value = when (event) {
-                is MpvEvent.TimePos -> current.copy(
-                    positionMs = (event.seconds * MILLIS_PER_SECOND).toLong(),
-                    state = if (paused) PlayerState.Paused else PlayerState.Playing
-                )
+                is MpvEvent.TimePos -> {
+                    // 2 Hz UI ticks: per-frame recomposition churns the a11y
+                    // tree (flaky dumps) and wastes battery; playback clock
+                    // itself is unaffected (trace is unthrottled).
+                    val now = System.currentTimeMillis()
+                    if (now - lastTickMs >= UI_TICK_MS) {
+                        lastTickMs = now
+                        current.copy(
+                            positionMs = (event.seconds * MILLIS_PER_SECOND).toLong(),
+                            state = if (paused) PlayerState.Paused else PlayerState.Playing
+                        )
+                    } else {
+                        current
+                    }
+                }
                 is MpvEvent.Duration -> current.copy(
                     durationMs = (event.seconds * MILLIS_PER_SECOND).toLong()
                 )
@@ -274,3 +286,4 @@ private fun sizedFrame(holder: SurfaceHolder, surface: Surface): Frame? {
 
 private const val AUTO_TICK_MS = 250L
 private const val MILLIS_PER_SECOND = 1000L
+private const val UI_TICK_MS = 500L
