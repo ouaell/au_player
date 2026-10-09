@@ -1,6 +1,5 @@
 package com.example.auplayer.player
 
-import android.util.Log
 import com.example.auplayer.core.Diag
 
 /**
@@ -22,7 +21,7 @@ object MpvNative {
             System.loadLibrary("au_mpv")
             true
         } catch (error: UnsatisfiedLinkError) {
-            Log.e("AuPlayer", "native load failed", error)
+            // No android.util.Log here: this runs on plain JVM unit tests too.
             Diag.record("mpv", "native missing: " + error.message.toString())
             false
         }
