@@ -144,14 +144,28 @@ class E8PlayerControlsTest {
         val pb = IntArray(b.width * b.height)
         a.getPixels(pa, 0, a.width, 0, 0, a.width, a.height)
         b.getPixels(pb, 0, b.width, 0, 0, b.width, b.height)
-        var diff = 0
-        for (index in pa.indices) {
-            val da = abs(((pa[index] shr 16) and 0xFF) - ((pb[index] shr 16) and 0xFF)) +
-                abs(((pa[index] shr 8) and 0xFF) - ((pb[index] shr 8) and 0xFF)) +
-                abs((pa[index] and 0xFF) - (pb[index] and 0xFF))
-            if (da > DIFF_LUMA) diff++
+        var top = 0
+        var bottom = 0
+        for (y in 0 until a.height) {
+            for (x in 0 until a.width) {
+                val index = y * a.width + x
+                val da = abs(((pa[index] shr 16) and 0xFF) - ((pb[index] shr 16) and 0xFF)) +
+                    abs(((pa[index] shr 8) and 0xFF) - ((pb[index] shr 8) and 0xFF)) +
+                    abs((pa[index] and 0xFF) - (pb[index] and 0xFF))
+                if (da > DIFF_LUMA) {
+                    if (y < a.height / 2) {
+                        top++
+                    } else {
+                        bottom++
+                    }
+                }
+            }
         }
-        return diff
+        Log.i(GATE_TAG, "controls diff top=$top bottom=$bottom")
+        if (bottom < MIN_DIFF) {
+            Log.w(GATE_TAG, "bottom row did not render?")
+        }
+        return top + bottom
     }
 }
 
