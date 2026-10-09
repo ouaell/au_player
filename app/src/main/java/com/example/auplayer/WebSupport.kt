@@ -30,7 +30,7 @@ import kotlin.math.abs
  * Pure flow: harden settings, policy client, scroll-load + collect,
  * download-into-folder. UI stays in WebScreen.kt.
  */
-private fun applyHardenedSettings(settings: WebSettings) {
+internal fun applyHardenedSettings(settings: WebSettings) {
     val wanted = defaultWebSettings()
     settings.javaScriptEnabled = wanted.javaScriptEnabled
     settings.allowFileAccess = wanted.allowFileAccess
@@ -46,7 +46,7 @@ private fun applyHardenedSettings(settings: WebSettings) {
     settings.domStorageEnabled = wanted.domStorageEnabled
 }
 
-private fun policyClient(appContext: Context): WebViewClient {
+internal fun policyClient(appContext: Context): WebViewClient {
     return object : WebViewClient() {
         override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
             val target = request.url.toString()
@@ -62,13 +62,13 @@ private fun policyClient(appContext: Context): WebViewClient {
     }
 }
 
-private suspend fun WebView.evalJs(script: String): String? =
+internal suspend fun WebView.evalJs(script: String): String? =
     suspendCancellableCoroutine { cont ->
         evaluateJavascript(script) { cont.resume(it) }
     }
 
 /** Scroll-loads lazy images (§8: step until height settles, 15 s cap), then collects. */
-private suspend fun readPage(
+internal suspend fun readPage(
     view: WebView?,
     fallbackUrl: String,
     onPicked: (List<String>, Int) -> Unit
@@ -92,7 +92,7 @@ private suspend fun readPage(
     return "${picked.size} images (${found.size} candidates)"
 }
 
-private suspend fun downloadKept(
+internal suspend fun downloadKept(
     context: Context,
     view: WebView?,
     urls: List<String>
