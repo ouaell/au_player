@@ -58,13 +58,24 @@ class E7A11yTest {
     }
 
     private fun assertLabeled(device: UiDevice, pkg: String, screen: String) {
-        val nodes = device.findObjects(By.clickable(true).pkg(pkg))
-        Log.i(GATE_TAG, "$screen clickables=${nodes.size}")
+        val nodes = device.findObjects(By.pkg(pkg))
+        Log.i(GATE_TAG, "$screen nodes=${nodes.size}")
+        for (node in nodes) {
+            try {
+                Log.i(
+                    GATE_TAG,
+                    "node class=${node.className} clickable=${node.isClickable} " +
+                        "text=${node.text} desc=${node.contentDescription}"
+                )
+            } catch (_: StaleObjectException) {
+            }
+        }
         // The hierarchy churns under us (time text ticks); stale nodes
         // vanished on their own — only judge the ones still standing.
         val unlabeled = nodes.filter { node ->
             try {
-                node.text.isNullOrBlank() && node.contentDescription.isNullOrBlank()
+                node.isClickable &&
+                    node.text.isNullOrBlank() && node.contentDescription.isNullOrBlank()
             } catch (_: StaleObjectException) {
                 false
             }

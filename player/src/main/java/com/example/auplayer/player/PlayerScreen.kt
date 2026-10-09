@@ -192,6 +192,10 @@ private fun ReportProgress(
     }
     DisposableEffect(uri) {
         onDispose {
+            Log.i(
+                "E9GATE",
+                "report dispose pos=${uiState.positionMs} dur=${uiState.durationMs}"
+            )
             if (uiState.durationMs > 0 && uiState.positionMs > 0) {
                 onProgress(uiState.positionMs, uiState.durationMs)
             }
