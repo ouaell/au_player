@@ -1,5 +1,6 @@
 package com.example.auplayer.player
 
+import android.util.Log
 import com.example.auplayer.core.Diag
 import com.example.auplayer.core.MpvCommandException
 import kotlinx.coroutines.CompletableDeferred
@@ -60,6 +61,8 @@ class PlayerEngine(
                 ready.await()
                 block()
             } catch (error: MpvCommandException) {
+                // JVM-safe: only executes on real command failures (never in unit tests).
+                Log.e("AuPlayer", "command dropped: " + error.message)
                 Diag.record("player", "command dropped: ${error.message}")
             }
         }
