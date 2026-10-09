@@ -79,12 +79,7 @@ fun HomeScreen(
     }
     Column(modifier = modifier.fillMaxSize().padding(16.dp)) {
         Text(text = "AU Player")
-        if (history.isNotEmpty()) {
-            Text(text = "Continue watching")
-            history.forEach { entry ->
-                ContinueRow(entry = entry, onResume = onResume)
-            }
-        }
+        ContinueSection(history = history, onResume = onResume)
         Button(
             onClick = { picker.launch("*/*") },
             modifier = Modifier.fillMaxWidth()
@@ -99,6 +94,15 @@ fun HomeScreen(
                 modifier = Modifier.fillMaxWidth()
             ) { Text("Web page") }
         }
+    }
+}
+
+@Composable
+private fun ContinueSection(history: List<ResumeEntry>, onResume: (String) -> Unit) {
+    if (history.isEmpty()) return
+    Text(text = "Continue watching")
+    history.forEach { entry ->
+        ContinueRow(entry = entry, onResume = onResume)
     }
 }
 

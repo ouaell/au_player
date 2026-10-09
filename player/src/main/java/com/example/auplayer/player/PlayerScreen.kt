@@ -37,16 +37,26 @@ import kotlinx.coroutines.delay
  * the Enhance sheet. UI state flows from engine events (§5.2); gesture
  * drags beyond tap land next (overlay model already exists).
  */
+/**
+ * Player wiring bundle (keeps the screen signature small): engine, enhance
+ * controller, back navigation, resume-point reporting.
+ */
+data class PlayerHandle(
+    val engine: PlayerEngine,
+    val enhance: EnhanceController,
+    val onBack: () -> Unit,
+    val onProgress: (positionMs: Long, durationMs: Long) -> Unit = { _, _ -> }
+)
+
 @Composable
 @Suppress("LongMethod")
 fun PlayerScreen(
     uri: String,
-    engine: PlayerEngine,
-    enhance: EnhanceController,
-    onBack: () -> Unit,
-    modifier: Modifier = Modifier,
-    onProgress: (positionMs: Long, durationMs: Long) -> Unit = { _, _ -> }
+    handle: PlayerHandle,
+    modifier: Modifier = Modifier
 ) {
+    val engine = handle.engine
+    val enhance = handle.enhance
     val surfaces = remember(engine) { SurfaceHost(engine) }
     var surfaceReady by remember { mutableStateOf(false) }
     var controls by remember { mutableStateOf(true) }
@@ -76,7 +86,7 @@ fun PlayerScreen(
             videoHeight = (engine.bridge as? LibmpvBridge)?.property("height")?.toIntOrNull() ?: 0
         }
     }
-    ReportProgress(uri = uri, uiState = uiState, onProgress = onProgress)
+    ReportProgress(uri = uri, uiState = uiState, onProgress = handle.onProgress)
     Box(
         modifier = modifier.fillMaxSize()
     ) {
@@ -126,7 +136,7 @@ fun PlayerScreen(
                     modifier = Modifier.fillMaxWidth().padding(8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    TextButton(onClick = onBack) { Text("Back") }
+                    TextButton(onClick = handle.onBack) { Text("Back") }
                     Text(
                         text = uri.substringAfterLast('/'),
                         maxLines = 1,

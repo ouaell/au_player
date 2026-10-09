@@ -14,6 +14,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import com.example.auplayer.library.ResumeEntry
 import com.example.auplayer.player.PipCalc
+import com.example.auplayer.player.PlayerHandle
 import com.example.auplayer.player.PlayerScreen
 import com.example.auplayer.routing.Incoming
 import com.example.auplayer.routing.IncomingAction
@@ -44,10 +45,12 @@ class MainActivity : ComponentActivity() {
                     val scope = rememberCoroutineScope()
                     PlayerScreen(
                         uri = debugPath,
-                        engine = app.container.playerEngine,
-                        enhance = app.container.enhanceController,
-                        onBack = { finish() },
-                        onProgress = savePlayback(app, scope, debugPath)
+                        handle = PlayerHandle(
+                            engine = app.container.playerEngine,
+                            enhance = app.container.enhanceController,
+                            onBack = { finish() },
+                            onProgress = savePlayback(app, scope, debugPath)
+                        )
                     )
                 } else {
                     RoutedScreen(intent = intent, fallbackUri = viewUri, onBack = { finish() })
@@ -113,10 +116,12 @@ private fun RoutedScreen(intent: Intent?, fallbackUri: String?, onBack: () -> Un
     when (val route = IntentRouter.route(incoming)) {
         is Route.Player -> PlayerScreen(
             uri = route.uri,
-            engine = app.container.playerEngine,
-            enhance = app.container.enhanceController,
-            onBack = onBack,
-            onProgress = savePlayback(app, scope, route.uri)
+            handle = PlayerHandle(
+                engine = app.container.playerEngine,
+                enhance = app.container.enhanceController,
+                onBack = onBack,
+                onProgress = savePlayback(app, scope, route.uri)
+            )
         )        is Route.Reader -> ReaderScreen(uri = route.uris.first(), kind = route.kind)
         Route.Unsupported -> AuNav(app.container)
     }
