@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.util.Log
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -66,6 +67,10 @@ class E1PlayerTest {
                     "no clean EOF in trace (clip did not finish)",
                     waitForTrace("eof"),
                 )
+                // Device pulls are flaky (scoped storage hides the external
+                // dir; post-test run-as reports "unknown package"), so the
+                // workflow gates on these logcat lines (logcat pull works).
+                dumpTraceForGate()
             }
         }
     }
@@ -99,11 +104,26 @@ class E1PlayerTest {
 
     private fun assertShots(first: File, second: File) {
         val firstStats = luminance(first)
+        Log.i(GATE_TAG, "shot1 mean=${firstStats.first} var=${firstStats.second}")
         assertTrue("blank frame", firstStats.second > MIN_VARIANCE)
         val secondStats = luminance(second)
+        Log.i(GATE_TAG, "shot2 mean=${secondStats.first} var=${secondStats.second}")
         val changed = abs(firstStats.first - secondStats.first) > MIN_DELTA ||
             abs(firstStats.second - secondStats.second) > MIN_DELTA
         assertTrue("screenshots identical (frozen video?)", changed)
+    }
+
+    private fun dumpTraceForGate() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        val trace = File(instrumentation.targetContext.filesDir, "e1-trace.txt")
+        val lines = try {
+            trace.readLines()
+        } catch (error: java.io.IOException) {
+            Log.i(GATE_TAG, "trace unreadable: ${error.message}")
+            return
+        }
+        Log.i(GATE_TAG, "trace lines=${lines.size}")
+        lines.forEach { Log.i(GATE_TAG, "trace $it") }
     }
 
     private fun luminance(png: File): Pair<Double, Double> {
@@ -127,5 +147,6 @@ class E1PlayerTest {
 private const val SHOT_GAP_MS = 1_200L
 private const val TRACE_TIMEOUT_MS = 30_000L
 private const val TRACE_POLL_MS = 250L
+private const val GATE_TAG = "E1GATE"
 private const val MIN_VARIANCE = 10.0
 private const val MIN_DELTA = 0.5

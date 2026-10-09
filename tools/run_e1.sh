@@ -61,31 +61,45 @@ for shot in ("e1-shot-1.png", "e1-shot-2.png"):
     except Exception as error:  # missing/empty when cat failed; gate decides
         print(f"no {shot}: {error}")
 EOF
-echo "=== E1 trace gate (time-pos span + clean EOF) ==="
-if [ ! -f "$GITHUB_WORKSPACE/e1-trace.txt" ]; then
-  echo "E: no trace file — engine produced zero events" >&2
-  exit 1
-fi
-python3 - "$GITHUB_WORKSPACE/e1-trace.txt" <<'EOF'
+echo "=== E1 trace gate (time-pos span + clean EOF, via logcat) ==="
+echo "=== (device file pulls are best-effort: post-test run-as is unreliable;"
+echo "===  the test dumps the same evidence to logcat under E1GATE) ==="
+python3 - "$GITHUB_WORKSPACE/logcat.txt" <<'EOF'
+import re
 import sys
 times = []
 eof = False
-with open(sys.argv[1]) as handle:
-    for line in handle:
-        line = line.strip()
-        if line.startswith('time='):
+shots = {}
+with open(sys.argv[1], errors="replace") as handle:
+    for raw in handle:
+        line = raw.strip()
+        if "E1GATE" not in line:
+            continue
+        time = re.search(r"trace time=([0-9.]+)", line)
+        if time:
             try:
-                times.append(float(line[5:]))
+                times.append(float(time.group(1)))
             except ValueError:
-                pass  # partial line from a retried pull; ignore
-        elif line == 'eof':
+                pass  # partial line from logcat rotation; ignore
+        if re.search(r"trace eof\b", line):
             eof = True
-assert times, 'no time-pos in trace'
+        shot = re.search(r"shot([12]) mean=([0-9.\-eE]+) var=([0-9.\-eE]+)", line)
+        if shot:
+            try:
+                shots[shot.group(1)] = (float(shot.group(2)), float(shot.group(3)))
+            except ValueError:
+                pass
+assert times, "no time-pos in E1GATE logcat dump"
 span = max(times) - min(times)
-print(f'samples={len(times)} span={span:.2f}s eof={eof}')
-assert span >= 2.0, f'span too small: {span}'
-assert eof, 'no clean EOF'
-print('E: trace gate pass')
+print(f"samples={len(times)} span={span:.2f}s eof={eof}")
+assert span >= 2.0, f"span too small: {span}"
+assert eof, "no clean EOF"
+assert "1" in shots and "2" in shots, f"shot stats missing: {sorted(shots)}"
+mean_delta = abs(shots["1"][0] - shots["2"][0])
+var_delta = abs(shots["1"][1] - shots["2"][1])
+print(f"shot deltas: mean={mean_delta:.3f} var={var_delta:.3f}")
+assert mean_delta > 0.5 or var_delta > 0.5, "screenshots identical (frozen video?)"
+print("E: trace gate pass")
 EOF
 adb_retry adb logcat -d > "$GITHUB_WORKSPACE/logcat.txt" || echo "logcat unavailable" > "$GITHUB_WORKSPACE/logcat.txt"
 # Package-scoped crash gate (unscoped greps catch GMS/system noise).

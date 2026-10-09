@@ -123,6 +123,9 @@
 - Key evidence: official ffmpeg.sh uses --enable-gpl (confirmed), mpv.sh passes no -Dgpl (defaults GPL), loadarch already sets 16KB max-page-size, buildall.sh builds per-target/per-arch (mpv without app)
 - check_16kb.sh now takes raw .so files too (64-bit rule preserved)
 
+## E1 round 37886238780 — video PLAYS, pulls unfixable via run-as (LOGCAT GATE)
+- E1 TEST PASSED again (10.6s): VO+AO+trace+shots all live; workflow failed ONLY on pulls — `run-as: unknown package` even shell-form (pre-test run-as mkdir/cp/ls in the same script works; post-connectedCheck run-as is dead — mechanism unknown, not worth more cycles)
+- Fix: test dumps trace lines + shot stats to logcat (`E1GATE`, zero production impact); workflow gates parse logcat.txt (reliably pulled): span≥2s + eof + shot deltas; device PNG pulls kept best-effort for humans
 ## E1 round 37885114495 — VO LIVES (`VO: [gpu] 1280x720`), pulls need abs paths
 - mpv log: wid accepted, `VO: [gpu] 1280x720 yuv420p` + `AO: [audiotrack]` + `Using hardware decoding (mediacodec-copy)` (direct-surface unavailable → copy-back; benign) + audio underrun (slow emulator, still advances)
 - E1 TEST PASSED (13.0s, failures=0): trace-poll saw time= + eof, shots differed — real video on screen
