@@ -114,10 +114,15 @@ fun WebScreen(onOpenReader: (dirPath: String) -> Unit, modifier: Modifier = Modi
             )
         )
         Text(text = status, modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp))
-        BrowserPane(webRef = webRef, initialUrl = urlText)
+        BrowserPane(
+            webRef = webRef,
+            initialUrl = urlText,
+            modifier = Modifier.weight(1f).fillMaxWidth()
+        )
         WebPreview(
             candidates = candidates,
             checked = checked,
+            modifier = Modifier.weight(1f).fillMaxWidth(),
             onToggle = { url, on ->
                 checked = if (on) checked + url else checked - url
             }
@@ -143,7 +148,11 @@ private fun NoticeDialog(onAck: () -> Unit) {
 }
 
 @Composable
-private fun BrowserPane(webRef: MutableState<WebView?>, initialUrl: String) {
+private fun BrowserPane(
+    webRef: MutableState<WebView?>,
+    initialUrl: String,
+    modifier: Modifier = Modifier
+) {
     AndroidView(
         factory = { ctx ->
             WebView(ctx).apply {
@@ -158,7 +167,7 @@ private fun BrowserPane(webRef: MutableState<WebView?>, initialUrl: String) {
                 webRef.value = this
             }
         },
-        modifier = Modifier.weight(1f).fillMaxWidth()
+        modifier = modifier
     )
 }
 @Composable
@@ -182,9 +191,10 @@ private data class WebHandlers(
 private fun WebPreview(
     candidates: List<String>,
     checked: Set<String>,
+    modifier: Modifier = Modifier,
     onToggle: (String, Boolean) -> Unit
 ) {
-    LazyColumn(modifier = Modifier.weight(1f).fillMaxWidth()) {
+    LazyColumn(modifier = modifier) {
         items(candidates, key = { it }) { url ->
             Row(modifier = Modifier.fillMaxWidth()) {
                 Checkbox(

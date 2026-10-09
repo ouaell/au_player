@@ -146,8 +146,3 @@ internal fun setWebNoticeSeen(context: Context) {
     context.getSharedPreferences(WEB_PREFS, Context.MODE_PRIVATE)
         .edit().putBoolean(NOTICE_KEY, true).apply()
 }
-
-internal suspend fun WebView.evalJs(script: String): String? =
-    suspendCancellableCoroutine { cont ->
-        evaluateJavascript(script) { cont.resume(it) }
-    }
