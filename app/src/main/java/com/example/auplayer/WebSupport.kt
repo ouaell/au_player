@@ -5,7 +5,6 @@ import android.util.Log
 import android.webkit.CookieManager
 import android.webkit.WebResourceRequest
 import android.webkit.WebSettings
-import android.webkit.WebStorage
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
@@ -35,7 +34,7 @@ internal fun applyHardenedSettings(settings: WebSettings) {
     settings.javaScriptEnabled = wanted.javaScriptEnabled
     settings.allowFileAccess = wanted.allowFileAccess
     settings.allowContentAccess = wanted.allowContentAccess
-    settings.blockNetworkLoads(wanted.blockNetworkLoads)
+    settings.blockNetworkLoads = wanted.blockNetworkLoads
     settings.mixedContentMode = if (wanted.mixedContentBlocked) {
         WebSettings.MIXED_CONTENT_NEVER_ALLOW
     } else {
@@ -132,3 +131,23 @@ internal suspend fun downloadKept(
 }
 
 private const val SCROLL_BUDGET_MS = 15_000L
+private const val SCROLL_STEP_MS = 400L
+private const val FALLBACK_EXT = "jpg"
+private val IMAGE_EXTS = setOf("jpg", "jpeg", "png", "webp", "gif", "bmp", "avif")
+private const val WEB_PREFS = "au_web"
+private const val NOTICE_KEY = "notice_seen"
+
+internal fun webNoticeSeen(context: Context): Boolean {
+    return context.getSharedPreferences(WEB_PREFS, Context.MODE_PRIVATE)
+        .getBoolean(NOTICE_KEY, false)
+}
+
+internal fun setWebNoticeSeen(context: Context) {
+    context.getSharedPreferences(WEB_PREFS, Context.MODE_PRIVATE)
+        .edit().putBoolean(NOTICE_KEY, true).apply()
+}
+
+internal suspend fun WebView.evalJs(script: String): String? =
+    suspendCancellableCoroutine { cont ->
+        evaluateJavascript(script) { cont.resume(it) }
+    }
