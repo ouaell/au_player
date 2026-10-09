@@ -29,8 +29,11 @@ adb_retry adb shell "run-as com.example.auplayer cp /data/local/tmp/e1.mp4 /data
 adb_retry adb shell "run-as com.example.auplayer ls -l /data/data/com.example.auplayer/files/e1.mp4"
 TEST_FAILED=0
 gradle :app:connectedDirectDebugAndroidTest --stacktrace || TEST_FAILED=1
+echo "=== APK native libs ==="
+unzip -l app/build/outputs/apk/direct/debug/*.apk | grep '\.so' || true
 echo "=== androidTest results ==="
 find app/build -name "*.xml" -path "*androidTest-results*" -exec grep -h "<testsuite " {} \; || true
+adb_retry adb logcat -d > "$GITHUB_WORKSPACE/logcat.txt" || echo "logcat unavailable" > "$GITHUB_WORKSPACE/logcat.txt"
 adb_retry adb pull /sdcard/Android/data/com.example.auplayer/files/e1-shot-1.png "$GITHUB_WORKSPACE/e1-shot-1.png" || true
 adb_retry adb pull /sdcard/Android/data/com.example.auplayer/files/e1-shot-2.png "$GITHUB_WORKSPACE/e1-shot-2.png" || true
 adb_retry adb pull /sdcard/Android/data/com.example.auplayer/files/e1-trace.txt "$GITHUB_WORKSPACE/e1-trace.txt" || true
