@@ -11,10 +11,14 @@
 #include <thread>
 #include <vector>
 
+#include <android/log.h>
 #include <EGL/egl.h>
 #include <mpv/client.h>
 #include <mpv/render.h>
 #include <mpv/render_gl.h>
+
+#define AU_LOGI(...) __android_log_print(ANDROID_LOG_INFO, "AuPlayer", __VA_ARGS__)
+#define AU_LOGE(...) __android_log_print(ANDROID_LOG_ERROR, "AuPlayer", __VA_ARGS__)
 
 namespace {
 
@@ -51,10 +55,15 @@ void* gl_get_proc_address(void*, const char* name) {
 void eventLoop(Ctx* ctx) {
     JNIEnv* env = nullptr;
     ctx->jvm->AttachCurrentThread(&env, nullptr);
+    bool first = true;
     while (ctx->running.load()) {
         mpv_event* event = mpv_wait_event(ctx->mpv, 0.25);
         if (event == nullptr || event->event_id == MPV_EVENT_NONE) {
             continue;
+        }
+        if (first) {
+            first = false;
+            AU_LOGI("pump alive, first event id=%d", event->event_id);
         }
         const char* name = mpv_event_name(event->event_id);
         jstring jname = env->NewStringUTF(name != nullptr ? name : "unknown");
@@ -226,12 +235,14 @@ Java_com_example_auplayer_player_MpvEvents_nativeStartEvents(
     ctx->onEvent = env->GetMethodID(cls, "onEvent", "(Ljava/lang/String;J)V");
     env->DeleteLocalRef(cls);
     if (ctx->onEvent == nullptr) {
+        AU_LOGE("startEvents: onEvent method missing");
         env->DeleteGlobalRef(ctx->callback);
         ctx->callback = nullptr;
         return;
     }
     ctx->running = true;
     ctx->loop = std::thread(eventLoop, ctx);
+    AU_LOGI("event pump started");
 }
 
 JNIEXPORT void JNICALL

@@ -1,6 +1,7 @@
 package com.example.auplayer.player
 
 import android.view.Surface
+import android.util.Log
 
 /**
  * Render thread (Push B2): owns EGL + render context for one surface,
@@ -16,8 +17,13 @@ class RenderLoop(
     private var thread: Thread? = null
 
     fun start(surface: Surface, width: Int, height: Int): Boolean {
-        val ready = egl.init() && egl.makeWindowSurface(surface) && bridge.renderInit() == 0
-        if (!ready) {
+        val code = if (egl.init() && egl.makeWindowSurface(surface)) {
+            bridge.renderInit()
+        } else {
+            RENDER_SKIPPED
+        }
+        Log.i("AuPlayer", "render: start code=$code")
+        if (code != 0) {
             egl.release()
             return false
         }
@@ -54,3 +60,4 @@ class RenderLoop(
 
 private const val POLL_MS = 8L
 private const val JOIN_MS = 1_000L
+private const val RENDER_SKIPPED = -1
