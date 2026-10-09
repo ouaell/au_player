@@ -123,6 +123,11 @@
 - Key evidence: official ffmpeg.sh uses --enable-gpl (confirmed), mpv.sh passes no -Dgpl (defaults GPL), loadarch already sets 16KB max-page-size, buildall.sh builds per-target/per-arch (mpv without app)
 - check_16kb.sh now takes raw .so files too (64-bit rule preserved)
 
+## E1 round 37877271123 — loadfile ACCEPTED, then silence (mpv muted)
+- No `command dropped` in logcat: loadfile returned 0; still zero post-open events (no time-pos, no end-file) → core stuck pre-start-file (demux/vo/hwdec) with mpv's internal log never requested
+- Fix: au_mpv.cpp requests `info` log messages at pump start + forwards MPV_EVENT_LOG_MESSAGE to logcat as `mpv [prefix/level]` (native-only, zero Kotlin/test impact)
+- Next: read mpv's own error lines (vo/gpu EGL? mediacodec-copy? demux?) then fix the cause, not the plumbing
+
 ## E1 test timing bug — shots fired before open, close killed EOF
 - E1PlayerTest took shots at +0.8s/+2.0s but last round's `open` landed at +3s (dlopen+init on slow emulator) → both shots pre-playback (black + chrome = identical); scenario.close then destroyed the engine before the 3s clip could EOF
 - Fix: poll app-side trace (same external files dir both processes) for `time=` before shot1, and for `eof` before close (30s timeouts); removed fixed STARTUP_MS
