@@ -14,6 +14,10 @@ object MpvNative {
     var loaded: Boolean = false
         private set
 
+    /** Last load failure (pure string: safe to read from JVM tests too). */
+    var lastError: String? = null
+        private set
+
     fun load(): Boolean {
         if (loaded) return true
         loaded = try {
@@ -22,6 +26,7 @@ object MpvNative {
             true
         } catch (error: UnsatisfiedLinkError) {
             // No android.util.Log here: this runs on plain JVM unit tests too.
+            lastError = error.message
             Diag.record("mpv", "native missing: " + error.message.toString())
             false
         }

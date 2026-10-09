@@ -41,8 +41,14 @@ class E1PlayerTest {
             // Native libs live in the APP process (not the test process).
             scenario.onActivity {
                 if (!MpvNative.load()) {
-                    assertTrue("native missing; linker says: ${linkerClues()}", false)
+                    val packaged = File(it.applicationInfo.nativeLibraryDir).list()
+                        ?.sorted().toString()
+                    assertTrue(
+                        "native missing: ${MpvNative.lastError}; packaged=$packaged",
+                        false
+                    )
                 }
+            }
             }
             runBlocking {
                 delay(STARTUP_MS)
