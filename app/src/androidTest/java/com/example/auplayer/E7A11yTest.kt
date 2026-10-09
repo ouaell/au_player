@@ -34,6 +34,8 @@ class E7A11yTest {
 
         launchFile(device, context, clip, "video/mp4")
         assertTrue("player screen never came up", device.wait(Until.hasObject(By.pkg(pkg)), UI_TIMEOUT_MS))
+        // Controls auto-hide after 3 s; tap first so the audit sees them.
+        device.click(device.displayWidth / 2, device.displayHeight / 2)
         Thread.sleep(SETTLE_MS)
         assertLabeled(device, pkg, "player")
 

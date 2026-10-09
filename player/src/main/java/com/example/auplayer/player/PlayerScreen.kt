@@ -21,6 +21,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -190,14 +191,17 @@ private fun ReportProgress(
             onProgress(uiState.positionMs, uiState.durationMs)
         }
     }
+    // DisposableEffect closures freeze at last run: track the latest snapshot
+    // explicitly or dispose always sees zeros (E9).
+    val latest by rememberUpdatedState(uiState)
     DisposableEffect(uri) {
         onDispose {
             Log.i(
                 "E9GATE",
-                "report dispose pos=${uiState.positionMs} dur=${uiState.durationMs}"
+                "report dispose pos=${latest.positionMs} dur=${latest.durationMs}"
             )
-            if (uiState.durationMs > 0 && uiState.positionMs > 0) {
-                onProgress(uiState.positionMs, uiState.durationMs)
+            if (latest.durationMs > 0 && latest.positionMs > 0) {
+                onProgress(latest.positionMs, latest.durationMs)
             }
         }
     }

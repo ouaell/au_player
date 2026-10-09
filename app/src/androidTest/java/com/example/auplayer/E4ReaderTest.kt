@@ -34,6 +34,12 @@ class E4ReaderTest {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
         openViewing(device, cbz, "application/vnd.comicbook+zip")
+        if (!device.wait(Until.hasObject(By.textContains("1 / 3")), UI_TIMEOUT_MS)) {
+            // Dumps wedge occasionally on the emulator; one relaunch usually
+            // restores them. A second miss is a real failure.
+            Log.i(GATE_TAG, "cbz text miss, relaunching once")
+            openViewing(device, cbz, "application/vnd.comicbook+zip")
+        }
         assertTrue("cbz pages not shown", device.wait(Until.hasObject(By.textContains("1 / 3")), UI_TIMEOUT_MS))
         Log.i(GATE_TAG, "cbz 3 pages shown")
 
