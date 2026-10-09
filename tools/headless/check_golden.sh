@@ -6,7 +6,7 @@ set -eu
 RENDERED="$1"
 GOLDEN="$2"
 MIN_SSIM="${3:-0.98}"
-score=$(ffmpeg -hide_banner -loglevel error -i "$RENDERED" -i "$GOLDEN" \
+score=$(ffmpeg -hide_banner -i "$RENDERED" -i "$GOLDEN" \
   -lavfi "ssim" -f null - 2>&1 | grep -oE 'All:[0-9.]+' | cut -d: -f2 | tail -1)
 echo "ssim(all)=$score (min $MIN_SSIM)"
 python3 -c "import sys; sys.exit(0 if float('$score') >= float('$MIN_SSIM') else 1)" \
