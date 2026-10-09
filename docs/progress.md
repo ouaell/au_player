@@ -123,6 +123,10 @@
 - Key evidence: official ffmpeg.sh uses --enable-gpl (confirmed), mpv.sh passes no -Dgpl (defaults GPL), loadarch already sets 16KB max-page-size, buildall.sh builds per-target/per-arch (mpv without app)
 - check_16kb.sh now takes raw .so files too (64-bit rule preserved)
 
+## E1 blocker #2 — wrong NDK's libc++_shared (DT_NEEDED proof)
+- `ls ndk/* | head -1` picked the runner-preinstalled older NDK; its libc++ lacks `__from_chars_floating_point` that our r30-built libmpv.so needs → dlopen "cannot locate symbol"
+- Fix: NDK_VERSION pinned in pins.txt; fetch copies libc++_shared ONLY from it (loud warning otherwise); cache key already covers pins.txt
+
 ## E1 blocker found — missing libc++_shared.so (DT_NEEDED proof)
 - libmpv.so needs libc++_shared.so (T1 linkage manifest); APK never packaged it → dlopen failed in-app
 - Fix: fetch_native.sh copies it per-ABI from the NDK (+ ANDROID_HOME on Gates step); T1 cache key unchanged (pins hash — hmm, script changed but cache key is pins-only, so stale cache without libc++ persists! FIX: include script hash in key)

@@ -27,5 +27,8 @@ SDK_PLATFORM=36
 # ABI map: buildscripts name -> Android ABI
 # arm64 -> arm64-v8a, armv7l -> armeabi-v7a, x86_64 -> x86_64
 
+# NDK for both native builds and app-side libc++_shared staging
+NDK_VERSION=30.0.16248370
+
 # First published release consumed by the app (tools/fetch_native.sh)
 NATIVE_RELEASE_TAG=native-20261008
