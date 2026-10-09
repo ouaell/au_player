@@ -18,6 +18,8 @@ jobs:
           sudo apt-get install -y -qq mpv xvfb mesa-utils-bin ffmpeg
           mpv --version | head -2
           echo "pinned: $(grep '^MPV_VERSION=' native/pins.txt || true)"
+          echo "--- --list-options sample (format check) ---"
+          mpv --list-options 2>&1 | head -5
       - name: Corpus + shaders
         run: |
           sh tools/gen_corpus.sh test-corpus

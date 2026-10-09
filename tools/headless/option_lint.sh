@@ -10,7 +10,9 @@ for opt in vo gpu-context opengl-es hwdec ao video-sync gpu-shader-cache-dir \
     correct-downscaling linear-downscaling sigmoid-upscaling \
     tone-mapping hdr-compute-peak volume-max sub-codepage sub-auto \
     sub-delay audio-delay glsl-shaders; do
-  if "$MPV" --list-options 2>/dev/null | grep -q "^$opt "; then
+  # mpv --list-options format varies by version (leading dashes/spacing);
+  # match the bare name as a token anywhere on the line.
+  if "$MPV" --list-options 2>/dev/null | grep -qE "(^|[[:space:]])--?$opt([[:space:]=]|$)"; then
     echo "option ok: $opt"
   else
     echo "option_lint: unknown option $opt" >&2
