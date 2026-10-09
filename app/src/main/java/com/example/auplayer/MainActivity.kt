@@ -81,6 +81,6 @@ private fun RoutedScreen(intent: Intent?, fallbackUri: String?) {
     when (val route = IntentRouter.route(incoming)) {
         is Route.Player -> PlayerScreen(uri = route.uri, engine = app.container.playerEngine)
         is Route.Reader -> ReaderScreen(uri = route.uris.first(), kind = route.kind)
-        Route.Unsupported -> AuNav()
+        Route.Unsupported -> AuNav(app.container)
     }
 }

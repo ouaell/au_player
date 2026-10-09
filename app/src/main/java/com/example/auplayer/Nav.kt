@@ -10,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import java.util.ArrayDeque
+import com.example.auplayer.routing.ReaderKind
 
 /** Destinations (MS-006 shell; full screens land in MS-012/MS-020/MS-038). */
 sealed interface NavDest {
@@ -59,13 +60,34 @@ class Navigator {
 }
 
 @Composable
-fun AuNav() {
+fun AuNav(container: AppContainer) {
     val controller = rememberNavController()
     NavHost(navController = controller, startDestination = NavDest.Home.route) {
-        composable(NavDest.Home.route) { StubScreen("Home") }
+        composable(NavDest.Home.route) {
+            HomeScreen(
+                webEnabled = container.webSourceEnabled,
+                onWeb = { controller.navigate(NavDest.Web.route) }
+            )
+        }
         composable(NavDest.Player.route) { StubScreen("Player") }
-        composable(NavDest.Reader.route) { StubScreen("Reader") }
-        composable(NavDest.Web.route) { StubScreen("Web") }
+        composable(NavDest.Reader.route) {
+            val dir = container.readerDir
+            if (dir != null) {
+                ReaderScreen(uri = dir, kind = ReaderKind.URLS)
+            } else {
+                StubScreen("Reader")
+            }
+        }
+        composable(NavDest.Web.route) {
+            if (container.webSourceEnabled) {
+                WebScreen(onOpenReader = { dir ->
+                    container.readerDir = dir
+                    controller.navigate(NavDest.Reader.route)
+                })
+            } else {
+                StubScreen("Web unavailable in this build")
+            }
+        }
         composable(NavDest.Settings.route) { StubScreen("Settings") }
     }
 }

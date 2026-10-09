@@ -38,4 +38,11 @@ class AppContainer(context: Context) {
     val enhanceController: EnhanceController by lazy {
         EnhanceController(playerEngine::send)
     }
+
+    /**
+     * In-app navigation target for reader content produced inside the app
+     * (Web Source downloads): a cache folder path. VIEW intents carry their
+     * own URIs; this covers the flow where no intent exists.
+     */
+    var readerDir: String? = null
 }

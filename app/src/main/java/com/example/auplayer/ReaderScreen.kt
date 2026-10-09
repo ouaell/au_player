@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import com.example.auplayer.reader.PagedReader
 import com.example.auplayer.reader.PageProvider
 import com.example.auplayer.reader.PdfPageProvider
+import com.example.auplayer.reader.FolderProvider
 import com.example.auplayer.reader.ZipProvider
 import com.example.auplayer.routing.ReaderKind
 import kotlinx.coroutines.Dispatchers
@@ -89,7 +90,9 @@ private fun ReaderBody(
 /** Opens the provider for a VIEW route; specific catches keep failures visible. */
 internal fun openReaderProvider(file: File, kind: ReaderKind): PageProvider? {
     return try {
-        if (kind == ReaderKind.PDF || file.extension.lowercase() == PDF_EXT) {
+        if (file.isDirectory) {
+            FolderProvider(file)
+        } else if (kind == ReaderKind.PDF || file.extension.lowercase() == PDF_EXT) {
             PdfPageProvider(file)
         } else {
             ZipProvider(file)
