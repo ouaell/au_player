@@ -162,7 +162,6 @@ fun PlayerScreen(
                         Text(text = "Enhance: ${enhanceMode.name}")
                     }
                 }
-                }
                 Box(modifier = Modifier.weight(1f))
                 PlayerControls(
                     state = uiState,
