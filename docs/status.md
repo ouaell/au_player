@@ -7,8 +7,9 @@ Nothing below claims to work without аварий evidence.
 
 | feature | status | evidence / note |
 |---|---|---|
-| libmpv presence (any ABI) | UNVERIFIED | self-built 3-ABI release `native-20261008` published; in-app dlopen unverified (E1) |
-| open/play/pause/seek/events | UNVERIFIED | FakeMpvBridge only; needs E1 |
+| libmpv presence (any ABI) | E2E-VERIFIED | emulator run 37887446097: in-app dlopen, `mpv v0.41.0` init, VO [gpu] 720p + AO [audiotrack] + mediacodec-copy (artifacts: logcat, E1GATE dump) |
+| open + time-pos events + clean EOF | E2E-VERIFIED | same run: loadfile plays (69 time-pos samples, span 2.30s, eof=True), shot variance delta 42.7, logcat clean |
+| play/pause/seek commands | UNIT-ONLY | PlayerEngineTest via Fake; device paths wired but not E-proven |
 | surface attach/detach | UNVERIFIED | logic UNIT-ONLY (SurfaceHostTest); needs E4 |
 | state machine/transitions | UNIT-ONLY | PlayerStateMachineTest (+illegal pairs) |
 | controller UI/auto-hide/time | UNVERIFIED | AutoHide/formatTime UNIT-ONLY; composables need T2 |
@@ -62,6 +63,6 @@ Nothing below claims to work without аварий evidence.
 
 ## Counts
 
-- E2E-VERIFIED: 1 (CI gate stack — builds/tests/static checks only)
-- UNIT-ONLY: 26
-- UNVERIFIED: 21
+- E2E-VERIFIED: 3 (CI gate stack, libmpv presence, open/events/EOF)
+- UNIT-ONLY: 27
+- UNVERIFIED: 19

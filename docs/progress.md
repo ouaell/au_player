@@ -123,6 +123,11 @@
 - Key evidence: official ffmpeg.sh uses --enable-gpl (confirmed), mpv.sh passes no -Dgpl (defaults GPL), loadarch already sets 16KB max-page-size, buildall.sh builds per-target/per-arch (mpv without app)
 - check_16kb.sh now takes raw .so files too (64-bit rule preserved)
 
+## E1 GREEN — run 37887446097 (real video on CI emulator)
+- Gate evidence: `samples=69 span=2.30s eof=True`, `shot deltas: mean=0.120 var=42.679`, `E: trace gate pass`, `E: logcat clean`; E1 test + SmokeTest green in-run
+- Path that got here: init race → libc++ NDK pin → split-brain trace → silent loadfile → mpv log forwarding → av_jni JVM registration (libavcodec) → `wid` surface plumbing (vo owns surface, app EGL retired) → scoped-storage/run-as pulls replaced by logcat E1GATE gate
+- docs/status.md: libmpv presence + open/events/EOF → E2E-VERIFIED (counts 3/27/19); play/pause/seek stay UNIT-ONLY (wired, not E-proven)
+- Known gaps: post-test run-as "unknown package" (pulls best-effort only, mechanism unknown); double `open` from created+changed (benign); rotation re-open untested; trace file always written in prod (I/O note for later)
 ## E1 round 37886238780 — video PLAYS, pulls unfixable via run-as (LOGCAT GATE)
 - E1 TEST PASSED again (10.6s): VO+AO+trace+shots all live; workflow failed ONLY on pulls — `run-as: unknown package` even shell-form (pre-test run-as mkdir/cp/ls in the same script works; post-connectedCheck run-as is dead — mechanism unknown, not worth more cycles)
 - Fix: test dumps trace lines + shot stats to logcat (`E1GATE`, zero production impact); workflow gates parse logcat.txt (reliably pulled): span≥2s + eof + shot deltas; device PNG pulls kept best-effort for humans
