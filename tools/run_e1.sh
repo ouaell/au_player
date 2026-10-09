@@ -34,9 +34,28 @@ unzip -l app/build/outputs/apk/direct/debug/*.apk | grep '\.so' || true
 echo "=== androidTest results ==="
 find app/build -name "*.xml" -path "*androidTest-results*" -exec grep -h "<testsuite " {} \; || true
 adb_retry adb logcat -d > "$GITHUB_WORKSPACE/logcat.txt" || echo "logcat unavailable" > "$GITHUB_WORKSPACE/logcat.txt"
-adb_retry adb pull /sdcard/Android/data/com.example.auplayer/files/e1-shot-1.png "$GITHUB_WORKSPACE/e1-shot-1.png" || true
-adb_retry adb pull /sdcard/Android/data/com.example.auplayer/files/e1-shot-2.png "$GITHUB_WORKSPACE/e1-shot-2.png" || true
-adb_retry adb pull /sdcard/Android/data/com.example.auplayer/files/e1-trace.txt "$GITHUB_WORKSPACE/e1-trace.txt" || true
+# API 30+ scoped storage hides /sdcard/Android/data/<pkg>/ from adb shell
+# ("No such file"), so pull via run-as (debuggable build) with exec-out
+# (binary-safe for the PNGs). App + test use internal filesDir (same UID).
+# Atomic temp+mv: a failed retry must not leave partial bytes in the target.
+run_as_pull() {
+  tries=0
+  while [ $tries -lt 5 ]; do
+    if adb exec-out run-as com.example.auplayer cat "files/$1" > "$GITHUB_WORKSPACE/.pull.tmp"; then
+      mv "$GITHUB_WORKSPACE/.pull.tmp" "$GITHUB_WORKSPACE/$1"
+      return 0
+    fi
+    tries=$((tries + 1))
+    sleep 5
+    adb kill-server || true
+    adb start-server || true
+    adb wait-for-device || true
+  done
+  return 1
+}
+run_as_pull e1-shot-1.png || true
+run_as_pull e1-shot-2.png || true
+run_as_pull e1-trace.txt || true
 echo "=== E1 trace gate (time-pos span + clean EOF) ==="
 if [ ! -f "$GITHUB_WORKSPACE/e1-trace.txt" ]; then
   echo "E: no trace file — engine produced zero events" >&2

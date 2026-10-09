@@ -72,7 +72,9 @@ class E1PlayerTest {
 
     private fun waitForTrace(prefix: String): Boolean {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
-        val trace = File(instrumentation.targetContext.getExternalFilesDir(null), "e1-trace.txt")
+        // Same internal filesDir the app writes (scoped storage hides the
+        // external dir from adb shell on API 30+; workflow pulls via run-as).
+        val trace = File(instrumentation.targetContext.filesDir, "e1-trace.txt")
         val deadline = System.currentTimeMillis() + TRACE_TIMEOUT_MS
         while (System.currentTimeMillis() < deadline) {
             val lines = try {
@@ -89,8 +91,7 @@ class E1PlayerTest {
     private fun takeShot(name: String): File {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val device = UiDevice.getInstance(instrumentation)
-        val dir = instrumentation.targetContext.getExternalFilesDir(null)
-            ?: error("no external dir")
+        val dir = instrumentation.targetContext.filesDir
         val file = File(dir, name)
         assertTrue("screenshot failed", device.takeScreenshot(file))
         return file

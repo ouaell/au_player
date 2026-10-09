@@ -25,7 +25,10 @@ class AppContainer(context: Context) {
      */
     val playerEngine: PlayerEngine by lazy {
         if (MpvNative.load()) {
-            PlayerEngine(LibmpvBridge(mpvPaths, context.getExternalFilesDir(null)))
+            // Internal filesDir: API 30+ scoped storage hides
+            // /sdcard/Android/data/<pkg>/ from adb shell, so the E1 trace
+            // must live where `run-as` can read it.
+            PlayerEngine(LibmpvBridge(mpvPaths, context.filesDir))
         } else {
             PlayerEngine(FakeMpvBridge())
         }

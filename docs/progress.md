@@ -123,10 +123,13 @@
 - Key evidence: official ffmpeg.sh uses --enable-gpl (confirmed), mpv.sh passes no -Dgpl (defaults GPL), loadarch already sets 16KB max-page-size, buildall.sh builds per-target/per-arch (mpv without app)
 - check_16kb.sh now takes raw .so files too (64-bit rule preserved)
 
-## E1 round 37877271123 — loadfile ACCEPTED, then silence (mpv muted)
-- No `command dropped` in logcat: loadfile returned 0; still zero post-open events (no time-pos, no end-file) → core stuck pre-start-file (demux/vo/hwdec) with mpv's internal log never requested
-- Fix: au_mpv.cpp requests `info` log messages at pump start + forwards MPV_EVENT_LOG_MESSAGE to logcat as `mpv [prefix/level]` (native-only, zero Kotlin/test impact)
-- Next: read mpv's own error lines (vo/gpu EGL? mediacodec-copy? demux?) then fix the cause, not the plumbing
+## E1 round 37878455470 — mpv speaks: JVM never registered (ROOT CAUSE)
+- mpv log (new forwarding): demux ok (`h264 1280x720`, `aac`), but `vo/gpu/android: No Java virtual machine has been registered` → `Could not attach java VM` → `Video: no video`; ao/audiotrack same error → opensles fallback carried AUDIO (hence time-pos + EOF + test pass on audio only; shot diff likely activity animation, not video)
+- Cause (verified in mpv v0.41.0 `misc/jni.c` via gh code search): android backends use `av_jni_get_java_vm`, fed ONLY by `av_jni_set_java_vm` — nobody called it (our au_mpv has no JNI_OnLoad)
+- Fix: `JNI_OnLoad` in au_mpv.cpp calls `av_jni_set_java_vm(env, nullptr)` (`#include <libavutil/jni.h>`, `avutil` added to CMake link; shared libavutil ships in APK — confirmed in run log)
+- Same round exposed scoped-storage pulls: API 30+ hides `/sdcard/Android/data/<pkg>/` from shell → `failed to stat` on shots+trace (test itself passed: same-UID internal access works)
+- Fix: trace + shots moved to internal filesDir (AppContainer + E1PlayerTest); workflow pulls via `adb exec-out run-as ... cat files/...` with atomic temp+mv retry helper
+- Latent render fix batched: surfaceChanged ignored → (re)start render on usable frame + RenderLoop.start no-ops while running
 
 ## E1 test timing bug — shots fired before open, close killed EOF
 - E1PlayerTest took shots at +0.8s/+2.0s but last round's `open` landed at +3s (dlopen+init on slow emulator) → both shots pre-playback (black + chrome = identical); scenario.close then destroyed the engine before the 3s clip could EOF

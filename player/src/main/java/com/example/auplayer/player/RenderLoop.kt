@@ -17,6 +17,9 @@ class RenderLoop(
     private var thread: Thread? = null
 
     fun start(surface: Surface, width: Int, height: Int): Boolean {
+        // surfaceChanged can re-fire for a live loop (rotation/resize):
+        // keep the existing loop instead of leaking a second one.
+        if (running) return true
         val code = if (egl.init() && egl.makeWindowSurface(surface)) {
             bridge.renderInit()
         } else {

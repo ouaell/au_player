@@ -11,8 +11,13 @@ add_library(mpv SHARED IMPORTED)
 set_target_properties(mpv PROPERTIES
     IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/../jniLibs/${ANDROID_ABI}/libmpv.so")
 
+# Prebuilt libavutil (carries av_jni_set_java_vm for the JVM registration).
+add_library(avutil SHARED IMPORTED)
+set_target_properties(avutil PROPERTIES
+    IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/../jniLibs/${ANDROID_ABI}/libavutil.so")
+
 find_library(log-lib log)
 find_library(egl-lib EGL)
 find_library(gles-lib GLESv3)
 
-target_link_libraries(au_mpv mpv ${log-lib} ${egl-lib} ${gles-lib})
+target_link_libraries(au_mpv mpv avutil ${log-lib} ${egl-lib} ${gles-lib})

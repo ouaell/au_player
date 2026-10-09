@@ -51,7 +51,16 @@ fun PlayerScreen(
                         format: Int,
                         width: Int,
                         height: Int
-                    ) = Unit
+                    ) {
+                        // surfaceCreated may arrive with a 0x0 frame (render
+                        // never starts); (re)start here when a usable frame
+                        // exists. RenderLoop.start no-ops while running.
+                        surfaces.onSurfaceCreated(holder.surface)
+                        val frame = usableFrame(holder)
+                        if (frame != null) {
+                            render?.start(frame.surface, frame.width, frame.height)
+                        }
+                    }
 
                     override fun surfaceDestroyed(holder: SurfaceHolder) {
                         surfaces.onSurfaceDestroyed()
