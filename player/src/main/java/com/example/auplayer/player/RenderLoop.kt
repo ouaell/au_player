@@ -26,21 +26,25 @@ class RenderLoop(
                 RENDER_SKIPPED
             }
             Log.i("AuPlayer", "render: start code=$code")
-            if (code == 0) {
+            if (code == 0 && egl.clearCurrent()) {
                 running = true
                 thread = Thread({
-                    while (running) {
-                        if (bridge.checkUpdate()) {
-                            if (egl.makeCurrent() && bridge.renderFrame(width, height) == 0) {
-                                egl.swapBuffers()
-                            }
-                        } else {
-                            try {
-                                Thread.sleep(POLL_MS)
-                            } catch (_: InterruptedException) {
-                                Thread.currentThread().interrupt()
+                    try {
+                        while (running) {
+                            if (bridge.checkUpdate()) {
+                                if (egl.makeCurrent() && bridge.renderFrame(width, height) == 0) {
+                                    egl.swapBuffers()
+                                }
+                            } else {
+                                try {
+                                    Thread.sleep(POLL_MS)
+                                } catch (_: InterruptedException) {
+                                    Thread.currentThread().interrupt()
+                                }
                             }
                         }
+                    } finally {
+                        egl.clearCurrent()
                     }
                 }, "mpv-render").apply { isDaemon = true; start() }
             } else {

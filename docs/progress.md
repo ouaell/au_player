@@ -126,7 +126,8 @@
 ## E1 round 37878455470 — mpv speaks: JVM never registered (ROOT CAUSE)
 - mpv log (new forwarding): demux ok (`h264 1280x720`, `aac`), but `vo/gpu/android: No Java virtual machine has been registered` → `Could not attach java VM` → `Video: no video`; ao/audiotrack same error → opensles fallback carried AUDIO (hence time-pos + EOF + test pass on audio only; shot diff likely activity animation, not video)
 - Cause (verified in mpv v0.41.0 `misc/jni.c` via gh code search): android backends use `av_jni_get_java_vm`, fed ONLY by `av_jni_set_java_vm` — nobody called it (our au_mpv has no JNI_OnLoad)
-- Fix: `JNI_OnLoad` in au_mpv.cpp calls `av_jni_set_java_vm(env, nullptr)` (`#include <libavutil/jni.h>`, `avutil` added to CMake link; shared libavutil ships in APK — confirmed in run log)
+- Fix: `JNI_OnLoad` in au_mpv.cpp calls `av_jni_set_java_vm(vm, nullptr)` — declared locally (`extern "C"`, staged headers carry mpv only), linked against **libavcodec** (the av_jni API moved libavutil→libavcodec with new `(void* vm, void* log_ctx)` signature — verified in FFmpeg master's `libavcodec/jni.h`; two failed T1s on the way: missing header, then wrong lib)
+- Detekt fix on the way: RenderLoop.start restructured to single return (ReturnCount); T1 green with avcodec link
 - Same round exposed scoped-storage pulls: API 30+ hides `/sdcard/Android/data/<pkg>/` from shell → `failed to stat` on shots+trace (test itself passed: same-UID internal access works)
 - Fix: trace + shots moved to internal filesDir (AppContainer + E1PlayerTest); workflow pulls via `adb exec-out run-as ... cat files/...` with atomic temp+mv retry helper
 - Latent render fix batched: surfaceChanged ignored → (re)start render on usable frame + RenderLoop.start no-ops while running

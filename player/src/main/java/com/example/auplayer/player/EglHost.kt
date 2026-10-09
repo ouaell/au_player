@@ -43,6 +43,21 @@ class EglHost {
         return EGL14.eglMakeCurrent(display, surface, surface, context)
     }
 
+    /**
+     * Releases the context from the calling thread. Required after init on
+     * the start thread: an EGL context current on one thread cannot be made
+     * current on the render thread (EGL_BAD_ACCESS) until released here.
+     */
+    fun clearCurrent(): Boolean {
+        if (display === EGL14.EGL_NO_DISPLAY) return false
+        return EGL14.eglMakeCurrent(
+            display,
+            EGL14.EGL_NO_SURFACE,
+            EGL14.EGL_NO_SURFACE,
+            EGL14.EGL_NO_CONTEXT
+        )
+    }
+
     fun swapBuffers(): Boolean {
         if (surface === EGL14.EGL_NO_SURFACE) return false
         return EGL14.eglSwapBuffers(display, surface)
