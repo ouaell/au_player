@@ -43,7 +43,7 @@ class MainActivity : ComponentActivity() {
                         onBack = { finish() }
                     )
                 } else {
-                    RoutedScreen(intent = intent, fallbackUri = viewUri)
+                    RoutedScreen(intent = intent, fallbackUri = viewUri, onBack = { finish() })
                 }
             }
         }
@@ -71,7 +71,7 @@ class MainActivity : ComponentActivity() {
  * [viewUri] preserves the legacy player path for data URIs without a MIME.
  */
 @Composable
-private fun RoutedScreen(intent: Intent?, fallbackUri: String?) {
+private fun RoutedScreen(intent: Intent?, fallbackUri: String?, onBack: () -> Unit) {
     val app = LocalContext.current.applicationContext as AuApp
     val incoming = Incoming(
         action = when (intent?.action) {
@@ -88,7 +88,7 @@ private fun RoutedScreen(intent: Intent?, fallbackUri: String?) {
             uri = route.uri,
             engine = app.container.playerEngine,
             enhance = app.container.enhanceController,
-            onBack = { finish() }
+            onBack = onBack
         )
         is Route.Reader -> ReaderScreen(uri = route.uris.first(), kind = route.kind)
         Route.Unsupported -> AuNav(app.container)
