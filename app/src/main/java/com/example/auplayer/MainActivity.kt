@@ -122,7 +122,8 @@ private fun RoutedScreen(intent: Intent?, fallbackUri: String?, onBack: () -> Un
                 onBack = onBack,
                 onProgress = savePlayback(app, scope, route.uri)
             )
-        )        is Route.Reader -> ReaderScreen(uri = route.uris.first(), kind = route.kind)
+        )
+        is Route.Reader -> ReaderScreen(uri = route.uris.first(), kind = route.kind)
         Route.Unsupported -> AuNav(app.container)
     }
 }
