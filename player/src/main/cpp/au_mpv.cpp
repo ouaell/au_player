@@ -16,15 +16,24 @@
 #include <mpv/client.h>
 #include <mpv/render.h>
 #include <mpv/render_gl.h>
-#include <libavutil/jni.h>
+
+// av_jni_set_java_vm from shared libavutil (DT_NEEDED via CMake). Declared
+// locally: staged thirdparty headers carry mpv only, not FFmpeg. Signature
+// matches FFmpeg's libavutil/jni.h (stable API; the getter in the same TU is
+// proven present by mpv's own "No Java virtual machine" error path).
 
 #define AU_LOGI(...) __android_log_print(ANDROID_LOG_INFO, "AuPlayer", __VA_ARGS__)
 #define AU_LOGE(...) __android_log_print(ANDROID_LOG_ERROR, "AuPlayer", __VA_ARGS__)
+
+extern "C" {
+int av_jni_set_java_vm(JNIEnv* env, void* log_ctx);
+}  // extern "C"
 
 // mpv's android backends (vo/gpu android-context, ao audiotrack) fetch the
 // JVM from FFmpeg's av_jni slot. Without this they fail with "No Java virtual
 // machine has been registered" and video never starts (E1: "Video: no video"
 // while audio fell back to opensles). Register once at library load.
+extern "C" {
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void*) {
     JNIEnv* env = nullptr;
     if (vm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6) != JNI_OK) {
@@ -36,6 +45,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void*) {
     }
     return JNI_VERSION_1_6;
 }
+}  // extern "C"
 
 namespace {
 
