@@ -39,7 +39,9 @@ class E9ResumeTest {
         ActivityScenario.launch<MainActivity>(intent).use {
             runBlocking {
                 assertTrue("no playback at start", waitForFreshPlayback(launchTime))
-                delay(SETTLE_MS)
+                // Pause early: the 3s clip EOFs fast, and EOF resets position
+                // to 0 (nothing to save). Paused time freezes short of EOF.
+                delay(PAUSE_AT_MS)
                 engine.pause()
                 delay(SETTLE_MS)
                 Log.i(GATE_TAG, "paused mid-clip")
@@ -82,7 +84,8 @@ class E9ResumeTest {
 }
 
 private const val UI_TIMEOUT_MS = 15_000L
-private const val SETTLE_MS = 2_000L
+private const val SETTLE_MS = 1_000L
+private const val PAUSE_AT_MS = 1_000L
 private const val POLL_MS = 250L
 private const val GROWTH_TIMEOUT_MS = 20_000L
 private const val GATE_TAG = "E9GATE"

@@ -72,7 +72,11 @@ fun PlayerScreen(
         autoHide.interact(System.currentTimeMillis())
         while (true) {
             delay(AUTO_TICK_MS)
-            controls = autoHide.visible(System.currentTimeMillis())
+            val visible = autoHide.visible(System.currentTimeMillis())
+            if (visible != controls) {
+                Log.i("AuPlayer", "controls tick visible=$visible")
+            }
+            controls = visible
         }
     }
     LaunchedEffect(showSheet) {
@@ -120,6 +124,7 @@ fun PlayerScreen(
                 .fillMaxSize()
                 .pointerInput(Unit) {
                     detectTapGestures {
+                        Log.i("AuPlayer", "tap: show controls")
                         autoHide.interact(System.currentTimeMillis())
                         controls = true
                     }
