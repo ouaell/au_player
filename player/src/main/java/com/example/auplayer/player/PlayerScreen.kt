@@ -37,17 +37,6 @@ import kotlinx.coroutines.delay
  * the Enhance sheet. UI state flows from engine events (§5.2); gesture
  * drags beyond tap land next (overlay model already exists).
  */
-/**
- * Player wiring bundle (keeps the screen signature small): engine, enhance
- * controller, back navigation, resume-point reporting.
- */
-data class PlayerHandle(
-    val engine: PlayerEngine,
-    val enhance: EnhanceController,
-    val onBack: () -> Unit,
-    val onProgress: (positionMs: Long, durationMs: Long) -> Unit = { _, _ -> }
-)
-
 @Composable
 @Suppress("LongMethod")
 fun PlayerScreen(
