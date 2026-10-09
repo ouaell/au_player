@@ -123,6 +123,13 @@
 - Key evidence: official ffmpeg.sh uses --enable-gpl (confirmed), mpv.sh passes no -Dgpl (defaults GPL), loadarch already sets 16KB max-page-size, buildall.sh builds per-target/per-arch (mpv without app)
 - check_16kb.sh now takes raw .so files too (64-bit rule preserved)
 
+## MS-060 — Emulator suite E1-E5 (core scenarios green)
+- Status: DONE (emulator run 37892527701 green; T1 green on the same push)
+- Sections used: §17.2, §15 (MS-060 row)
+- E1 playback+EOF (span 2.60s, shot var-delta 35293), E2 lifecycle (rotate/bg/PiP recover), E3 enhance toggle (real RAVU shader, survives compile), E4 reader (routed CBZ 3pp + PDF 1pp render as bitmaps — required real ReaderScreen + PdfPageProvider + MainActivity routing, all missing before), E5 seek storm (20 seeks survive), Smoke
+- Remainder explicitly UNVERIFIED: web-source instrumented vs local server (no browser UI yet — next), permission states, 30-video memory growth, reader mode-switching/rapid turns
+- Tests added: E2LifecycleTest, E3EnhanceTest, E4ReaderTest, E5SeekTest (+E1PlayerTest earlier); fixtures in gen_corpus (CBZ/PDF/shader push in run_e1.sh)
+
 ## MS-059 — Headless desktop-mpv suite H1+H2 (option lint + shader compile)
 - Status: DONE (headless run 37890911279 green; T1 green on the same push)
 - Sections used: §17.4, §6, §3.4, §15 (MS-059 row)
