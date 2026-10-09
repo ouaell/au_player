@@ -10,3 +10,12 @@
 -keepclasseswithmembernames class * {
     native <methods>;
 }
+
+# Native-to-Java callbacks (MS-063 proof: R8 renamed these and
+# GetMethodID("onEvent") failed on first launch of the minified build).
+# The MpvEventCallback interface, its onEvent, and the LibmpvBridge holder
+# of the anonymous implementation must keep their names.
+-keep class com.example.auplayer.player.MpvEvents { *; }
+-keep class com.example.auplayer.player.MpvEvents$MpvEventCallback { *; }
+-keep class com.example.auplayer.player.LibmpvBridge { *; }
+-keep class com.example.auplayer.player.LibmpvBridge$* { *; }

@@ -17,3 +17,9 @@
   - FSR1 EASU/RCAS rung: AMD FidelityFX-FSR source is MIT (verified), but no
     mpv-ready port found (agyild/FSR does not exist). Follow-up: write our
     own thin port from ffx_fsr1.h; until then Standard ladder is RAVU â†’ Off.
+
+## Subtitle fonts (OFL, fetched pinned — see tools/fonts/manifest.txt)
+
+- NotoSans.ttf — google/fonts NotoSans[wdth,wght].ttf @ 2984c57 (OFL, variable font; Latin coverage device-verified in H4 golden).
+- NotoNaskhArabic.ttf — google/fonts NotoNaskhArabic[wght].ttf @ 35ddfc5 (OFL; Arabic RTL shaping device-verified in H4 golden).
+- CJK: intentionally NOT bundled (Noto CJK ~16 MB/weight). Strategy: Android system fallback (present on all GMS devices). Headless runner has no CJK font, so the H4 CJK golden shows .notdef boxes — correct given the runner, not a product gap.

@@ -52,8 +52,8 @@ jobs:
           done
           if [ -d tools/headless/goldens ]; then
             for sub in sub-latin sub-arabic sub-cjk sub-styled; do
-              frame=$(ls "headless-subs/$sub"/*.png | head -1)
-              sh tools/headless/check_golden.sh "$frame" "tools/headless/goldens/$sub.png" 0.90
+              # Frame 30 (~1s) carries the first cue; frame 1 is still blank.
+              sh tools/headless/check_golden.sh "headless-subs/$sub/00000030.png" "tools/headless/goldens/$sub.png" 0.90
             done
             echo "H4: subtitle goldens match"
           else
