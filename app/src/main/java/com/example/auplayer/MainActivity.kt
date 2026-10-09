@@ -10,7 +10,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
+import com.example.auplayer.library.ResumeEntry
 import com.example.auplayer.player.PipCalc
 import com.example.auplayer.player.PlayerScreen
 import com.example.auplayer.routing.Incoming
@@ -18,6 +20,9 @@ import com.example.auplayer.routing.IncomingAction
 import com.example.auplayer.routing.IntentRouter
 import com.example.auplayer.routing.Route
 import com.example.auplayer.ui.theme.AuTheme
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 /** Single-activity (§2). Predictive back via enableOnBackInvokedCallback (manifest). */
 class MainActivity : ComponentActivity() {
@@ -36,11 +41,13 @@ class MainActivity : ComponentActivity() {
             AuTheme {
                 if (debugPath != null) {
                     val app = application as AuApp
+                    val scope = rememberCoroutineScope()
                     PlayerScreen(
                         uri = debugPath,
                         engine = app.container.playerEngine,
                         enhance = app.container.enhanceController,
-                        onBack = { finish() }
+                        onBack = { finish() },
+                        onProgress = savePlayback(app, scope, debugPath)
                     )
                 } else {
                     RoutedScreen(intent = intent, fallbackUri = viewUri, onBack = { finish() })
@@ -65,6 +72,25 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+/** Resume-point saver shared by both player entries (MS-019). */
+private fun savePlayback(
+    app: AuApp,
+    scope: CoroutineScope,
+    uri: String
+): (Long, Long) -> Unit = { positionMs, durationMs ->
+    scope.launch(Dispatchers.IO) {
+        app.container.resumeStore.save(
+            ResumeEntry(
+                uri = uri,
+                title = uri.substringAfterLast('/'),
+                positionMs = positionMs,
+                durationMs = durationMs,
+                updatedAtMs = System.currentTimeMillis()
+            )
+        )
+    }
+}
+
 /**
  * Real intent routing (MS-040 made visible): video/audio streams go to the
  * player, archives/PDF/images to [ReaderScreen], everything else home.
@@ -73,6 +99,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 private fun RoutedScreen(intent: Intent?, fallbackUri: String?, onBack: () -> Unit) {
     val app = LocalContext.current.applicationContext as AuApp
+    val scope = rememberCoroutineScope()
     val incoming = Incoming(
         action = when (intent?.action) {
             Intent.ACTION_VIEW -> IncomingAction.VIEW
@@ -88,9 +115,9 @@ private fun RoutedScreen(intent: Intent?, fallbackUri: String?, onBack: () -> Un
             uri = route.uri,
             engine = app.container.playerEngine,
             enhance = app.container.enhanceController,
-            onBack = onBack
-        )
-        is Route.Reader -> ReaderScreen(uri = route.uris.first(), kind = route.kind)
+            onBack = onBack,
+            onProgress = savePlayback(app, scope, route.uri)
+        )        is Route.Reader -> ReaderScreen(uri = route.uris.first(), kind = route.kind)
         Route.Unsupported -> AuNav(app.container)
     }
 }

@@ -1,7 +1,11 @@
 package com.example.auplayer
 
 import android.content.Context
+import androidx.room.Room
 import com.example.auplayer.enhance.EnhanceController
+import com.example.auplayer.library.ResumeDatabase
+import com.example.auplayer.library.ResumeStore
+import com.example.auplayer.library.RoomResumeStore
 import com.example.auplayer.player.FakeMpvBridge
 import com.example.auplayer.player.LibmpvBridge
 import com.example.auplayer.player.MpvNative
@@ -41,6 +45,12 @@ class AppContainer(context: Context) {
     /** Enhance controller wired to the single engine (no module cycle). */
     val enhanceController: EnhanceController by lazy {
         EnhanceController(playerEngine::send)
+    }
+
+    /** Resume/history store (Room; MS-019). Built once, queried off-main. */
+    val resumeStore: ResumeStore by lazy {
+        val db = Room.databaseBuilder(context, ResumeDatabase::class.java, "au-resume").build()
+        RoomResumeStore(db.resumeDao())
     }
 
     /**

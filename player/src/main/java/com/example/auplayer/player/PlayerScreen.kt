@@ -15,6 +15,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
@@ -43,7 +44,8 @@ fun PlayerScreen(
     engine: PlayerEngine,
     enhance: EnhanceController,
     onBack: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onProgress: (positionMs: Long, durationMs: Long) -> Unit = { _, _ -> }
 ) {
     val surfaces = remember(engine) { SurfaceHost(engine) }
     var surfaceReady by remember { mutableStateOf(false) }
@@ -74,6 +76,7 @@ fun PlayerScreen(
             videoHeight = (engine.bridge as? LibmpvBridge)?.property("height")?.toIntOrNull() ?: 0
         }
     }
+    ReportProgress(uri = uri, uiState = uiState, onProgress = onProgress)
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -157,6 +160,31 @@ fun PlayerScreen(
         }
     }
 }
+
+/** Throttled resume-point reporting (MS-019): every 5 s of progress + on dispose. */
+@Composable
+private fun ReportProgress(
+    uri: String,
+    uiState: PlayerUiState,
+    onProgress: (Long, Long) -> Unit
+) {
+    var lastSaved by remember(uri) { mutableStateOf(0L) }
+    LaunchedEffect(uiState.positionMs, uiState.durationMs) {
+        if (uiState.durationMs > 0 && uiState.positionMs - lastSaved >= SAVE_EVERY_MS) {
+            lastSaved = uiState.positionMs
+            onProgress(uiState.positionMs, uiState.durationMs)
+        }
+    }
+    DisposableEffect(uri) {
+        onDispose {
+            if (uiState.durationMs > 0 && uiState.positionMs > 0) {
+                onProgress(uiState.positionMs, uiState.durationMs)
+            }
+        }
+    }
+}
+
+private const val SAVE_EVERY_MS = 5_000L
 
 /** Collects engine events into one UI snapshot (§5.2). */
 @Composable

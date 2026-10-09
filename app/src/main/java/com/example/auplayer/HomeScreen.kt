@@ -13,17 +13,20 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import LinearProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import ResumeEntry
 import java.io.File
 
 /**
@@ -32,7 +35,13 @@ import java.io.File
  * into the app cache first: mpv opens plain paths, never content URIs (§5.2).
  */
 @Composable
-fun HomeScreen(webEnabled: Boolean, onWeb: () -> Unit, modifier: Modifier = Modifier) {
+fun HomeScreen(
+    webEnabled: Boolean,
+    onWeb: () -> Unit,
+    history: List<ResumeEntry> = emptyList(),
+    onResume: (String) -> Unit = {},
+    modifier: Modifier = Modifier
+) {
     val context = LocalContext.current
     var urlDialog by remember { mutableStateOf(false) }
     var urlText by remember { mutableStateOf("https://") }
@@ -70,6 +79,12 @@ fun HomeScreen(webEnabled: Boolean, onWeb: () -> Unit, modifier: Modifier = Modi
     }
     Column(modifier = modifier.fillMaxSize().padding(16.dp)) {
         Text(text = "AU Player")
+        if (history.isNotEmpty()) {
+            Text(text = "Continue watching")
+            history.forEach { entry ->
+                ContinueRow(entry = entry, onResume = onResume)
+            }
+        }
         Button(
             onClick = { picker.launch("*/*") },
             modifier = Modifier.fillMaxWidth()
@@ -83,6 +98,24 @@ fun HomeScreen(webEnabled: Boolean, onWeb: () -> Unit, modifier: Modifier = Modi
                 onClick = onWeb,
                 modifier = Modifier.fillMaxWidth()
             ) { Text("Web page") }
+        }
+    }
+}
+
+@Composable
+private fun ContinueRow(
+    entry: ResumeEntry,
+    onResume: (String) -> Unit
+) {
+    val progress = if (entry.durationMs > 0) {
+        (entry.positionMs.toFloat() / entry.durationMs).coerceIn(0f, 1f)
+    } else {
+        0f
+    }
+    TextButton(onClick = { onResume(entry.uri) }) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Text(text = entry.title, maxLines = 1)
+            LinearProgressIndicator(progress = { progress })
         }
     }
 }

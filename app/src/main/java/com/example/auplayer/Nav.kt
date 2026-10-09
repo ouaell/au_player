@@ -1,16 +1,24 @@
 package com.example.auplayer
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import java.util.ArrayDeque
+import com.example.auplayer.library.ResumeEntry
 import com.example.auplayer.routing.ReaderKind
+import java.util.ArrayDeque
+
+private const val CONTINUE_LIMIT = 10
 
 /** Destinations (MS-006 shell; full screens land in MS-012/MS-020/MS-038). */
 sealed interface NavDest {
@@ -62,11 +70,24 @@ class Navigator {
 @Composable
 fun AuNav(container: AppContainer) {
     val controller = rememberNavController()
+    val context = LocalContext.current
+    val history by produceState(initialValue = emptyList<ResumeEntry>(), container) {
+        // Best-effort home row: a sick database must not break navigation.
+        value = runCatching { container.resumeStore.continueWatching(CONTINUE_LIMIT) }
+            .getOrDefault(emptyList())
+    }
     NavHost(navController = controller, startDestination = NavDest.Home.route) {
         composable(NavDest.Home.route) {
             HomeScreen(
                 webEnabled = container.webSourceEnabled,
-                onWeb = { controller.navigate(NavDest.Web.route) }
+                onWeb = { controller.navigate(NavDest.Web.route) },
+                history = history,
+                onResume = { uri ->
+                    context.startActivity(
+                        Intent(Intent.ACTION_VIEW, Uri.parse(uri))
+                            .setClassName(context, MainActivity::class.java.name)
+                    )
+                }
             )
         }
         composable(NavDest.Player.route) { StubScreen("Player") }
