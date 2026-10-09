@@ -56,6 +56,8 @@ android {
             // x86_64 so the artifact installs on the CI emulator. The real
             // release stays arm-only for size (§2).
             initWith(getByName("release"))
+            // Library modules have no `smoke` type: consume their release.
+            matchingFallbacks += listOf("release")
             ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86_64") }
             signingConfig = signingConfigs.getByName("debug")
         }
