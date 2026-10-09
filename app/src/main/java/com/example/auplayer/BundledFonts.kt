@@ -17,14 +17,22 @@ fun installBundledFonts(context: Context) {
         target.mkdirs()
         val assets = context.assets.list(FONTS_ASSET) ?: return
         for (name in assets) {
-            val out = File(target, name)
-            if (out.isFile) continue
-            context.assets.open("$FONTS_ASSET/$name").use { input ->
-                out.outputStream().use { output -> input.copyTo(output) }
-            }
+            copyMissing(context, target, name)
         }
     } catch (error: java.io.IOException) {
         Log.w("AuPlayer", "bundled fonts unavailable: " + error.message)
+    }
+}
+
+private fun copyMissing(context: Context, target: File, name: String) {
+    val out = File(target, name)
+    if (out.isFile) return
+    try {
+        context.assets.open("$FONTS_ASSET/$name").use { input ->
+            out.outputStream().use { output -> input.copyTo(output) }
+        }
+    } catch (error: java.io.IOException) {
+        Log.w("AuPlayer", "font $name not installed: " + error.message)
     }
 }
 
