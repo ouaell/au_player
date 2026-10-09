@@ -123,6 +123,10 @@
 - Key evidence: official ffmpeg.sh uses --enable-gpl (confirmed), mpv.sh passes no -Dgpl (defaults GPL), loadarch already sets 16KB max-page-size, buildall.sh builds per-target/per-arch (mpv without app)
 - check_16kb.sh now takes raw .so files too (64-bit rule preserved)
 
+## E1 status — engine built, playback unproven (several emulator rounds)
+- 3-ABI LGPL release published; JNI compiles+links; LibmpvBridge/EglHost/RenderLoop/PlayerScreen/VIEW routing/T1 all green
+- Emulator rounds: KVM fixed, run-as paths fixed, logcat gate scoped, E1 split-brain fixed via trace file; current blocker is in-app dlopen (test-process Fake explained; app-process reason next via Log.e)
+
 ## E1 split-brain fix — trace file crosses the process boundary
 - Test-process engine is always Fake (no .so there); app-process events are proven by e1-trace.txt (workflow awk gate: span ≥ 2s + eof) while the test proves native-load + motion pixels + no crash
 - LibmpvBridge writes trace lines; AppContainer passes external files dir; logcat gate scoped to our package

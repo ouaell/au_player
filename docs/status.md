@@ -7,7 +7,7 @@ Nothing below claims to work without аварий evidence.
 
 | feature | status | evidence / note |
 |---|---|---|
-| libmpv presence (any ABI) | UNVERIFIED | no native lib in repo; P0 self-build not started |
+| libmpv presence (any ABI) | UNVERIFIED | self-built 3-ABI release `native-20261008` published; in-app dlopen unverified (E1) |
 | open/play/pause/seek/events | UNVERIFIED | FakeMpvBridge only; needs E1 |
 | surface attach/detach | UNVERIFIED | logic UNIT-ONLY (SurfaceHostTest); needs E4 |
 | state machine/transitions | UNIT-ONLY | PlayerStateMachineTest (+illegal pairs) |
