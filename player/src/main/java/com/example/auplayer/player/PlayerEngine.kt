@@ -1,5 +1,8 @@
 package com.example.auplayer.player
 
+import com.example.auplayer.core.Diag
+import com.example.auplayer.core.MpvCommandException
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -29,9 +32,21 @@ class PlayerEngine(
     private val pending = MutableSharedFlow<MpvEvent>(extraBufferCapacity = 64)
     val events: SharedFlow<MpvEvent> = pending.asSharedFlow()
 
+    /** Completes when the bridge initialized; commands wait for it (no races). */
+    private val ready = CompletableDeferred<Unit>()
+
     init {
         bridge.setEventListener { event ->
             scope.launch { pending.emit(event) }
+        }
+        scope.launch {
+            try {
+                bridge.init()
+                ready.complete(Unit)
+            } catch (error: MpvCommandException) {
+                Diag.record("mpv", "init failed: ${error.message}")
+                ready.completeExceptionally(error)
+            }
         }
     }
 
@@ -39,34 +54,45 @@ class PlayerEngine(
         scope.launch { bridge.init() }
     }
 
+    private fun cmd(block: suspend () -> Unit) {
+        scope.launch {
+            try {
+                ready.await()
+                block()
+            } catch (error: MpvCommandException) {
+                Diag.record("player", "command dropped: ${error.message}")
+            }
+        }
+    }
+
     fun open(uri: String) {
-        scope.launch { bridge.command(listOf("loadfile", uri)) }
+        cmd { bridge.command(listOf("loadfile", uri)) }
     }
 
     fun play() {
-        scope.launch { bridge.command(listOf("set", "pause", "no")) }
+        cmd { bridge.command(listOf("set", "pause", "no")) }
     }
 
     fun pause() {
-        scope.launch { bridge.command(listOf("set", "pause", "yes")) }
+        cmd { bridge.command(listOf("set", "pause", "yes")) }
     }
 
     fun seekTo(seconds: Double) {
-        scope.launch { bridge.command(listOf("seek", seconds.toString(), "absolute")) }
+        cmd { bridge.command(listOf("seek", seconds.toString(), "absolute")) }
     }
 
     fun attach(token: Any?) {
-        scope.launch { bridge.attach(token) }
+        cmd { bridge.attach(token) }
     }
 
     fun detach() {
-        scope.launch { bridge.detach() }
+        cmd { bridge.detach() }
     }
 
     /** Track/prop/subtitle-file commands route here (MS-017/018); mapping lives
      *  in [TrackList], subtitleProps and delayProps so it stays JVM-tested. */
     fun send(args: List<String>) {
-        scope.launch { bridge.command(args) }
+        cmd { bridge.command(args) }
     }
 
     fun release() {

@@ -123,6 +123,10 @@
 - Key evidence: official ffmpeg.sh uses --enable-gpl (confirmed), mpv.sh passes no -Dgpl (defaults GPL), loadarch already sets 16KB max-page-size, buildall.sh builds per-target/per-arch (mpv without app)
 - check_16kb.sh now takes raw .so files too (64-bit rule preserved)
 
+## E1 root cause — commands raced mpv_initialize
+- `MpvCommandException: command failed: core not initialized`: nobody called init before open
+- Fix: engine auto-inits in constructor; all commands await readiness (specific catches only); LibmpvBridge.init idempotent
+
 ## E1 blocker #2 — wrong NDK's libc++_shared (DT_NEEDED proof)
 - `ls ndk/* | head -1` picked the runner-preinstalled older NDK; its libc++ lacks `__from_chars_floating_point` that our r30-built libmpv.so needs → dlopen "cannot locate symbol"
 - Fix: NDK_VERSION pinned in pins.txt; fetch copies libc++_shared ONLY from it (loud warning otherwise); cache key already covers pins.txt

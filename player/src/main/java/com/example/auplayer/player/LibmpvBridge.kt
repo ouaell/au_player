@@ -23,6 +23,7 @@ class LibmpvBridge(private val paths: MpvPaths, traceDir: File? = null) : MpvBri
         private set
 
     override fun init() {
+        if (handle != 0L) return
         if (!MpvNative.load()) {
             Log.i("AuPlayer", "native libmpv absent")
             throw MpvCommandException("native libmpv absent")
