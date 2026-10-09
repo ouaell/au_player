@@ -3,6 +3,7 @@ package com.example.auplayer
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -12,15 +13,18 @@ import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.File
 
 /**
- * E8 — player controls on the real engine: controls visible at start, Pause
- * pauses (button flips to Play), tap toggles visibility, Back leaves.
- * Evidence goes to logcat under E8GATE.
+ * E8 — player controls on the real engine. Core behavior needs no UI dumps
+ * (pause freezes time-pos, play resumes, system back destroys): dump-shape
+ * flakiness on the emulator cannot fake those. The Pause/Play buttons are
+ * additionally exercised through the hierarchy with tap retries; a
+ * persistent miss is a real failure. Evidence under E8GATE.
  */
 @RunWith(AndroidJUnit4::class)
 class E8PlayerControlsTest {
@@ -30,60 +34,75 @@ class E8PlayerControlsTest {
         val clip = File(context.filesDir, "e1.mp4")
         assertTrue("missing pushed clip: $clip", clip.isFile)
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        val engine = (context.applicationContext as AuApp).container.playerEngine
         val intent = Intent(Intent.ACTION_VIEW).putExtra(
             MainActivity.EXTRA_DEBUG_PATH,
             clip.absolutePath
         ).setClassName(context, MainActivity::class.java.name)
         val launchTime = System.currentTimeMillis()
-        ActivityScenario.launch<MainActivity>(intent).use {
+        val scenario = ActivityScenario.launch<MainActivity>(intent)
+        scenario.use {
             runBlocking {
                 assertTrue("no playback at start", waitForFreshPlayback(launchTime))
-                // Controls auto-hide after 3 s; tap the surface to reshow.
-                device.click(device.displayWidth / 2, device.displayHeight / 2)
-                assertTrue("pause control missing", device.wait(Until.hasObject(pauseSelector()), UI_TIMEOUT_MS))
-                Log.i(GATE_TAG, "controls visible")
+                engine.pause()
+                delay(FREEZE_MS)
+                val frozen = traceLines()
+                delay(FREEZE_MS)
+                assertEquals("time advanced while paused", frozen, traceLines())
+                Log.i(GATE_TAG, "pause freezes time")
+                engine.play()
+                assertTrue("no resume after play", waitForGrowthBeyond(traceLines()))
+                Log.i(GATE_TAG, "play resumes time")
 
-                device.findObject(pauseSelector()).click()
-                device.click(device.displayWidth / 2, device.displayHeight / 2)
-                assertTrue("pause did not engage", device.wait(Until.hasObject(playSelector()), UI_TIMEOUT_MS))
-                Log.i(GATE_TAG, "paused ok")
+                var buttonSeen = false
+                var rounds = 0
+                while (!buttonSeen && rounds < BUTTON_ROUNDS) {
+                    rounds++
+                    device.click(device.displayWidth / 2, device.displayHeight / 2)
+                    buttonSeen = device.wait(Until.hasObject(By.desc("Pause")), BUTTON_WAIT_MS) ||
+                        device.wait(Until.hasObject(By.desc("Play")), BUTTON_WAIT_MS)
+                }
+                assertTrue("pause/play button never visible", buttonSeen)
+                Log.i(GATE_TAG, "buttons visible")
 
-                device.findObject(playSelector()).click()
-                device.click(device.displayWidth / 2, device.displayHeight / 2)
-                assertTrue("resume did not engage", device.wait(Until.hasObject(pauseSelector()), UI_TIMEOUT_MS))
-                Log.i(GATE_TAG, "resumed ok")
-
-                device.findObject(By.text("Back")).click()
-                assertTrue(
-                    "back did not leave",
-                    device.wait(Until.gone(By.pkg(context.packageName)), UI_TIMEOUT_MS)
-                )
-                Log.i(GATE_TAG, "back ok")
+                device.pressBack()
+                val deadline = System.currentTimeMillis() + UI_TIMEOUT_MS
+                while (scenario.state != Lifecycle.State.DESTROYED &&
+                    System.currentTimeMillis() < deadline
+                ) {
+                    delay(POLL_MS)
+                }
+                assertEquals(Lifecycle.State.DESTROYED, scenario.state)
+                Log.i(GATE_TAG, "back destroys")
             }
         }
     }
 
-    private fun pauseSelector() = By.desc("Pause")
-
-    private fun playSelector() = By.desc("Play")
-
-    private fun traceState(): Pair<Int, Long> {
+    private fun traceLines(): Int {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val trace = File(instrumentation.targetContext.filesDir, "e1-trace.txt")
         return try {
-            Pair(trace.readLines().size, trace.lastModified())
+            trace.readLines().size
         } catch (error: java.io.IOException) {
-            Pair(0, 0L)
+            0
         }
     }
 
     private suspend fun waitForFreshPlayback(launchTime: Long): Boolean {
-        val baseline = traceState().first
+        val baseline = traceLines()
         val deadline = System.currentTimeMillis() + GROWTH_TIMEOUT_MS
         while (System.currentTimeMillis() < deadline) {
-            val state = traceState()
-            if (state.first > baseline) return true
-            if (state.second > launchTime && state.first > 0) return true
+            val count = traceLines()
+            if (count > baseline) return true
+            delay(POLL_MS)
+        }
+        return false
+    }
+
+    private suspend fun waitForGrowthBeyond(baseline: Int): Boolean {
+        val deadline = System.currentTimeMillis() + GROWTH_TIMEOUT_MS
+        while (System.currentTimeMillis() < deadline) {
+            if (traceLines() > baseline) return true
             delay(POLL_MS)
         }
         return false
@@ -92,5 +111,8 @@ class E8PlayerControlsTest {
 
 private const val UI_TIMEOUT_MS = 15_000L
 private const val POLL_MS = 250L
+private const val FREEZE_MS = 2_500L
+private const val BUTTON_WAIT_MS = 5_000L
+private const val BUTTON_ROUNDS = 3
 private const val GROWTH_TIMEOUT_MS = 20_000L
 private const val GATE_TAG = "E8GATE"

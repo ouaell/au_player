@@ -49,15 +49,24 @@ class E9ResumeTest {
         }
         // Dispose (above) saves the resume point; give Room a beat.
         Thread.sleep(SETTLE_MS)
+        openHome(context)
+        var shown = device.wait(Until.hasObject(By.text("e1.mp4")), UI_TIMEOUT_MS)
+        if (!shown) {
+            // Hierarchy dumps wedge occasionally on the emulator; a fresh
+            // foregrounding usually restores them. Second miss is real.
+            Log.i(GATE_TAG, "row miss, relaunching home once")
+            openHome(context)
+            shown = device.wait(Until.hasObject(By.text("e1.mp4")), UI_TIMEOUT_MS)
+        }
+        assertTrue("continue row missing", shown)
+        Log.i(GATE_TAG, "continue row shown")
+    }
+
+    private fun openHome(context: Context) {
         val home = Intent(Intent.ACTION_MAIN)
             .setClassName(context, MainActivity::class.java.name)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         context.startActivity(home)
-        assertTrue(
-            "continue row missing",
-            device.wait(Until.hasObject(By.text("e1.mp4")), UI_TIMEOUT_MS)
-        )
-        Log.i(GATE_TAG, "continue row shown")
     }
 
     private fun traceState(): Pair<Int, Long> {

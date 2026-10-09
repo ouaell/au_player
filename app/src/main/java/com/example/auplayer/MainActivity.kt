@@ -82,15 +82,22 @@ private fun savePlayback(
     uri: String
 ): (Long, Long) -> Unit = { positionMs, durationMs ->
     scope.launch(Dispatchers.IO) {
-        app.container.resumeStore.save(
-            ResumeEntry(
-                uri = uri,
-                title = uri.substringAfterLast('/'),
-                positionMs = positionMs,
-                durationMs = durationMs,
-                updatedAtMs = System.currentTimeMillis()
+        try {
+            app.container.resumeStore.save(
+                ResumeEntry(
+                    uri = uri,
+                    title = uri.substringAfterLast('/'),
+                    positionMs = positionMs,
+                    durationMs = durationMs,
+                    updatedAtMs = System.currentTimeMillis()
+                )
             )
-        )
+            Log.i("E9GATE", "saved $uri pos=$positionMs dur=$durationMs")
+        } catch (error: android.database.sqlite.SQLiteException) {
+            Log.w("E9GATE", "save failed: " + error.message)
+        } catch (error: java.io.IOException) {
+            Log.w("E9GATE", "save failed: " + error.message)
+        }
     }
 }
 
