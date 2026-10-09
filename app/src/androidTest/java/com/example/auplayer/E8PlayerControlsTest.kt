@@ -43,6 +43,10 @@ class E8PlayerControlsTest {
         val scenario = ActivityScenario.launch<MainActivity>(intent)
         scenario.use {
             runBlocking {
+                // Explicit state: a previous test may have left the shared
+                // engine paused (E7 freezes the UI), which would wedge the
+                // growth wait below.
+                engine.play()
                 assertTrue("no playback at start", waitForFreshPlayback(launchTime))
                 engine.pause()
                 delay(FREEZE_MS)

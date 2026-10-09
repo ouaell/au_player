@@ -38,6 +38,8 @@ class E9ResumeTest {
         val launchTime = System.currentTimeMillis()
         ActivityScenario.launch<MainActivity>(intent).use {
             runBlocking {
+                // Explicit state (see E8): never inherit pause across tests.
+                engine.play()
                 assertTrue("no playback at start", waitForFreshPlayback(launchTime))
                 // Pause early: the 3s clip EOFs fast, and EOF resets position
                 // to 0 (nothing to save). Paused time freezes short of EOF.
