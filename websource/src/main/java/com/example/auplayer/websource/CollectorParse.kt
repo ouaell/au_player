@@ -30,41 +30,57 @@ object CollectorParse {
     private fun splitObjects(arrayText: String): List<String> {
         val trimmed = arrayText.trim()
         if (!trimmed.startsWith("[") || !trimmed.endsWith("]")) return emptyList()
-        val out = ArrayList<String>()
-        var depth = 0
-        var inString = false
-        var escaped = false
-        var start = -1
-        for (pos in trimmed.indices) {
-            val char = trimmed[pos]
-            if (inString) {
-                if (escaped) {
-                    escaped = false
-                } else if (char == '\\') {
-                    escaped = true
-                } else if (char == '"') {
-                    inString = false
-                }
-            } else {
-                when (char) {
-                    '"' -> inString = true
-                    '{' -> {
-                        if (depth == 0) start = pos
-                        depth++
-                    }
-                    '}' -> {
-                        depth--
-                        if (depth == 0 && start >= 0) {
-                            out += trimmed.substring(start, pos + 1)
-                            start = -1
-                        }
-                    }
-                }
-            }
-        }
-        return out
+        val scan = BraceScan()
+        trimmed.forEachIndexed { pos, char -> scan.accept(char, pos, trimmed) }
+        return scan.parts
     }
 
+    private class BraceScan {
+        val parts = ArrayList<String>()
+        private var depth = 0
+        private var inString = false
+        private var escaped = false
+        private var start = -1
+
+        fun accept(char: Char, pos: Int, text: String) {
+            if (inString) {
+                acceptQuoted(char)
+            } else {
+                acceptCode(char, pos, text)
+            }
+        }
+
+        private fun acceptQuoted(char: Char) {
+            if (escaped) {
+                escaped = false
+            } else if (char == '\\') {
+                escaped = true
+            } else if (char == '"') {
+                inString = false
+            }
+        }
+
+        private fun acceptCode(char: Char, pos: Int, text: String) {
+            when (char) {
+                '"' -> inString = true
+                '{' -> openBrace(pos)
+                '}' -> closeBrace(pos, text)
+            }
+        }
+
+        private fun openBrace(pos: Int) {
+            if (depth == 0) start = pos
+            depth++
+        }
+
+        private fun closeBrace(pos: Int, text: String) {
+            depth--
+            if (depth == 0 && start >= 0) {
+                parts += text.substring(start, pos + 1)
+                start = -1
+            }
+        }
+    }
     private fun readEntry(obj: String, order: Int): ImageCandidate? {
         val url = readStringField(obj, "u") ?: return null
         return ImageCandidate(

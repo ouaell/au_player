@@ -7,7 +7,7 @@ import org.junit.Test
 class CollectorParseTest {
     @Test
     fun `parses flat collector output`() {
-        val raw = """[{"u":"https://a/x.jpg","w":800,"h":600,"ad":false}," +
+        val raw = """[{"u":"https://a/x.jpg","w":800,"h":600,"ad":false},""" +
             """{"u":"https://a/y.jpg","w":0,"h":0,"ad":true}]"""
         val out = CollectorParse.parse(raw)
         assertEquals(2, out.size)

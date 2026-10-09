@@ -25,6 +25,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,7 +43,6 @@ import com.example.auplayer.websource.PageDownloader
 import com.example.auplayer.websource.PageResult
 import com.example.auplayer.websource.WebPolicy
 import com.example.auplayer.websource.defaultWebSettings
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -72,22 +72,10 @@ fun WebScreen(onOpenReader: (dirPath: String) -> Unit, modifier: Modifier = Modi
     val webRef = remember { mutableStateOf<WebView?>(null) }
 
     if (notice) {
-        AlertDialog(
-            onDismissRequest = { },
-            confirmButton = {
-                TextButton(onClick = {
-                    setWebNoticeSeen(context)
-                    notice = false
-                }) { Text("Understood") }
-            },
-            title = { Text("Web Source") },
-            text = {
-                Text(
-                    "The app contains no content. You are responsible for the " +
-                        "pages you open and the rights to read their images."
-                )
-            }
-        )
+        NoticeDialog(onAck = {
+            setWebNoticeSeen(context)
+            notice = false
+        })
     }
     Column(modifier = modifier.fillMaxSize().padding(8.dp)) {
         OutlinedTextField(
@@ -100,62 +88,49 @@ fun WebScreen(onOpenReader: (dirPath: String) -> Unit, modifier: Modifier = Modi
         WebActions(
             busy = busy,
             canOpen = checked.isNotEmpty(),
-            onGo = {
-                val target = urlText.trim()
-                if (WebPolicy.shouldBlockUrl(target)) {
-                    status = "blocked: only https pages"
-                } else {
-                    webRef.value?.loadUrl(target)
-                }
-            },
-            onRead = {
-                scope.launch {
-                    busy = true
-                    status = readPage(webRef.value, urlText.trim()) { picked, found ->
-                        candidates = picked
-                        checked = picked.toSet()
-                        status = "${picked.size} images (${found} candidates)"
-                    }
-                    busy = false
-                }
-            },
-            onOpen = {
-                scope.launch {
-                    busy = true
-                    status = "downloading…"
-                    val dir = downloadKept(context, webRef.value, checked.toList())
-                    busy = false
-                    if (dir != null) {
-                        onOpenReader(dir.absolutePath)
+            handlers = WebHandlers(
+                onGo = {
+                    val target = urlText.trim()
+                    if (WebPolicy.shouldBlockUrl(target)) {
+                        status = "blocked: only https pages"
                     } else {
-                        status = "nothing downloaded"
+                        webRef.value?.loadUrl(target)
                     }
+                },
+                onRead = {
+                    scope.launch {
+                        busy = true
+                        status = readPage(webRef.value, urlText.trim()) { picked, found ->
+                            candidates = picked
+                            checked = picked.toSet()
+                            status = "${picked.size} images (${found} candidates)"
+                        }
+                        busy = false
+                    }
+                },
+                onOpen = {
+                    scope.launch {
+                        busy = true
+                        status = "downloading…"
+                        val dir = downloadKept(context, webRef.value, checked.toList())
+                        busy = false
+                        if (dir != null) {
+                            onOpenReader(dir.absolutePath)
+                        } else {
+                            status = "nothing downloaded"
+                        }
+                    }
+                },
+                onClear = {
+                    CookieManager.getInstance().removeAllCookies(null)
+                    WebStorage.getInstance().deleteAllData()
+                    webRef.value?.clearCache(true)
+                    status = "browsing data cleared"
                 }
-            },
-            onClear = {
-                CookieManager.getInstance().removeAllCookies(null)
-                WebStorage.getInstance().deleteAllData()
-                webRef.value?.clearCache(true)
-                status = "browsing data cleared"
-            }
+            )
         )
         Text(text = status, modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp))
-        AndroidView(
-            factory = { ctx ->
-                WebView(ctx).apply {
-                    layoutParams = ViewGroup.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT
-                    )
-                    applyHardenedSettings(settings)
-                    webChromeClient = WebChromeClient()
-                    webViewClient = policyClient(ctx)
-                    loadUrl(urlText.ifBlank { "about:blank" })
-                    webRef.value = this
-                }
-            },
-            modifier = Modifier.weight(1f).fillMaxWidth()
-        )
+        BrowserPane(webRef = webRef, initialUrl = urlText)
         WebPreview(
             candidates = candidates,
             checked = checked,
@@ -167,21 +142,57 @@ fun WebScreen(onOpenReader: (dirPath: String) -> Unit, modifier: Modifier = Modi
 }
 
 @Composable
-private fun WebActions(
-    busy: Boolean,
-    canOpen: Boolean,
-    onGo: () -> Unit,
-    onRead: () -> Unit,
-    onOpen: () -> Unit,
-    onClear: () -> Unit
-) {
+private fun NoticeDialog(onAck: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = { },
+        confirmButton = {
+            TextButton(onClick = onAck) { Text("Understood") }
+        },
+        title = { Text("Web Source") },
+        text = {
+            Text(
+                "The app contains no content. You are responsible for the " +
+                    "pages you open and the rights to read their images."
+            )
+        }
+    )
+}
+
+@Composable
+private fun BrowserPane(webRef: MutableState<WebView?>, initialUrl: String) {
+    AndroidView(
+        factory = { ctx ->
+            WebView(ctx).apply {
+                layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+                )
+                applyHardenedSettings(settings)
+                webChromeClient = WebChromeClient()
+                webViewClient = policyClient(ctx)
+                loadUrl(initialUrl.ifBlank { "about:blank" })
+                webRef.value = this
+            }
+        },
+        modifier = Modifier.weight(1f).fillMaxWidth()
+    )
+}
+@Composable
+private fun WebActions(busy: Boolean, canOpen: Boolean, handlers: WebHandlers) {
     Row(modifier = Modifier.fillMaxWidth()) {
-        Button(onClick = onGo, enabled = !busy) { Text("Go") }
-        Button(onClick = onRead, enabled = !busy) { Text("Read this page") }
-        Button(onClick = onOpen, enabled = !busy && canOpen) { Text("Open in reader") }
-        Button(onClick = onClear, enabled = !busy) { Text("Clear data") }
+        Button(onClick = handlers.onGo, enabled = !busy) { Text("Go") }
+        Button(onClick = handlers.onRead, enabled = !busy) { Text("Read this page") }
+        Button(onClick = handlers.onOpen, enabled = !busy && canOpen) { Text("Open in reader") }
+        Button(onClick = handlers.onClear, enabled = !busy) { Text("Clear data") }
     }
 }
+
+private data class WebHandlers(
+    val onGo: () -> Unit,
+    val onRead: () -> Unit,
+    val onOpen: () -> Unit,
+    val onClear: () -> Unit
+)
 
 @Composable
 private fun WebPreview(
@@ -222,15 +233,14 @@ private fun policyClient(appContext: Context): WebViewClient {
     return object : WebViewClient() {
         override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
             val target = request.url.toString()
-            if (WebPolicy.shouldBlockUrl(target)) {
-                Toast.makeText(appContext, "Blocked (https only)", Toast.LENGTH_SHORT).show()
-                return true
+            val verdict = when {
+                WebPolicy.shouldBlockUrl(target) -> "Blocked (https only)"
+                WebPolicy.externalAppScheme(target) -> "External apps stay closed"
+                else -> null
             }
-            if (WebPolicy.externalAppScheme(target)) {
-                Toast.makeText(appContext, "External apps stay closed", Toast.LENGTH_SHORT).show()
-                return true
-            }
-            return false
+            if (verdict == null) return false
+            Toast.makeText(appContext, verdict, Toast.LENGTH_SHORT).show()
+            return true
         }
     }
 }

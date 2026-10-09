@@ -46,35 +46,25 @@ fun HomeScreen(webEnabled: Boolean, onWeb: () -> Unit, modifier: Modifier = Modi
                     .setDataAndType(Uri.fromFile(File(path)), mime)
                     .setClassName(context, MainActivity::class.java.name)
             )
-        } catch (error: Exception) {
+        } catch (error: java.io.IOException) {
             Log.w("HomeScreen", "open file failed", error)
+        } catch (error: android.content.ActivityNotFoundException) {
+            Log.w("HomeScreen", "no viewer for file", error)
         }
     }
     if (urlDialog) {
-        AlertDialog(
-            onDismissRequest = { urlDialog = false },
-            confirmButton = {
-                TextButton(onClick = {
-                    urlDialog = false
-                    val target = urlText.trim()
-                    if (target.isNotEmpty()) {
-                        context.startActivity(
-                            Intent(Intent.ACTION_VIEW, Uri.parse(target))
-                                .setClassName(context, MainActivity::class.java.name)
-                        )
-                    }
-                }) { Text("Open") }
-            },
-            dismissButton = {
-                TextButton(onClick = { urlDialog = false }) { Text("Cancel") }
-            },
-            title = { Text("Open URL") },
-            text = {
-                OutlinedTextField(
-                    value = urlText,
-                    onValueChange = { urlText = it },
-                    singleLine = true
-                )
+        UrlDialog(
+            initial = urlText,
+            onDismiss = { urlDialog = false },
+            onOpen = { target ->
+                urlText = target
+                urlDialog = false
+                if (target.trim().isNotEmpty()) {
+                    context.startActivity(
+                        Intent(Intent.ACTION_VIEW, Uri.parse(target.trim()))
+                            .setClassName(context, MainActivity::class.java.name)
+                    )
+                }
             }
         )
     }
@@ -97,6 +87,27 @@ fun HomeScreen(webEnabled: Boolean, onWeb: () -> Unit, modifier: Modifier = Modi
     }
 }
 
+@Composable
+private fun UrlDialog(initial: String, onDismiss: () -> Unit, onOpen: (String) -> Unit) {
+    var text by remember { mutableStateOf(initial) }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(onClick = { onOpen(text) }) { Text("Open") }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Cancel") }
+        },
+        title = { Text("Open URL") },
+        text = {
+            OutlinedTextField(
+                value = text,
+                onValueChange = { text = it },
+                singleLine = true
+            )
+        }
+    )
+}
 private fun copyToInbox(context: Context, uri: Uri): String {
     val name = queryName(context, uri) ?: "shared-${System.currentTimeMillis()}"
     val dir = File(context.cacheDir, "inbox")
@@ -109,12 +120,17 @@ private fun copyToInbox(context: Context, uri: Uri): String {
 }
 
 private fun queryName(context: Context, uri: Uri): String? {
-    if (uri.scheme != "content") return uri.lastPathSegment?.substringAfterLast('/')
+    if (uri.scheme != "content") {
+        return uri.lastPathSegment?.substringAfterLast('/')
+    }
+    var name: String? = null
     context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
         val index = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-        if (index >= 0 && cursor.moveToFirst()) return cursor.getString(index)
+        if (index >= 0 && cursor.moveToFirst()) {
+            name = cursor.getString(index)
+        }
     }
-    return null
+    return name
 }
 
 private fun guessMime(path: String): String {
