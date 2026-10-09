@@ -38,6 +38,10 @@ adb_retry adb pull /sdcard/Android/data/com.example.auplayer/files/e1-shot-1.png
 adb_retry adb pull /sdcard/Android/data/com.example.auplayer/files/e1-shot-2.png "$GITHUB_WORKSPACE/e1-shot-2.png" || true
 adb_retry adb pull /sdcard/Android/data/com.example.auplayer/files/e1-trace.txt "$GITHUB_WORKSPACE/e1-trace.txt" || true
 echo "=== E1 trace gate (time-pos span + clean EOF) ==="
+if [ ! -f "$GITHUB_WORKSPACE/e1-trace.txt" ]; then
+  echo "E: no trace file — engine produced zero events" >&2
+  exit 1
+fi
 python3 - "$GITHUB_WORKSPACE/e1-trace.txt" <<'EOF'
 import sys
 times = []

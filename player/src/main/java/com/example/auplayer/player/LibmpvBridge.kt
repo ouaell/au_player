@@ -31,15 +31,21 @@ class LibmpvBridge(private val paths: MpvPaths, traceDir: File? = null) : MpvBri
         val created = MpvNative.nativeCreate()
         if (created == 0L) throw MpvCommandException("mpv_create failed")
         handle = created
-        applyStartup(this, paths)
-        val code = MpvNative.nativeInit(handle)
-        if (code != 0) {
-            throw MpvCommandException("mpv_initialize: " + MpvNative.nativeErrorString(code))
+        try {
+            applyStartup(this, paths)
+            val code = MpvNative.nativeInit(handle)
+            if (code != 0) {
+                throw MpvCommandException("mpv_initialize: " + MpvNative.nativeErrorString(code))
+            }
+        } catch (error: MpvCommandException) {
+            Log.e("AuPlayer", "mpv init failed", error)
+            throw error
         }
         MpvNative.nativeObserve(handle, TIME_POS_ID, "time-pos")
         MpvEvents.nativeStartEvents(handle, eventCallback)
         tracer.clear()
-        Log.i("AuPlayer", "libmpv initialized")
+        val version = MpvNative.nativeGetProperty(handle, "mpv-version")
+        Log.i("AuPlayer", "libmpv initialized: $version")
     }
 
     override fun setOption(key: String, value: String) {
