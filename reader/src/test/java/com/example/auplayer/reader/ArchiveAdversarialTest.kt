@@ -48,8 +48,10 @@ class ArchiveAdversarialTest {
                 pages = provider.pageCount
             }
         } catch (error: java.io.IOException) {
+            assertTrue(!error.message.isNullOrEmpty())
             return
         } catch (error: IllegalArgumentException) {
+            assertTrue(!error.message.isNullOrEmpty())
             return
         }
         assertTrue("truncated archive exposed pages: $pages", pages <= 1)
