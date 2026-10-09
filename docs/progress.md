@@ -123,6 +123,10 @@
 - Key evidence: official ffmpeg.sh uses --enable-gpl (confirmed), mpv.sh passes no -Dgpl (defaults GPL), loadarch already sets 16KB max-page-size, buildall.sh builds per-target/per-arch (mpv without app)
 - check_16kb.sh now takes raw .so files too (64-bit rule preserved)
 
+## E1 blocker found — missing libc++_shared.so (DT_NEEDED proof)
+- libmpv.so needs libc++_shared.so (T1 linkage manifest); APK never packaged it → dlopen failed in-app
+- Fix: fetch_native.sh copies it per-ABI from the NDK (+ ANDROID_HOME on Gates step); T1 cache key unchanged (pins hash — hmm, script changed but cache key is pins-only, so stale cache without libc++ persists! FIX: include script hash in key)
+
 ## E1 status — engine built, playback unproven (several emulator rounds)
 - 3-ABI LGPL release published; JNI compiles+links; LibmpvBridge/EglHost/RenderLoop/PlayerScreen/VIEW routing/T1 all green
 - Emulator rounds: KVM fixed, run-as paths fixed, logcat gate scoped, E1 split-brain fixed via trace file; current blocker is in-app dlopen (test-process Fake explained; app-process reason next via Log.e)

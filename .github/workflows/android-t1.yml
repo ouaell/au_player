@@ -53,10 +53,12 @@ jobs:
           path: |
             player/src/main/jniLibs
             player/src/main/cpp/thirdparty
-          key: staged-native-${{ hashFiles('native/pins.txt') }}
+          key: staged-native-${{ hashFiles('native/pins.txt', 'tools/fetch_native.sh') }}
       - name: Gates + unit tests + build (MS-002)
         run: gradle detekt ktlintCheck test lint assembleDirectDebug assembleDirectDebugAndroidTest --stacktrace
         env:
+          ANDROID_HOME: /usr/local/lib/android/sdk
+          ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
           AU_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Native linkage manifest (DT_NEEDED per ABI)

@@ -38,4 +38,22 @@ for spec in "arm64-v8a:arm64" "armeabi-v7a:armv7l" "x86_64:x86_64"; do
     cp -rn "$inc"/. "$OUT_INC"/
   fi
 done
+# libc++_shared: required by libmpv.so/au_mpv.so DT_NEEDED but not built by
+# us — copy from the NDK when available (always true in CI).
+if [ -n "${ANDROID_HOME:-}" ]; then
+  NDK_DIR=$(ls -d "$ANDROID_HOME"/ndk/* 2>/dev/null | head -1)
+  if [ -n "$NDK_DIR" ]; then
+    for spec in "arm64-v8a:aarch64-linux-android" "armeabi-v7a:arm-linux-androideabi" "x86_64:x86_64-linux-android"; do
+      abi=${spec%%:*}
+      triple=${spec##*:}
+      src="$NDK_DIR/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/$triple/libc++_shared.so"
+      if [ -f "$src" ]; then
+        cp "$src" "$OUT_JNI/$abi/"
+        echo "native: $abi <- NDK libc++_shared.so"
+      else
+        echo "native: WARNING no libc++_shared for $abi" >&2
+      fi
+    done
+  fi
+fi
 echo "native: staged jniLibs + headers"
