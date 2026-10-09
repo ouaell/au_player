@@ -39,7 +39,7 @@ class E6WebTest {
             scenario.onActivity { activity ->
                 val view = WebView(activity)
                 view.settings.javaScriptEnabled = true
-                view.settings.blockNetworkLoads(true)
+                view.settings.setBlockNetworkLoads(true)
                 view.webViewClient = object : WebViewClient() {
                     override fun onPageFinished(view: WebView, url: String) {
                         loaded.countDown()
