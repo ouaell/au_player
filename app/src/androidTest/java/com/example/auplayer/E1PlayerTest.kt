@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.os.ParcelFileDescriptor
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -39,7 +40,9 @@ class E1PlayerTest {
         ActivityScenario.launch<MainActivity>(intent).use { scenario ->
             // Native libs live in the APP process (not the test process).
             scenario.onActivity {
-                assertTrue("native libmpv missing on device", MpvNative.load())
+                if (!MpvNative.load()) {
+                    assertTrue("native missing; linker says: ${linkerClues()}", false)
+                }
             }
             runBlocking {
                 delay(STARTUP_MS)
@@ -51,8 +54,17 @@ class E1PlayerTest {
         }
     }
 
-    private fun takeShot(name: String): File {
-        val instrumentation = InstrumentationRegistry.getInstrumentation()
+    private fun linkerClues(): List<String> {
+        val pfd = InstrumentationRegistry.getInstrumentation().uiAutomation
+            .executeShellCommand("logcat -d")
+        val log = ParcelFileDescriptor.AutoCloseInputStream(pfd).bufferedReader().readText()
+        return log.lines().filter { line ->
+            line.contains("linker") &&
+                (line.contains("mpv") || line.contains("c++") || line.contains("not found"))
+        }.takeLast(10)
+    }
+
+    private fun takeShot(name: String): File {        val instrumentation = InstrumentationRegistry.getInstrumentation()
         val device = UiDevice.getInstance(instrumentation)
         val dir = instrumentation.targetContext.getExternalFilesDir(null)
             ?: error("no external dir")
