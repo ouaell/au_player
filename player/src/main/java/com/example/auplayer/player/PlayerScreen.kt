@@ -26,8 +26,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import com.example.auplayer.core.EnhanceMode
 import com.example.auplayer.enhance.EnhanceController
-import com.example.auplayer.enhance.EnhanceMode
 import kotlinx.coroutines.delay
 
 /**
@@ -130,7 +130,7 @@ fun PlayerScreen(
                 }
                 Box(modifier = Modifier.weight(1f))
                 PlayerControls(
-                    state = uiState.state,
+                    state = uiState,
                     playing = playing,
                     controller = controller,
                     onSeek = { fraction ->
