@@ -32,5 +32,8 @@ dependencies {
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     kapt(libs.room.compiler)
+    // Room's bundled metadata reader caps below Kotlin 2.4; force the KGP-
+    // matched reader onto the processor classpath (verified artifact).
+    kapt(libs.kotlin.metadata.jvm)
     testImplementation(libs.junit)
 }
