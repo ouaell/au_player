@@ -123,6 +123,11 @@
 - Key evidence: official ffmpeg.sh uses --enable-gpl (confirmed), mpv.sh passes no -Dgpl (defaults GPL), loadarch already sets 16KB max-page-size, buildall.sh builds per-target/per-arch (mpv without app)
 - check_16kb.sh now takes raw .so files too (64-bit rule preserved)
 
+## E1 test timing bug — shots fired before open, close killed EOF
+- E1PlayerTest took shots at +0.8s/+2.0s but last round's `open` landed at +3s (dlopen+init on slow emulator) → both shots pre-playback (black + chrome = identical); scenario.close then destroyed the engine before the 3s clip could EOF
+- Fix: poll app-side trace (same external files dir both processes) for `time=` before shot1, and for `eof` before close (30s timeouts); removed fixed STARTUP_MS
+- T1 must go green on this before the next emulator dispatch
+
 ## E1 round 37875455035 — pump alive, render ctx ok, silence after open
 - Logcat: route viewUri ok → event pump started → libmpv v0.41.0 → pump alive first event id=22 (PROPERTY_CHANGE, pre-open = initial observe notification, time-pos null → correctly silent) → render start code=0 → open logged — then ZERO further events, no trace, identical screenshots (non-blank = black surface + system chrome)
 - Native pump audited clean: NewGlobalRef callback, Attach/DetachCurrentThread, mpv_event_name strings (no hardcoded ABI numbers); event mapping sound (trace iff real time-pos values)
