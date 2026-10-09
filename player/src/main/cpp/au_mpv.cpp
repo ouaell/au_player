@@ -61,6 +61,15 @@ void eventLoop(Ctx* ctx) {
         if (event == nullptr || event->event_id == MPV_EVENT_NONE) {
             continue;
         }
+        if (event->event_id == MPV_EVENT_LOG_MESSAGE) {
+            const auto* message = static_cast<mpv_event_log_message*>(event->data);
+            if (message != nullptr) {
+                AU_LOGI("mpv [%s/%s] %s", message->prefix != nullptr ? message->prefix : "?",
+                        message->level != nullptr ? message->level : "?",
+                        message->text != nullptr ? message->text : "");
+            }
+            continue;
+        }
         if (first) {
             first = false;
             AU_LOGI("pump alive, first event id=%d", event->event_id);
@@ -242,6 +251,7 @@ Java_com_example_auplayer_player_MpvEvents_nativeStartEvents(
     }
     ctx->running = true;
     ctx->loop = std::thread(eventLoop, ctx);
+    mpv_request_log_messages(ctx->mpv, "info");
     AU_LOGI("event pump started");
 }
 
