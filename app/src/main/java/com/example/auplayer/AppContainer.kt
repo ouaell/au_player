@@ -13,6 +13,10 @@ import java.io.File
 class AppContainer(context: Context) {
     val webSourceEnabled: Boolean = BuildConfig.WEB_SOURCE_ENABLED
 
+    init {
+        installBundledFonts(context)
+    }
+
     private val mpvPaths = MpvPaths(
         configDir = File(context.filesDir, "mpv"),
         cacheDir = context.cacheDir,

@@ -1,0 +1,15 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1280
+PlayResY: 720
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Noto Sans,48,&H00FFFFFF,&H000019FF,&H80000000,&H80000000,0,0,0,0,100,100,0,0,1,2,0,2,40,40,40,1
+Style: Accent,Noto Sans,56,&H0000D1FF,&H000019FF,&H80000000,&H80000000,-1,0,0,0,100,100,0,0,1,3,0,8,40,40,60,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.50,0:00:02.00,Default,,0,0,0,,Styled Latin line {\\b1}bold{\\b0} here.
+Dialogue: 0,0:00:02.00,0:00:02.90,Accent,,0,0,0,,Top-positioned accent cue.

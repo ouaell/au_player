@@ -34,9 +34,35 @@ jobs:
             enhance/src/main/assets/shaders/patched \
             test-corpus/h264-720p.mp4 headless-out
           echo "H2: all chains compiled without GLSL errors"
+      - name: H4 subtitle render (MS-067 bootstrap-then-compare)
+        run: |
+          sh tools/fetch_fonts.sh
+          mkdir -p headless-subs
+          export DISPLAY="${DISPLAY:-:99}"
+          for sub in sub-latin sub-arabic sub-cjk sub-styled; do
+            ext=srt
+            if [ "$sub" = "sub-styled" ]; then ext=ass; fi
+            xvfb-run -a mpv --no-config --vo=image --vo-image-format=png \
+              --vo-image-outdir="headless-subs/$sub" --hwdec=no --ao=null \
+              --sub-file="tools/headless/fixtures/$sub.$ext" \
+              --sub-fonts-dir=app/src/main/assets/fonts \
+              --frames=45 test-corpus/h264-720p.mp4 \
+              --msg-level=all=warn --log-file="headless-subs/$sub.log" || true
+            ls "headless-subs/$sub" | head -3
+          done
+          if [ -d tools/headless/goldens ]; then
+            for sub in sub-latin sub-arabic sub-cjk sub-styled; do
+              frame=$(ls "headless-subs/$sub"/*.png | head -1)
+              sh tools/headless/check_golden.sh "$frame" "tools/headless/goldens/$sub.png" 0.90
+            done
+            echo "H4: subtitle goldens match"
+          else
+            echo "H4: no goldens yet — commit headless-subs outputs as tools/headless/goldens/ to bootstrap"
+          fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: headless-reports
           path: |
             headless-out/
+            headless-subs/

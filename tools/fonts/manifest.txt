@@ -1,0 +1,6 @@
+# Font fetch manifest (MS-067). Format: <local-filename>|<pinned-raw-url>
+# OFL-licensed only; URLs pin a commit SHA (immutable). CJK is NOT bundled
+# (Noto CJK is ~16 MB/weight — strategy: Android system fallback, documented
+# in docs/assets-licenses.md); Latin + Arabic ship in the APK.
+NotoSans.ttf|https://raw.githubusercontent.com/google/fonts/2984c575fdce412ee02b2baaba67672b9a9434d8/ofl/notosans/NotoSans%5Bwdth%2Cwght%5D.ttf
+NotoNaskhArabic.ttf|https://raw.githubusercontent.com/google/fonts/35ddfc50b8c0dda6a1e0eb5d48d962c26a2ec5ff/ofl/notonaskharabic/NotoNaskhArabic%5Bwght%5D.ttf
