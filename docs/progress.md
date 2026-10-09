@@ -130,6 +130,29 @@
 - Remainder explicitly UNVERIFIED: web-source instrumented vs local server (no browser UI yet — next), permission states, 30-video memory growth, reader mode-switching/rapid turns
 - Tests added: E2LifecycleTest, E3EnhanceTest, E4ReaderTest, E5SeekTest (+E1PlayerTest earlier); fixtures in gen_corpus (CBZ/PDF/shader push in run_e1.sh)
 
+## MS-067 — OFL fonts + H4 subtitle goldens
+- Status: DONE (headless H4 green with SSIM 1.0 compares; fonts install in AppContainer; T1 green)
+- Sections used: §15 (MS-067 row), §3.4 (sub-fonts-dir), §17.4
+- NotoSans + NotoNaskhArabic pinned OFL (manifest SHAs), fetched in all build jobs, installed to filesDir/fonts at startup; CJK intentionally system-fallback (documented)
+- H4: latin/arabic/styled render correct glyphs (eyeballed: shaped RTL, bold ASS), CJK shows .notdef on runner (no CJK font there; Android covers); goldens committed, compare threshold 0.90
+- ssim-loglevel fix on the way (filter summary needs info level)
+- Tests added: none (golden compares are the gate); UNVERIFIED: on-device CJK with system fonts (needs phone session)
+
+## MS-064 — Property + adversarial + arch gates
+- Status: DONE (T1 green with all new suites; arch gate step in T1)
+- Sections used: §17.6, §15 (MS-064 row)
+- Governor/Tiling/NaturalOrder/Gesture/ImagePicker seeded property tests (monotonicity, determinism, coverage, transitivity, locked-mute, dedupe/order/filter); archive adversarial (empty/junk/truncated/limits); check_arch.sh in T1 (UI native-free, :player network-free, no Thread.sleep)
+- Fallback noted per §14: Jazzer/Kotest/Konsist/Kover-bound need verification + infra (follow-up); hand-rolled equivalents enforce the intent now
+- Tests added: 6 files; UNVERIFIED: none (JVM) — device fuzzing stays future work
+
+## MS-063 — Minified release smoke (emulator half) + MS-053 proof
+- Status: DONE (smoke run 37953004587 green; FTL half needs Firebase H6 — owner-blocked, recorded)
+- Sections used: §15 (MS-063 row), §3.2 (no mediacodec_embed), §17.3 (release-like variant)
+- New `smoke` build type (R8 + x86_64; real release stays arm-only): caught a REAL R8 bug — callback interface renamed → `NoSuchMethodError onEvent` FATAL on first launch; fixed with keeps for MpvEvents/callback/LibmpvBridge
+- Infra fixes on the way: pre-step `adb wait-for-device` hang, GH_TOKEN for native fetch, NO_MATCHING_ABIS diagnosis
+- Gate: minified APK plays (`VO: [gpu] 720p`) + renders CBZ, logcat clean
+- Tests added: none (shell + logcat gate); UNVERIFIED: FTL physical/minified leg
+
 ## MS-059 — Headless desktop-mpv suite H1+H2 (option lint + shader compile)
 - Status: DONE (headless run 37890911279 green; T1 green on the same push)
 - Sections used: §17.4, §6, §3.4, §15 (MS-059 row)
