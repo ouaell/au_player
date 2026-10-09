@@ -42,6 +42,8 @@ class LibmpvBridge(private val paths: MpvPaths, traceDir: File? = null) : MpvBri
             throw error
         }
         MpvNative.nativeObserve(handle, TIME_POS_ID, "time-pos")
+        MpvNative.nativeObserve(handle, DURATION_ID, "duration")
+        MpvNative.nativeObserve(handle, PAUSE_ID, "pause")
         MpvEvents.nativeStartEvents(handle, eventCallback)
         tracer.clear()
         val version = MpvNative.nativeGetProperty(handle, "mpv-version")
@@ -101,6 +103,12 @@ class LibmpvBridge(private val paths: MpvPaths, traceDir: File? = null) : MpvBri
         surface = null
     }
 
+    override fun property(name: String): String? {
+        // JNI returns null for missing/unavailable properties; no throw path.
+        if (handle == 0L) return null
+        return MpvNative.nativeGetProperty(handle, name)
+    }
+
     fun renderInit(): Int = MpvRender.nativeRenderInit(handle)
 
     fun checkUpdate(): Boolean = MpvRender.nativeCheckUpdate(handle)
@@ -119,6 +127,18 @@ class LibmpvBridge(private val paths: MpvPaths, traceDir: File? = null) : MpvBri
                     if (seconds != null) {
                         tracer.line("time=$seconds")
                         listener?.invoke(MpvEvent.TimePos(seconds))
+                    }
+                }
+                name == "property-change" && replyUserdata == DURATION_ID -> {
+                    val seconds = MpvNative.nativeGetProperty(handle, "duration")?.toDoubleOrNull()
+                    if (seconds != null) {
+                        listener?.invoke(MpvEvent.Duration(seconds))
+                    }
+                }
+                name == "property-change" && replyUserdata == PAUSE_ID -> {
+                    val paused = MpvNative.nativeGetProperty(handle, "pause")
+                    if (paused != null) {
+                        listener?.invoke(MpvEvent.Paused(paused == "yes"))
                     }
                 }
                 else -> Unit
@@ -145,5 +165,7 @@ internal class EventTracer(private val dir: File?) {
 }
 
 private const val TIME_POS_ID = 1L
+private const val DURATION_ID = 2L
+private const val PAUSE_ID = 3L
 private const val TRACE_NAME = "e1-trace.txt"
 private const val WID_OPTION = "wid"

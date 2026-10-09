@@ -14,11 +14,15 @@ interface MpvBridge {
     fun attach(token: Any?)
     fun detach()
     fun destroy()
+    /** String property read (null when unavailable); used for video height. */
+    fun property(name: String): String?
 }
 
 /** Native-side events of interest (§5.2 observes; full set lands in MS-011). */
 sealed interface MpvEvent {
     data class TimePos(val seconds: Double) : MpvEvent
+    data class Duration(val seconds: Double) : MpvEvent
+    data class Paused(val paused: Boolean) : MpvEvent
     data object Eof : MpvEvent
     data class Error(val message: String) : MpvEvent
 }
@@ -63,6 +67,8 @@ class FakeMpvBridge : MpvBridge {
     override fun destroy() {
         destroyed = true
     }
+
+    override fun property(name: String): String? = null
 
     fun emit(event: MpvEvent) {
         listener?.invoke(event)

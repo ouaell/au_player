@@ -6,6 +6,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 
 /**
  * Auto-hide: controls vanish [AUTO_HIDE_TIMEOUT_MS] after interaction, never
@@ -59,9 +62,18 @@ fun PlayerControls(
     onSeek: (Float) -> Unit
 ) {
     Column {
-        Slider(value = state.progress, onValueChange = onSeek)
+        Slider(
+            value = state.progress,
+            onValueChange = onSeek,
+            modifier = Modifier.semantics { contentDescription = SEEK_DESCRIPTION }
+        )
         Row {
-            IconButton(onClick = { if (playing) controller.pause() else controller.play() }) {
+            IconButton(
+                onClick = { if (playing) controller.pause() else controller.play() },
+                modifier = Modifier.semantics {
+                    contentDescription = if (playing) PAUSE_DESCRIPTION else PLAY_DESCRIPTION
+                }
+            ) {
                 // Glyphs are interim; Material Symbols land with the icon pass (MS-074).
                 Text(text = if (playing) "❚❚" else "▶")
             }
@@ -69,3 +81,7 @@ fun PlayerControls(
         }
     }
 }
+
+private const val SEEK_DESCRIPTION = "Seek position"
+private const val PAUSE_DESCRIPTION = "Pause"
+private const val PLAY_DESCRIPTION = "Play"

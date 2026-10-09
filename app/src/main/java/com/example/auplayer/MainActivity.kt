@@ -35,8 +35,13 @@ class MainActivity : ComponentActivity() {
         setContent {
             AuTheme {
                 if (debugPath != null) {
-                    val engine = (application as AuApp).container.playerEngine
-                    PlayerScreen(uri = debugPath, engine = engine)
+                    val app = application as AuApp
+                    PlayerScreen(
+                        uri = debugPath,
+                        engine = app.container.playerEngine,
+                        enhance = app.container.enhanceController,
+                        onBack = { finish() }
+                    )
                 } else {
                     RoutedScreen(intent = intent, fallbackUri = viewUri)
                 }
@@ -79,7 +84,12 @@ private fun RoutedScreen(intent: Intent?, fallbackUri: String?) {
         uris = listOfNotNull(intent?.data?.toString(), fallbackUri)
     )
     when (val route = IntentRouter.route(incoming)) {
-        is Route.Player -> PlayerScreen(uri = route.uri, engine = app.container.playerEngine)
+        is Route.Player -> PlayerScreen(
+            uri = route.uri,
+            engine = app.container.playerEngine,
+            enhance = app.container.enhanceController,
+            onBack = { finish() }
+        )
         is Route.Reader -> ReaderScreen(uri = route.uris.first(), kind = route.kind)
         Route.Unsupported -> AuNav(app.container)
     }
