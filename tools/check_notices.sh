@@ -12,6 +12,7 @@ token_for() {
     room-*) echo "Room" ;;
     datastore) echo "DataStore" ;;
     coroutines-*) echo "Coroutines" ;;
+    kotlin-metadata-jvm) echo "Kotlin (stdlib" ;;
     okhttp|mockwebserver) echo "OkHttp" ;;
     coil-*) echo "Coil" ;;
     media3-*) echo "Media3" ;;

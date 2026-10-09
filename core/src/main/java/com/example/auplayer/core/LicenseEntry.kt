@@ -50,6 +50,11 @@ val THIRD_PARTY_NOTICES: List<LicenseEntry> = listOf(
         "https://github.com/Kotlin/kotlinx.coroutines"
     ),
     LicenseEntry(
+        "Kotlin (stdlib, metadata reader — kapt only)",
+        "Apache-2.0",
+        "https://github.com/JetBrains/kotlin"
+    ),
+    LicenseEntry(
         "OkHttp / MockWebServer",
         "Apache-2.0",
         "https://github.com/square/okhttp"
