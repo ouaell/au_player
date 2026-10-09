@@ -123,6 +123,11 @@
 - Key evidence: official ffmpeg.sh uses --enable-gpl (confirmed), mpv.sh passes no -Dgpl (defaults GPL), loadarch already sets 16KB max-page-size, buildall.sh builds per-target/per-arch (mpv without app)
 - check_16kb.sh now takes raw .so files too (64-bit rule preserved)
 
+## E1 round 37885114495 — VO LIVES (`VO: [gpu] 1280x720`), pulls need abs paths
+- mpv log: wid accepted, `VO: [gpu] 1280x720 yuv420p` + `AO: [audiotrack]` + `Using hardware decoding (mediacodec-copy)` (direct-surface unavailable → copy-back; benign) + audio underrun (slow emulator, still advances)
+- E1 TEST PASSED (13.0s, failures=0): trace-poll saw time= + eof, shots differed — real video on screen
+- Workflow gate failed only on pulls: 0-byte files — `run-as` CWD is not the data dir, relative `files/...` missed (cat stderr not captured); fix: absolute `/data/data/...` paths (same as working clip-push steps)
+- (double `open` logged: created+changed re-fire; second loadfile replaces first — benign, VO still comes up)
 ## E1 round 37881867232 — JVM fix works, vo needs `wid` (PIVOT to vo-owned surface)
 - mpv log: `AO: [audiotrack]` (av_jni registration confirmed) but `vo/gpu/android/fatal: Missing surface pointer` → `Video: no video` again; audio-only playback (trace-poll test passed on audio; shot diff was animation)
 - Cause (mpv v0.41.0 `video/out/android_common.c` via gh): android vo takes the Surface jobject address from the WinID option at vo init — nothing ever set `wid`
