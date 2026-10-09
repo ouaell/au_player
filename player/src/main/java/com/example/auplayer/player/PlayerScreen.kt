@@ -26,6 +26,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.example.auplayer.core.EnhanceMode
@@ -137,15 +140,28 @@ fun PlayerScreen(
                     modifier = Modifier.fillMaxWidth().padding(8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    TextButton(onClick = handle.onBack) { Text("Back") }
+                    TextButton(
+                        onClick = onBack,
+                        modifier = Modifier.semantics(mergeDescendants = true) {
+                            contentDescription = BACK_DESCRIPTION
+                            role = Role.Button
+                        }
+                    ) { Text(BACK_DESCRIPTION) }
                     Text(
                         text = uri.substringAfterLast('/'),
                         maxLines = 1,
                         modifier = Modifier.weight(1f)
                     )
-                    TextButton(onClick = { showSheet = true }) {
+                    TextButton(
+                        onClick = { showSheet = true },
+                        modifier = Modifier.semantics(mergeDescendants = true) {
+                            contentDescription = "Enhance: ${enhanceMode.name}"
+                            role = Role.Button
+                        }
+                    ) {
                         Text(text = "Enhance: ${enhanceMode.name}")
                     }
+                }
                 }
                 Box(modifier = Modifier.weight(1f))
                 PlayerControls(
@@ -287,3 +303,4 @@ private fun sizedFrame(holder: SurfaceHolder, surface: Surface): Frame? {
 private const val AUTO_TICK_MS = 250L
 private const val MILLIS_PER_SECOND = 1000L
 private const val UI_TICK_MS = 500L
+private const val BACK_DESCRIPTION = "Back"

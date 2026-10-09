@@ -63,8 +63,8 @@ class E8PlayerControlsTest {
                 while (!buttonSeen && rounds < BUTTON_ROUNDS) {
                     rounds++
                     device.click(device.displayWidth / 2, device.displayHeight / 2)
-                    buttonSeen = device.wait(Until.hasObject(By.text("Pause")), BUTTON_WAIT_MS) ||
-                        device.wait(Until.hasObject(By.text("Play")), BUTTON_WAIT_MS)
+                    buttonSeen = device.wait(Until.hasObject(By.desc("Pause")), BUTTON_WAIT_MS) ||
+                        device.wait(Until.hasObject(By.desc("Play")), BUTTON_WAIT_MS)
                 }
                 assertTrue("pause/play button never visible", buttonSeen)
                 Log.i(GATE_TAG, "buttons visible")

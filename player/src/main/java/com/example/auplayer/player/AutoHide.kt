@@ -7,6 +7,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 
@@ -68,12 +69,17 @@ fun PlayerControls(
             modifier = Modifier.semantics { contentDescription = SEEK_DESCRIPTION }
         )
         Row {
+            val transport = if (playing) PAUSE_LABEL else PLAY_LABEL
             TextButton(
-                onClick = { if (playing) controller.pause() else controller.play() }
+                onClick = { if (playing) controller.pause() else controller.play() },
+                modifier = Modifier.semantics(mergeDescendants = true) {
+                    contentDescription = transport
+                    role = Role.Button
+                }
             ) {
                 // Text label (not glyph-only): readable, TalkBack-friendly,
                 // and stable under UiAutomator (icon nodes proved flaky).
-                Text(text = if (playing) PAUSE_LABEL else PLAY_LABEL)
+                Text(text = transport)
             }
             Text(text = formatTime(state.positionMs) + " / " + formatTime(state.durationMs))
         }
