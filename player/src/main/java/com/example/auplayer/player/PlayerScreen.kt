@@ -78,14 +78,7 @@ fun PlayerScreen(
     }
     ReportProgress(uri = uri, uiState = uiState, onProgress = onProgress)
     Box(
-        modifier = modifier
-            .fillMaxSize()
-            .pointerInput(Unit) {
-                detectTapGestures {
-                    autoHide.interact(System.currentTimeMillis())
-                    controls = true
-                }
-            }
+        modifier = modifier.fillMaxSize()
     ) {
         AndroidView(
             factory = { context ->
@@ -114,6 +107,18 @@ fun PlayerScreen(
                 }
             },
             modifier = Modifier.fillMaxSize()
+        )
+        // Transparent tap catcher above the native view (which consumes all
+        // touches): taps toggle controls. Below the controls so buttons win.
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .pointerInput(Unit) {
+                    detectTapGestures {
+                        autoHide.interact(System.currentTimeMillis())
+                        controls = true
+                    }
+                }
         )
         if (controls) {
             Column(modifier = Modifier.fillMaxSize()) {

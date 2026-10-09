@@ -9,6 +9,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
+import androidx.test.uiautomator.StaleObjectException
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
 import org.junit.Assert.assertTrue
@@ -59,8 +60,14 @@ class E7A11yTest {
     private fun assertLabeled(device: UiDevice, pkg: String, screen: String) {
         val nodes = device.findObjects(By.clickable(true).pkg(pkg))
         Log.i(GATE_TAG, "$screen clickables=${nodes.size}")
+        // The hierarchy churns under us (time text ticks); stale nodes
+        // vanished on their own — only judge the ones still standing.
         val unlabeled = nodes.filter { node ->
-            node.text.isNullOrBlank() && node.contentDescription.isNullOrBlank()
+            try {
+                node.text.isNullOrBlank() && node.contentDescription.isNullOrBlank()
+            } catch (_: StaleObjectException) {
+                false
+            }
         }
         assertTrue(
             "unlabeled clickables on $screen: ${unlabeled.map { it.className }}",
