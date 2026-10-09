@@ -123,6 +123,15 @@
 - Key evidence: official ffmpeg.sh uses --enable-gpl (confirmed), mpv.sh passes no -Dgpl (defaults GPL), loadarch already sets 16KB max-page-size, buildall.sh builds per-target/per-arch (mpv without app)
 - check_16kb.sh now takes raw .so files too (64-bit rule preserved)
 
+## MS-059 — Headless desktop-mpv suite H1+H2 (option lint + shader compile)
+- Status: DONE (headless run 37890911279 green; T1 green on the same push)
+- Sections used: §17.4, §6, §3.4, §15 (MS-059 row)
+- H1: all §3.4/§6 options accepted by distro mpv (format-tolerant match; drift vs pinned v0.41.0 recorded in log)
+- H2: all 3 chains compile on llvmpipe with rendered-output proof (fixed ravu `.hook` path bug that passed vacuously + empty-output guard); llvmpipe correctness-only per README
+- H3/H4 goldens: check_golden.sh ready; golden bootstrap + subtitle visuals ride with MS-067 fonts
+- Tests added: none (shell harness; gates are the workflow steps)
+- UNVERIFIED-on-device: shader perf on real GPUs (llvmpipe proves compile only)
+
 ## E1 GREEN — run 37887446097 (real video on CI emulator)
 - Gate evidence: `samples=69 span=2.30s eof=True`, `shot deltas: mean=0.120 var=42.679`, `E: trace gate pass`, `E: logcat clean`; E1 test + SmokeTest green in-run
 - Path that got here: init race → libc++ NDK pin → split-brain trace → silent loadfile → mpv log forwarding → av_jni JVM registration (libavcodec) → `wid` surface plumbing (vo owns surface, app EGL retired) → scoped-storage/run-as pulls replaced by logcat E1GATE gate
