@@ -162,6 +162,12 @@
 - Tests added: none (shell harness; gates are the workflow steps)
 - UNVERIFIED-on-device: shader perf on real GPUs (llvmpipe proves compile only)
 
+## MS-074 — Accessibility baseline (automated)
+- Status: DONE (E7 green in emulator run 37967775465; T1 green)
+- Sections used: §15 (MS-074 row), §17.2
+- E7A11yTest: every clickable node in our package on player + reader screens exposes text or content description (stale-node tolerant); drove real fixes: contentDescription on play/pause IconButton + Seek semantics in PlayerControls
+- Tests added: E7A11yTest; UNVERIFIED: TalkBack user pass (needs human session)
+
 ## E1 GREEN — run 37887446097 (real video on CI emulator)
 - Gate evidence: `samples=69 span=2.30s eof=True`, `shot deltas: mean=0.120 var=42.679`, `E: trace gate pass`, `E: logcat clean`; E1 test + SmokeTest green in-run
 - Path that got here: init race → libc++ NDK pin → split-brain trace → silent loadfile → mpv log forwarding → av_jni JVM registration (libavcodec) → `wid` surface plumbing (vo owns surface, app EGL retired) → scoped-storage/run-as pulls replaced by logcat E1GATE gate
