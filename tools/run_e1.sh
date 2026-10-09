@@ -19,13 +19,17 @@ adb_retry() {
 sudo apt-get update -qq
 sudo apt-get install -y -qq ffmpeg
 sh tools/gen_corpus.sh test-corpus
+sh tools/fetch_shaders.sh
+python3 tools/patch_shaders.py
 adb kill-server || true
 adb start-server
 adb wait-for-device
 gradle :app:installDirectDebug --stacktrace
 adb_retry adb push test-corpus/h264-720p.mp4 /data/local/tmp/e1.mp4
+adb_retry adb push enhance/src/main/assets/shaders/patched/ravu-lite-r4.hook /data/local/tmp/e3-ravu.hook
 adb_retry adb shell "run-as com.example.auplayer mkdir -p /data/data/com.example.auplayer/files"
 adb_retry adb shell "run-as com.example.auplayer cp /data/local/tmp/e1.mp4 /data/data/com.example.auplayer/files/e1.mp4"
+adb_retry adb shell "run-as com.example.auplayer cp /data/local/tmp/e3-ravu.hook /data/data/com.example.auplayer/files/e3-ravu.hook"
 adb_retry adb shell "run-as com.example.auplayer ls -l /data/data/com.example.auplayer/files/e1.mp4"
 TEST_FAILED=0
 gradle :app:connectedDirectDebugAndroidTest --stacktrace || TEST_FAILED=1
