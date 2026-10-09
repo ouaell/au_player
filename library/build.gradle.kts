@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.detekt)
+    kotlin("kapt")
 }
 
 android {
@@ -30,5 +31,6 @@ dependencies {
     implementation(libs.compose.material3)
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
+    kapt(libs.room.compiler)
     testImplementation(libs.junit)
 }

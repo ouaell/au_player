@@ -97,6 +97,9 @@ private fun savePlayback(
             Log.w("E9GATE", "save failed: " + error.message)
         } catch (error: java.io.IOException) {
             Log.w("E9GATE", "save failed: " + error.message)
+        } catch (error: IllegalStateException) {
+            // Missing/broken store backend must never kill playback.
+            Log.w("E9GATE", "save failed: " + error.message)
         }
     }
 }
