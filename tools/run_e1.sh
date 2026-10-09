@@ -35,27 +35,30 @@ echo "=== androidTest results ==="
 find app/build -name "*.xml" -path "*androidTest-results*" -exec grep -h "<testsuite " {} \; || true
 adb_retry adb logcat -d > "$GITHUB_WORKSPACE/logcat.txt" || echo "logcat unavailable" > "$GITHUB_WORKSPACE/logcat.txt"
 # API 30+ scoped storage hides /sdcard/Android/data/<pkg>/ from adb shell
-# ("No such file"), so pull via run-as (debuggable build) with exec-out
-# (binary-safe for the PNGs). App + test use internal filesDir (same UID).
-# Atomic temp+mv: a failed retry must not leave partial bytes in the target.
-run_as_pull() {
-  tries=0
-  while [ $tries -lt 5 ]; do
-    if adb exec-out run-as com.example.auplayer cat "files/$1" > "$GITHUB_WORKSPACE/.pull.tmp"; then
-      mv "$GITHUB_WORKSPACE/.pull.tmp" "$GITHUB_WORKSPACE/$1"
-      return 0
-    fi
-    tries=$((tries + 1))
-    sleep 5
-    adb kill-server || true
-    adb start-server || true
-    adb wait-for-device || true
-  done
-  return 1
-}
-run_as_pull e1-shot-1.png || true
-run_as_pull e1-shot-2.png || true
-run_as_pull e1-trace.txt || true
+# ("No such file"), and `adb exec-out run-as` fails with "unknown package",
+# while `adb shell "run-as ..."` works in this same script. So: shell-form
+# run-as for everything; text trace redirects directly (line parsing is
+# whitespace-tolerant), PNGs round-trip via base64 (shell mangles binary).
+# App + test use internal filesDir (same UID, run-as readable).
+adb_retry adb shell "run-as com.example.auplayer cat files/e1-trace.txt" > "$GITHUB_WORKSPACE/e1-trace.txt" || true
+adb_retry adb shell "run-as com.example.auplayer cat files/e1-shot-1.png | base64" > "$GITHUB_WORKSPACE/shot1.b64" || true
+adb_retry adb shell "run-as com.example.auplayer cat files/e1-shot-2.png | base64" > "$GITHUB_WORKSPACE/shot2.b64" || true
+python3 - "$GITHUB_WORKSPACE" <<'EOF'
+import base64
+import os
+import sys
+work = sys.argv[1]
+for shot in ("e1-shot-1.png", "e1-shot-2.png"):
+    src = os.path.join(work, "shot1.b64" if shot == "e1-shot-1.png" else "shot2.b64")
+    try:
+        with open(src, "rb") as handle:
+            raw = b"".join(handle.read().split())
+        with open(os.path.join(work, shot), "wb") as handle:
+            handle.write(base64.b64decode(raw))
+        print(f"decoded {shot}: {len(raw)} b64 chars")
+    except Exception as error:  # missing/empty when cat failed; gate decides
+        print(f"no {shot}: {error}")
+EOF
 echo "=== E1 trace gate (time-pos span + clean EOF) ==="
 if [ ! -f "$GITHUB_WORKSPACE/e1-trace.txt" ]; then
   echo "E: no trace file — engine produced zero events" >&2
@@ -69,7 +72,10 @@ with open(sys.argv[1]) as handle:
     for line in handle:
         line = line.strip()
         if line.startswith('time='):
-            times.append(float(line[5:]))
+            try:
+                times.append(float(line[5:]))
+            except ValueError:
+                pass  # partial line from a retried pull; ignore
         elif line == 'eof':
             eof = True
 assert times, 'no time-pos in trace'

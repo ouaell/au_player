@@ -123,6 +123,13 @@
 - Key evidence: official ffmpeg.sh uses --enable-gpl (confirmed), mpv.sh passes no -Dgpl (defaults GPL), loadarch already sets 16KB max-page-size, buildall.sh builds per-target/per-arch (mpv without app)
 - check_16kb.sh now takes raw .so files too (64-bit rule preserved)
 
+## E1 round 37881867232 — JVM fix works, vo needs `wid` (PIVOT to vo-owned surface)
+- mpv log: `AO: [audiotrack]` (av_jni registration confirmed) but `vo/gpu/android/fatal: Missing surface pointer` → `Video: no video` again; audio-only playback (trace-poll test passed on audio; shot diff was animation)
+- Cause (mpv v0.41.0 `video/out/android_common.c` via gh): android vo takes the Surface jobject address from the WinID option at vo init — nothing ever set `wid`
+- Architecture pivot (mpv-android pattern): vo presents DIRECTLY to the SurfaceView Surface; app-owned EGL retired (EglHost.kt + RenderLoop.kt DELETED — plus the old loop could never draw anyway: context stayed current on main → render-thread makeCurrent = EGL_BAD_ACCESS)
+- Changes: new MpvSurface JNI (global-ref surface → address; dodges the function-count gate) + au_mpv.cpp Ctx.surface lifecycle; LibmpvBridge.attach sets `wid` (never throws; degrades to audio-only); PlayerScreen gates open on surfaceReady (re-arms on destroy for rotation)
+- Infra: `adb exec-out run-as` fails ("unknown package") while `adb shell "run-as ..."` works in the same script → shell-form pulls (trace direct, PNGs via base64 round-trip); trace gate tolerates partial retry lines
+
 ## E1 round 37878455470 — mpv speaks: JVM never registered (ROOT CAUSE)
 - mpv log (new forwarding): demux ok (`h264 1280x720`, `aac`), but `vo/gpu/android: No Java virtual machine has been registered` → `Could not attach java VM` → `Video: no video`; ao/audiotrack same error → opensles fallback carried AUDIO (hence time-pos + EOF + test pass on audio only; shot diff likely activity animation, not video)
 - Cause (verified in mpv v0.41.0 `misc/jni.c` via gh code search): android backends use `av_jni_get_java_vm`, fed ONLY by `av_jni_set_java_vm` — nobody called it (our au_mpv has no JNI_OnLoad)

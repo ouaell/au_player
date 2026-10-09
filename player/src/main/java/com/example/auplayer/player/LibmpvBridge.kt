@@ -68,11 +68,30 @@ class LibmpvBridge(private val paths: MpvPaths, traceDir: File? = null) : MpvBri
 
     override fun attach(token: Any?) {
         surface = token as? Surface
+        // vo/gpu android-context takes the Surface from the `wid` option
+        // (WinID = jobject address) at vo init. Never throws: failures only
+        // degrade to audio-only, recorded for diagnosis.
+        val ref = if (surface != null && handle != 0L) {
+            MpvSurface.nativeAttachSurface(handle, surface)
+        } else {
+            0L
+        }
+        if (ref != 0L) {
+            try {
+                setOption(WID_OPTION, ref.toString())
+            } catch (error: MpvCommandException) {
+                Log.e("AuPlayer", "wid rejected: " + error.message)
+                Diag.record("surface", "wid rejected: ${error.message}")
+            }
+        }
         Diag.record("surface", if (surface == null) "released" else "stored")
     }
 
     override fun detach() {
         surface = null
+        if (handle != 0L) {
+            MpvSurface.nativeDetachSurface(handle)
+        }
     }
 
     override fun destroy() {
@@ -127,3 +146,4 @@ internal class EventTracer(private val dir: File?) {
 
 private const val TIME_POS_ID = 1L
 private const val TRACE_NAME = "e1-trace.txt"
+private const val WID_OPTION = "wid"

@@ -51,6 +51,7 @@ struct Ctx {
     JavaVM* jvm = nullptr;
     jobject callback = nullptr;
     jmethodID onEvent = nullptr;
+    jobject surface = nullptr;
     std::thread loop;
     std::atomic<bool> running{false};
 };
@@ -255,6 +256,34 @@ Java_com_example_auplayer_player_MpvRender_nativeRender(
     return mpv_render_context_render(ctx->render, params);
 }
 
+JNIEXPORT jlong JNICALL
+Java_com_example_auplayer_player_MpvSurface_nativeAttachSurface(
+    JNIEnv* env, jobject, jlong handle, jobject surface) {
+    Ctx* ctx = fromHandle(handle);
+    if (ctx == nullptr || ctx->mpv == nullptr || surface == nullptr) {
+        return 0;
+    }
+    if (ctx->surface != nullptr) {
+        env->DeleteGlobalRef(ctx->surface);
+        ctx->surface = nullptr;
+    }
+    ctx->surface = env->NewGlobalRef(surface);
+    return reinterpret_cast<jlong>(ctx->surface);
+}
+
+JNIEXPORT void JNICALL
+Java_com_example_auplayer_player_MpvSurface_nativeDetachSurface(
+    JNIEnv* env, jobject, jlong handle) {
+    Ctx* ctx = fromHandle(handle);
+    if (ctx == nullptr) {
+        return;
+    }
+    if (ctx->surface != nullptr) {
+        env->DeleteGlobalRef(ctx->surface);
+        ctx->surface = nullptr;
+    }
+}
+
 JNIEXPORT void JNICALL
 Java_com_example_auplayer_player_MpvEvents_nativeStartEvents(
     JNIEnv* env, jobject, jlong handle, jobject callback) {
@@ -314,6 +343,9 @@ Java_com_example_auplayer_player_MpvNative_nativeDestroy(
     }
     if (ctx->callback != nullptr) {
         env->DeleteGlobalRef(ctx->callback);
+    }
+    if (ctx->surface != nullptr) {
+        env->DeleteGlobalRef(ctx->surface);
     }
     if (ctx->render != nullptr) {
         mpv_render_context_free(ctx->render);

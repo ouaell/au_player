@@ -1,21 +1,22 @@
 package com.example.auplayer.player
 
-import android.view.Surface
 import android.util.Log
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 
 /**
- * Real player surface (Push B3): SurfaceView frames go to mpv through
- * EGL + the render API; lifecycle is guarded by [SurfaceHost]. With no
- * native lib present the screen stays black and engine calls fail closed
- * (E1 proves the real path on the emulator).
+ * Real player surface: vo/gpu presents DIRECTLY to the SurfaceView Surface
+ * (passed to mpv as `wid` at attach). Open waits for a usable surface —
+ * without `wid` set before loadfile the vo has "Missing surface pointer"
+ * and playback is audio-only (E1). No app-owned EGL loop.
  */
 @Composable
 fun PlayerScreen(
@@ -24,15 +25,12 @@ fun PlayerScreen(
     modifier: Modifier = Modifier
 ) {
     val surfaces = remember(engine) { SurfaceHost(engine) }
-    val render = remember(engine) {
-        (engine.bridge as? LibmpvBridge)?.let { RenderLoop(it) }
-    }
-    LaunchedEffect(uri) {
-        Log.i("AuPlayer", "open $uri")
-        engine.open(uri)
-    }
-    DisposableEffect(Unit) {
-        onDispose { render?.stop() }
+    var surfaceReady by remember { mutableStateOf(false) }
+    LaunchedEffect(uri, surfaceReady) {
+        if (surfaceReady) {
+            Log.i("AuPlayer", "open $uri")
+            engine.open(uri)
+        }
     }
     AndroidView(
         factory = { context ->
@@ -40,10 +38,7 @@ fun PlayerScreen(
                 holder.addCallback(object : SurfaceHolder.Callback {
                     override fun surfaceCreated(holder: SurfaceHolder) {
                         surfaces.onSurfaceCreated(holder.surface)
-                        val frame = usableFrame(holder)
-                        if (frame != null) {
-                            render?.start(frame.surface, frame.width, frame.height)
-                        }
+                        surfaceReady = usableFrame(holder) != null
                     }
 
                     override fun surfaceChanged(
@@ -52,19 +47,15 @@ fun PlayerScreen(
                         width: Int,
                         height: Int
                     ) {
-                        // surfaceCreated may arrive with a 0x0 frame (render
-                        // never starts); (re)start here when a usable frame
-                        // exists. RenderLoop.start no-ops while running.
+                        // surfaceCreated may arrive with a 0x0 frame; a usable
+                        // frame here arms the gated open above.
                         surfaces.onSurfaceCreated(holder.surface)
-                        val frame = usableFrame(holder)
-                        if (frame != null) {
-                            render?.start(frame.surface, frame.width, frame.height)
-                        }
+                        surfaceReady = usableFrame(holder) != null
                     }
 
                     override fun surfaceDestroyed(holder: SurfaceHolder) {
+                        surfaceReady = false
                         surfaces.onSurfaceDestroyed()
-                        render?.stop()
                     }
                 })
             }
