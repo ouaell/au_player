@@ -9,8 +9,14 @@ import android.util.Rational
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import com.example.auplayer.player.PipCalc
 import com.example.auplayer.player.PlayerScreen
+import com.example.auplayer.routing.Incoming
+import com.example.auplayer.routing.IncomingAction
+import com.example.auplayer.routing.IntentRouter
+import com.example.auplayer.routing.Route
 import com.example.auplayer.ui.theme.AuTheme
 
 /** Single-activity (§2). Predictive back via enableOnBackInvokedCallback (manifest). */
@@ -24,13 +30,15 @@ class MainActivity : ComponentActivity() {
             null
         }
         Log.i("AuPlayer", "route viewUri=$viewUri action=${intent?.action}")
+        // Test-only direct path (E1/E2/E3): bypasses routing, unchanged.
+        val debugPath = intent?.getStringExtra(EXTRA_DEBUG_PATH)
         setContent {
             AuTheme {
-                if (viewUri != null) {
+                if (debugPath != null) {
                     val engine = (application as AuApp).container.playerEngine
-                    PlayerScreen(uri = viewUri, engine = engine)
+                    PlayerScreen(uri = debugPath, engine = engine)
                 } else {
-                    AuNav()
+                    RoutedScreen(intent = intent, fallbackUri = viewUri)
                 }
             }
         }
@@ -49,5 +57,30 @@ class MainActivity : ComponentActivity() {
     companion object {
         /** Test-only direct path (E1): avoids file:// exposure + scoped storage. */
         const val EXTRA_DEBUG_PATH = "au_debug_path"
+    }
+}
+
+/**
+ * Real intent routing (MS-040 made visible): video/audio streams go to the
+ * player, archives/PDF/images to [ReaderScreen], everything else home.
+ * [viewUri] preserves the legacy player path for data URIs without a MIME.
+ */
+@Composable
+private fun RoutedScreen(intent: Intent?, fallbackUri: String?) {
+    val app = LocalContext.current.applicationContext as AuApp
+    val incoming = Incoming(
+        action = when (intent?.action) {
+            Intent.ACTION_VIEW -> IncomingAction.VIEW
+            Intent.ACTION_SEND -> IncomingAction.SEND
+            Intent.ACTION_SEND_MULTIPLE -> IncomingAction.SEND_MULTIPLE
+            else -> IncomingAction.OTHER
+        },
+        mime = intent?.type,
+        uris = listOfNotNull(intent?.data?.toString(), fallbackUri)
+    )
+    when (val route = IntentRouter.route(incoming)) {
+        is Route.Player -> PlayerScreen(uri = route.uri, engine = app.container.playerEngine)
+        is Route.Reader -> ReaderScreen(uri = route.uris.first(), kind = route.kind)
+        Route.Unsupported -> AuNav()
     }
 }
