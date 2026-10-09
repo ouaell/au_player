@@ -1,0 +1,40 @@
+name: headless
+# MS-059 (H1+H2, §17.4): desktop-mpv checks on Linux CI — option lint +
+# shader-compile for every chain under Xvfb + Mesa llvmpipe.
+# Uses distro mpv (version drift vs pinned v0.41.0 is recorded in the log;
+# llvmpipe proves correctness only, never performance). Manual dispatch.
+on:
+  workflow_dispatch: {}
+
+jobs:
+  h-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install mpv + Xvfb + Mesa + ffmpeg
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq mpv xvfb mesa-utils-bin ffmpeg
+          mpv --version | head -2
+          echo "pinned: $(grep '^MPV_VERSION=' native/pins.txt || true)"
+      - name: Corpus + shaders
+        run: |
+          sh tools/gen_corpus.sh test-corpus
+          sh tools/fetch_shaders.sh
+          python3 tools/patch_shaders.py
+          ls enhance/src/main/assets/shaders/patched/
+      - name: H1 option lint
+        run: sh tools/headless/option_lint.sh mpv
+      - name: H2 shader compile (all chains)
+        run: |
+          sh tools/headless/shader_compile.sh mpv \
+            enhance/src/main/assets/shaders/patched \
+            test-corpus/h264-720p.mp4 headless-out
+          echo "H2: all chains compiled without GLSL errors"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: headless-reports
+          path: |
+            headless-out/
