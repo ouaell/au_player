@@ -19,34 +19,35 @@ class RenderLoop(
     fun start(surface: Surface, width: Int, height: Int): Boolean {
         // surfaceChanged can re-fire for a live loop (rotation/resize):
         // keep the existing loop instead of leaking a second one.
-        if (running) return true
-        val code = if (egl.init() && egl.makeWindowSurface(surface)) {
-            bridge.renderInit()
-        } else {
-            RENDER_SKIPPED
-        }
-        Log.i("AuPlayer", "render: start code=$code")
-        if (code != 0) {
-            egl.release()
-            return false
-        }
-        running = true
-        thread = Thread({
-            while (running) {
-                if (bridge.checkUpdate()) {
-                    if (egl.makeCurrent() && bridge.renderFrame(width, height) == 0) {
-                        egl.swapBuffers()
-                    }
-                } else {
-                    try {
-                        Thread.sleep(POLL_MS)
-                    } catch (_: InterruptedException) {
-                        Thread.currentThread().interrupt()
-                    }
-                }
+        if (!running) {
+            val code = if (egl.init() && egl.makeWindowSurface(surface)) {
+                bridge.renderInit()
+            } else {
+                RENDER_SKIPPED
             }
-        }, "mpv-render").apply { isDaemon = true; start() }
-        return true
+            Log.i("AuPlayer", "render: start code=$code")
+            if (code == 0) {
+                running = true
+                thread = Thread({
+                    while (running) {
+                        if (bridge.checkUpdate()) {
+                            if (egl.makeCurrent() && bridge.renderFrame(width, height) == 0) {
+                                egl.swapBuffers()
+                            }
+                        } else {
+                            try {
+                                Thread.sleep(POLL_MS)
+                            } catch (_: InterruptedException) {
+                                Thread.currentThread().interrupt()
+                            }
+                        }
+                    }
+                }, "mpv-render").apply { isDaemon = true; start() }
+            } else {
+                egl.release()
+            }
+        }
+        return running
     }
 
     fun stop() {
