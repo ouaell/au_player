@@ -44,7 +44,7 @@ class PdfPageProvider(
                 )
                 page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
                 val out = ByteArrayOutputStream()
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+                bitmap.compress(Bitmap.CompressFormat.PNG, PNG_QUALITY, out)
                 bitmap.recycle()
                 ByteArrayInputStream(out.toByteArray())
             }
@@ -61,3 +61,5 @@ class PdfPageProvider(
         descriptor.close()
     }
 }
+
+private const val PNG_QUALITY = 100

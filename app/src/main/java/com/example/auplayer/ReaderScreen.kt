@@ -41,17 +41,7 @@ import java.io.File
 @Composable
 fun ReaderScreen(uri: String, kind: ReaderKind, modifier: Modifier = Modifier) {
     val file = remember(uri) { File(android.net.Uri.parse(uri).path ?: uri) }
-    val provider: PageProvider? = remember(file, kind) {
-        try {
-            when {
-                kind == ReaderKind.PDF || file.extension.lowercase() == "pdf" ->
-                    PdfPageProvider(file)
-                else -> ZipProvider(file)
-            }
-        } catch (error: Exception) {
-            null
-        }
-    }
+    val provider = remember(file, kind) { openReaderProvider(file, kind) }
     DisposableEffect(provider) {
         onDispose { try { provider?.close() } catch (_: Exception) { } }
     }
@@ -67,21 +57,56 @@ fun ReaderScreen(uri: String, kind: ReaderKind, modifier: Modifier = Modifier) {
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.fillMaxWidth().padding(12.dp)
         )
-        if (error != null) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text(text = error ?: "")
-            }
-        } else if (provider != null && count > 0) {
-            PagedReader(
-                pageCount = count,
-                current = current,
-                onPageChange = { current = it }
-            ) { index ->
-                PageImage(provider = provider, index = index)
-            }
+        ReaderBody(provider = provider, count = count, current = current, error = error) {
+            current = it
         }
     }
 }
+
+@Composable
+private fun ReaderBody(
+    provider: PageProvider?,
+    count: Int,
+    current: Int,
+    error: String?,
+    onPageChange: (Int) -> Unit
+) {
+    if (error != null) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text(text = error)
+        }
+    } else if (provider != null && count > 0) {
+        PagedReader(
+            pageCount = count,
+            current = current,
+            onPageChange = onPageChange
+        ) { index ->
+            PageImage(provider = provider, index = index)
+        }
+    }
+}
+
+/** Opens the provider for a VIEW route; specific catches keep failures visible. */
+internal fun openReaderProvider(file: File, kind: ReaderKind): PageProvider? {
+    return try {
+        if (kind == ReaderKind.PDF || file.extension.lowercase() == PDF_EXT) {
+            PdfPageProvider(file)
+        } else {
+            ZipProvider(file)
+        }
+    } catch (error: java.io.IOException) {
+        Log.w("ReaderScreen", "cannot open ${file.name}", error)
+        null
+    } catch (error: SecurityException) {
+        Log.w("ReaderScreen", "locked file ${file.name}", error)
+        null
+    } catch (error: IllegalArgumentException) {
+        Log.w("ReaderScreen", "bad archive ${file.name}", error)
+        null
+    }
+}
+
+private const val PDF_EXT = "pdf"
 
 @Composable
 private fun PageImage(provider: PageProvider, index: Int, modifier: Modifier = Modifier) {
@@ -91,7 +116,11 @@ private fun PageImage(provider: PageProvider, index: Int, modifier: Modifier = M
                 provider.open(index).use { stream ->
                     BitmapFactory.decodeStream(stream)?.asImageBitmap()
                 }
-            } catch (_: Exception) {
+            } catch (error: java.io.IOException) {
+                Log.w("ReaderScreen", "page $index unreadable", error)
+                null
+            } catch (error: SecurityException) {
+                Log.w("ReaderScreen", "page $index locked", error)
                 null
             }
         }
