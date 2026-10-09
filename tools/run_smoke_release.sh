@@ -26,8 +26,8 @@ with zipfile.ZipFile(f"{out}/r-pages.cbz", "w", zipfile.ZIP_DEFLATED) as archive
     archive.write(f"{out}/e4-p1.png", "p1.png")
 print("smoke: r-pages.cbz")
 EOF
-gradle :app:assembleDirectRelease --stacktrace
-APK=$(ls app/build/outputs/apk/direct/release/*.apk | head -1)
+gradle :app:assembleDirectSmoke --stacktrace
+APK=$(ls app/build/outputs/apk/direct/smoke/*.apk | head -1)
 echo "smoke: release APK $APK"
 adb_retry adb install -r "$APK"
 adb_retry adb push test-corpus/h264-720p.mp4 /data/local/tmp/r.mp4

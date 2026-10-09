@@ -51,6 +51,14 @@ android {
                 if (System.getenv("AU_KEYSTORE_PATH").isNullOrBlank()) "debug" else "ciRelease"
             )
         }
+        create("smoke") {
+            // Minified like release (same R8 rules under test in MS-063) plus
+            // x86_64 so the artifact installs on the CI emulator. The real
+            // release stays arm-only for size (§2).
+            initWith(getByName("release"))
+            ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86_64") }
+            signingConfig = signingConfigs.getByName("debug")
+        }
     }
 
     signingConfigs {
