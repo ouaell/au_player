@@ -109,11 +109,8 @@ class LibmpvBridge(private val paths: MpvPaths, traceDir: File? = null) : MpvBri
         return MpvNative.nativeGetProperty(handle, name)
     }
 
-    fun renderInit(): Int = MpvRender.nativeRenderInit(handle)
-
-    fun checkUpdate(): Boolean = MpvRender.nativeCheckUpdate(handle)
-
-    fun renderFrame(width: Int, height: Int): Int = MpvRender.nativeRender(handle, width, height)
+    // NOTE: MpvRender JNI bindings stay compiled (offscreen/thumbnail use);
+    // the retired app-owned EGL loop called them, the vo owns the surface now.
 
     private val eventCallback = object : MpvEvents.MpvEventCallback {
         override fun onEvent(name: String, replyUserdata: Long) {
