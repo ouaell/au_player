@@ -18,6 +18,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.File
+import kotlin.math.abs
 
 /**
  * E8 — player controls on the real engine. Core behavior needs no UI dumps
@@ -54,6 +55,7 @@ class E8PlayerControlsTest {
                 delay(FREEZE_MS)
                 assertEquals("time advanced while paused", frozen, traceLines())
                 Log.i(GATE_TAG, "pause freezes time")
+                assertControlsRender(device)
                 engine.play()
                 assertTrue("no resume after play", waitForGrowthBeyond(traceLines()))
                 Log.i(GATE_TAG, "play resumes time")
@@ -111,6 +113,46 @@ class E8PlayerControlsTest {
         }
         return false
     }
+
+    /**
+     * Pixel proof that controls render (dump-free): on frozen video, tap to
+     * show, shoot, wait out the 3 s auto-hide, shoot again. Differing pixels
+     * in the control strip can only be the controls chrome.
+     */
+    private suspend fun assertControlsRender(device: UiDevice) {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        val dir = instrumentation.targetContext.filesDir
+        device.click(device.displayWidth / 2, device.displayHeight / 2)
+        delay(SHOW_MS)
+        val shown = File(dir, "e8-shown.png")
+        assertTrue("screenshot failed", device.takeScreenshot(shown))
+        delay(HIDE_MS)
+        val hidden = File(dir, "e8-hidden.png")
+        assertTrue("screenshot failed", device.takeScreenshot(hidden))
+        val diff = differingPixels(shown, hidden)
+        Log.i(GATE_TAG, "controls diff pixels=$diff")
+        assertTrue("controls chrome did not render", diff > MIN_DIFF)
+    }
+
+    private fun differingPixels(first: File, second: File): Int {
+        val a = android.graphics.BitmapFactory.decodeFile(first.absolutePath)
+            ?: error("undecodable $first")
+        val b = android.graphics.BitmapFactory.decodeFile(second.absolutePath)
+            ?: error("undecodable $second")
+        if (a.width != b.width || a.height != b.height) return Int.MAX_VALUE
+        val pa = IntArray(a.width * a.height)
+        val pb = IntArray(b.width * b.height)
+        a.getPixels(pa, 0, a.width, 0, 0, a.width, a.height)
+        b.getPixels(pb, 0, b.width, 0, 0, b.width, b.height)
+        var diff = 0
+        for (index in pa.indices) {
+            val da = abs(((pa[index] shr 16) and 0xFF) - ((pb[index] shr 16) and 0xFF)) +
+                abs(((pa[index] shr 8) and 0xFF) - ((pb[index] shr 8) and 0xFF)) +
+                abs((pa[index] and 0xFF) - (pb[index] and 0xFF))
+            if (da > DIFF_LUMA) diff++
+        }
+        return diff
+    }
 }
 
 private const val UI_TIMEOUT_MS = 15_000L
@@ -118,5 +160,9 @@ private const val POLL_MS = 250L
 private const val FREEZE_MS = 2_500L
 private const val BUTTON_WAIT_MS = 5_000L
 private const val BUTTON_ROUNDS = 3
+private const val SHOW_MS = 1_000L
+private const val HIDE_MS = 4_000L
+private const val MIN_DIFF = 2_000
+private const val DIFF_LUMA = 40
 private const val GROWTH_TIMEOUT_MS = 20_000L
 private const val GATE_TAG = "E8GATE"
