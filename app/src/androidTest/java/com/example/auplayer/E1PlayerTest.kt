@@ -49,13 +49,41 @@ class E1PlayerTest {
                 }
             }
             runBlocking {
-                delay(STARTUP_MS)
+                // Shots must wait for REAL playback: the engine needs seconds
+                // (dlopen + init) before open, and both shots pre-open would
+                // photograph a black screen. Poll the app-side trace instead.
+                assertTrue(
+                    "no time-pos in trace (playback never started)",
+                    waitForTrace("time="),
+                )
                 val first = takeShot("e1-shot-1.png")
                 delay(SHOT_GAP_MS)
                 val second = takeShot("e1-shot-2.png")
                 assertShots(first, second)
+                // Let the 3s clip finish: closing the scenario destroys the
+                // engine, which would kill playback before a clean EOF.
+                assertTrue(
+                    "no clean EOF in trace (clip did not finish)",
+                    waitForTrace("eof"),
+                )
             }
         }
+    }
+
+    private fun waitForTrace(prefix: String): Boolean {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        val trace = File(instrumentation.targetContext.getExternalFilesDir(null), "e1-trace.txt")
+        val deadline = System.currentTimeMillis() + TRACE_TIMEOUT_MS
+        while (System.currentTimeMillis() < deadline) {
+            val lines = try {
+                trace.readLines()
+            } catch (error: java.io.IOException) {
+                emptyList()
+            }
+            if (lines.any { it.startsWith(prefix) }) return true
+            Thread.sleep(TRACE_POLL_MS)
+        }
+        return false
     }
 
     private fun takeShot(name: String): File {
@@ -95,7 +123,8 @@ class E1PlayerTest {
     }
 }
 
-private const val STARTUP_MS = 800L
 private const val SHOT_GAP_MS = 1_200L
+private const val TRACE_TIMEOUT_MS = 30_000L
+private const val TRACE_POLL_MS = 250L
 private const val MIN_VARIANCE = 10.0
 private const val MIN_DELTA = 0.5
