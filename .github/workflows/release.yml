@@ -38,7 +38,11 @@ jobs:
           gradle-version: "8.13"
           cache-read-only: false
       - name: Assemble + bundle direct release (MS-053)
-        run: gradle :app:assembleDirectRelease :app:bundleDirectRelease --stacktrace
+        run: |
+          sh tools/fetch_shaders.sh
+          python3 tools/patch_shaders.py
+          sh tools/fetch_fonts.sh
+          gradle :app:assembleDirectRelease :app:bundleDirectRelease --stacktrace
         env:
           AU_KEYSTORE_PASSWORD: ${{ secrets.AU_KEYSTORE_PASSWORD }}
           AU_KEY_ALIAS: ${{ secrets.AU_KEY_ALIAS }}

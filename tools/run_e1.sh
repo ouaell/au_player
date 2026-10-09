@@ -20,6 +20,7 @@ sudo apt-get update -qq
 sudo apt-get install -y -qq ffmpeg
 sh tools/gen_corpus.sh test-corpus
 sh tools/fetch_shaders.sh
+sh tools/fetch_fonts.sh
 python3 tools/patch_shaders.py
 adb kill-server || true
 adb start-server
