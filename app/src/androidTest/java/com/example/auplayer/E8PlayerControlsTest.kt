@@ -40,17 +40,17 @@ class E8PlayerControlsTest {
                 assertTrue("no playback at start", waitForFreshPlayback(launchTime))
                 // Controls auto-hide after 3 s; tap the surface to reshow.
                 device.click(device.displayWidth / 2, device.displayHeight / 2)
-                assertTrue("pause control missing", device.wait(pauseSelector(), UI_TIMEOUT_MS))
+                assertTrue("pause control missing", device.wait(Until.hasObject(pauseSelector()), UI_TIMEOUT_MS))
                 Log.i(GATE_TAG, "controls visible")
 
                 device.findObject(pauseSelector()).click()
                 device.click(device.displayWidth / 2, device.displayHeight / 2)
-                assertTrue("pause did not engage", device.wait(playSelector(), UI_TIMEOUT_MS))
+                assertTrue("pause did not engage", device.wait(Until.hasObject(playSelector()), UI_TIMEOUT_MS))
                 Log.i(GATE_TAG, "paused ok")
 
                 device.findObject(playSelector()).click()
                 device.click(device.displayWidth / 2, device.displayHeight / 2)
-                assertTrue("resume did not engage", device.wait(pauseSelector(), UI_TIMEOUT_MS))
+                assertTrue("resume did not engage", device.wait(Until.hasObject(pauseSelector()), UI_TIMEOUT_MS))
                 Log.i(GATE_TAG, "resumed ok")
 
                 device.findObject(By.text("Back")).click()
