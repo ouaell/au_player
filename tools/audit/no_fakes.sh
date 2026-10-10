@@ -11,7 +11,7 @@ grep -rn --include='*.kt' -E 'Fake[A-Za-z]+|StubScreen|NoOp[A-Za-z]+|Stub[A-Za-z
   app/src/main player/src/main enhance/src/main reader/src/main websource/src/main library/src/main core/src/main \
   | sed -E 's/^([^:]+):[0-9]+:[[:space:]]*/\1:/' | sort -u > "$ACTUAL" || true
 ALLOW="tools/audit/fakes-allowlist.txt"
-sort -u "$ALLOW" -o "$ALLOW_SORTED"
+grep -v '^#' "$ALLOW" | sort -u -o "$ALLOW_SORTED"
 if ! diff -u "$ALLOW_SORTED" "$ACTUAL"; then
   echo "no-fakes-in-release: production fake references differ from allowlist (see diff above)"
   rm -f "$ACTUAL" "$ALLOW_SORTED"
