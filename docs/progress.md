@@ -393,3 +393,13 @@
 - Sections used: §5.1, §15 (rows)
 - MS-013: TapZone/GestureAction/GestureConfig + pure GestureMapper (locked→Ignored); GesturesTest table-driven incl. full locked matrix
 - MS-014: GestureIndicator + indicatorText (pure, JVM-tested) + thin GestureOverlay (T2-tested); :player uses own Surface (no upward dep on :app)
+
+## E7 + E8 + E9 — a11y audit, controls proof, continue-watching (emulator)
+- Status: DONE (green run 38017724352: 10/10 tests, 0 failed — full suite E1,E2,E3,E4,E5,E6,E7,E8,E9,Smoke)
+- Sections used: §15 (rows)
+- E7: labeled-twin pairing + OR-foreground wait (Compose emits clickable/label twins; UiSelector().text() scoping dropped); player nodes=22 + reader nodes=8 audits pass
+- E8: tap-to-show with click-retry + Play/Pause chrome poll + prompt shot; shown-vs-hidden pixel diff 87806 (top=6133 bottom=81673); pause freezes trace, play resumes
+- E9: AuApp.applicationScope for dispose-time saves (composable scope is cancelled at teardown); test seeks to 1.5 s (whole-second truncation + 3 s EOF race); saved pos=1066 dur=3000, continue row shown
+- E4 PDF: white eraseColor fill (transparent pages rendered dark)
+- Tests added/changed: E7A11yTest, E8PlayerControlsTest, E9ResumeTest (instrumented, API-30 emulator)
+- UNVERIFIED-on-device: physical-device playback, PiP, MediaSession notification, SAF tree, pre-launch report
