@@ -10,7 +10,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import com.example.auplayer.library.ResumeEntry
 import com.example.auplayer.player.PipCalc
@@ -21,7 +20,6 @@ import com.example.auplayer.routing.IncomingAction
 import com.example.auplayer.routing.IntentRouter
 import com.example.auplayer.routing.Route
 import com.example.auplayer.ui.theme.AuTheme
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -42,14 +40,13 @@ class MainActivity : ComponentActivity() {
             AuTheme {
                 if (debugPath != null) {
                     val app = application as AuApp
-                    val scope = rememberCoroutineScope()
                     PlayerScreen(
                         uri = debugPath,
                         handle = PlayerHandle(
                             engine = app.container.playerEngine,
                             enhance = app.container.enhanceController,
                             onBack = { finish() },
-                            onProgress = savePlayback(app, scope, debugPath)
+                            onProgress = savePlayback(app, debugPath)
                         )
                     )
                 } else {
@@ -78,10 +75,11 @@ class MainActivity : ComponentActivity() {
 /** Resume-point saver shared by both player entries (MS-019). */
 private fun savePlayback(
     app: AuApp,
-    scope: CoroutineScope,
     uri: String
 ): (Long, Long) -> Unit = { positionMs, durationMs ->
-    scope.launch(Dispatchers.IO) {
+    // Application scope: dispose-time saves must survive the composition
+    // teardown that fires them (E9 flake).
+    app.applicationScope.launch(Dispatchers.IO) {
         try {
             app.container.resumeStore.save(
                 ResumeEntry(
@@ -112,7 +110,6 @@ private fun savePlayback(
 @Composable
 private fun RoutedScreen(intent: Intent?, fallbackUri: String?, onBack: () -> Unit) {
     val app = LocalContext.current.applicationContext as AuApp
-    val scope = rememberCoroutineScope()
     val incoming = Incoming(
         action = when (intent?.action) {
             Intent.ACTION_VIEW -> IncomingAction.VIEW
@@ -130,7 +127,7 @@ private fun RoutedScreen(intent: Intent?, fallbackUri: String?, onBack: () -> Un
                 engine = app.container.playerEngine,
                 enhance = app.container.enhanceController,
                 onBack = onBack,
-                onProgress = savePlayback(app, scope, route.uri)
+                onProgress = savePlayback(app, route.uri)
             )
         )
         is Route.Reader -> ReaderScreen(uri = route.uris.first(), kind = route.kind)

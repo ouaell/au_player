@@ -41,9 +41,12 @@ class E9ResumeTest {
                 // Explicit state (see E8): never inherit pause across tests.
                 engine.play()
                 assertTrue("no playback at start", waitForFreshPlayback(launchTime))
-                // Pause early: the 3s clip EOFs fast, and EOF resets position
-                // to 0 (nothing to save). Paused time freezes short of EOF.
-                delay(PAUSE_AT_MS)
+                // Deterministic resume point: seek mid-clip instead of
+                // racing wallclock against the 3 s EOF. Pausing with video
+                // time < 1 s saves nothing (ReportProgress truncates to
+                // whole seconds) and EOF resets position to 0.
+                engine.seekTo(SEEK_S)
+                delay(SETTLE_MS)
                 engine.pause()
                 delay(SETTLE_MS)
                 Log.i(GATE_TAG, "paused mid-clip")
@@ -96,7 +99,7 @@ class E9ResumeTest {
 
 private const val UI_TIMEOUT_MS = 15_000L
 private const val SETTLE_MS = 1_000L
-private const val PAUSE_AT_MS = 1_000L
+private const val SEEK_S = 1.5
 private const val POLL_MS = 250L
 private const val GROWTH_TIMEOUT_MS = 20_000L
 private const val GATE_TAG = "E9GATE"
