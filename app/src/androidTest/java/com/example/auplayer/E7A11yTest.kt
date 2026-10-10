@@ -105,15 +105,19 @@ class E7A11yTest {
         }
         // The hierarchy churns under us (time text ticks); stale nodes
         // vanished on their own — only judge the ones still standing.
-        // Edge-to-edge system scrims (status/nav backgrounds: full-width
-        // strips at the display edges, no text) are not app content.
+        // Compose buttons surface as a clickable twin + labeled twin(s) at
+        // identical bounds (no merging on this stack): a clickable is covered
+        // when a labeled node shares its bounds. Edge-to-edge system scrims
+        // (status/nav backgrounds: full-width strips at the display edges,
+        // no text) are not app content.
         val displayW = device.displayWidth
         val displayH = device.displayHeight
         val unlabeled = nodes.filter { node ->
             try {
                 node.isClickable &&
                     node.text.isNullOrBlank() && node.contentDescription.isNullOrBlank() &&
-                    !isEdgeChrome(node, displayW, displayH)
+                    !isEdgeChrome(node, displayW, displayH) &&
+                    !hasLabeledTwin(node, nodes)
             } catch (_: StaleObjectException) {
                 false
             }
@@ -122,6 +126,25 @@ class E7A11yTest {
             "unlabeled clickables on $screen: ${unlabeled.map { it.className }}",
             unlabeled.isEmpty()
         )
+    }
+
+    private fun hasLabeledTwin(
+        node: androidx.test.uiautomator.UiObject2,
+        nodes: List<androidx.test.uiautomator.UiObject2>
+    ): Boolean {
+        val bounds = try {
+            node.visibleBounds
+        } catch (_: StaleObjectException) {
+            return false
+        }
+        return nodes.any { other ->
+            try {
+                other !== node && other.visibleBounds == bounds &&
+                    (!other.text.isNullOrBlank() || !other.contentDescription.isNullOrBlank())
+            } catch (_: StaleObjectException) {
+                false
+            }
+        }
     }
 
     private fun isEdgeChrome(node: androidx.test.uiautomator.UiObject2, displayW: Int, displayH: Int): Boolean {

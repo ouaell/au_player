@@ -98,8 +98,6 @@ class E8PlayerControlsTest {
     private suspend fun assertControlsRender(device: UiDevice) {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val dir = instrumentation.targetContext.filesDir
-        device.click(device.displayWidth / 2, device.displayHeight / 2)
-        delay(SHOW_MS)
         val shown = File(dir, "e8-shown.png")
         assertTrue("screenshot failed", device.takeScreenshot(shown))
         delay(HIDE_MS)
