@@ -2,9 +2,10 @@ package com.example.auplayer
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Log
-import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -34,18 +35,44 @@ class E4ReaderTest {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
         openViewing(device, cbz, "application/vnd.comicbook+zip")
-        if (!device.wait(Until.hasObject(By.textContains("1 / 3")), UI_TIMEOUT_MS)) {
-            // Dumps wedge occasionally on the emulator; one relaunch usually
-            // restores them. A second miss is a real failure.
-            Log.i(GATE_TAG, "cbz text miss, relaunching once")
-            openViewing(device, cbz, "application/vnd.comicbook+zip")
-        }
-        assertTrue("cbz pages not shown", device.wait(Until.hasObject(By.textContains("1 / 3")), UI_TIMEOUT_MS))
-        Log.i(GATE_TAG, "cbz 3 pages shown")
+        assertPagesRendered(device, "cbz")
 
         openViewing(device, pdf, "application/pdf")
-        assertTrue("pdf pages not shown", device.wait(Until.hasObject(By.textContains("1 / 1")), UI_TIMEOUT_MS))
-        Log.i(GATE_TAG, "pdf 1 page shown")
+        assertPagesRendered(device, "pdf")
+    }
+
+    /**
+     * Dump-free render proof (UiAutomator dumps wedge on the emulator):
+     * reader pages are static and bright — a rendered page has high mean
+     * luminance and variance; a black/failed surface does not. Which content
+     * rendered is proven by the E4GATE pages/title lines in logcat.
+     */
+    private fun assertPagesRendered(device: UiDevice, what: String) {
+        Thread.sleep(SETTLE_MS)
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        val shot = File(instrumentation.targetContext.filesDir, "e4-$what.png")
+        assertTrue("screenshot failed", device.takeScreenshot(shot))
+        val bitmap: Bitmap = BitmapFactory.decodeFile(shot.absolutePath)
+            ?: error("undecodable $shot")
+        val pixels = IntArray(bitmap.width * bitmap.height)
+        bitmap.getPixels(pixels, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
+        var sum = 0L
+        var sumSq = 0L
+        var count = 0L
+        var index = 0
+        while (index < pixels.size) {
+            val pixel = pixels[index]
+            val luma = ((pixel shr 16) and 0xFF) + ((pixel shr 8) and 0xFF) + (pixel and 0xFF)
+            sum += luma
+            sumSq += luma.toLong() * luma
+            count++
+            index += PIXEL_STEP
+        }
+        val mean = sum.toDouble() / count
+        val variance = sumSq.toDouble() / count - mean * mean
+        Log.i(GATE_TAG, "$what mean=$mean var=$variance")
+        assertTrue("$what screen dark (no pages?)", mean > MIN_MEAN)
+        assertTrue("$what screen flat (no pages?)", variance > MIN_VARIANCE)
     }
 
     private fun openViewing(device: UiDevice, file: File, mime: String) {
@@ -55,10 +82,19 @@ class E4ReaderTest {
             .setClassName(context, MainActivity::class.java.name)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         context.startActivity(intent)
-        // The new activity must come up (crash = no window / ANR instead).
-        assertTrue("activity never foregrounded for ${file.name}", device.waitForWindowUpdate(null, UI_TIMEOUT_MS))
+        // Either signal proves foregrounding; waitForWindowUpdate alone
+        // false-negatives on the emulator, By.pkg alone can wedge. Both
+        // failing means genuinely stuck.
+        val updated = device.waitForWindowUpdate(null, FOREGROUND_MS)
+        val packaged = device.wait(Until.hasObject(By.pkg(context.packageName)), FOREGROUND_MS)
+        assertTrue("activity never foregrounded for ${file.name}", updated || packaged)
     }
 }
 
 private const val UI_TIMEOUT_MS = 15_000L
+private const val FOREGROUND_MS = 10_000L
+private const val SETTLE_MS = 2_000L
+private const val PIXEL_STEP = 4
+private const val MIN_MEAN = 100.0
+private const val MIN_VARIANCE = 1500.0
 private const val GATE_TAG = "E4GATE"

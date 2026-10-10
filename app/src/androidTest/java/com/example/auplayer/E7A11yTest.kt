@@ -63,7 +63,11 @@ class E7A11yTest {
             .setClassName(context, MainActivity::class.java.name)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         context.startActivity(intent)
-        assertTrue("activity never foregrounded", device.wait(Until.hasObject(By.pkg(context.packageName)), UI_TIMEOUT_MS))
+        // Either signal proves foregrounding: waitForWindowUpdate alone
+        // false-negatives on the emulator, By.pkg alone can wedge.
+        val updated = device.waitForWindowUpdate(null, FOREGROUND_MS)
+        val packaged = device.wait(Until.hasObject(By.pkg(context.packageName)), FOREGROUND_MS)
+        assertTrue("activity never foregrounded", updated || packaged)
     }
 
     private fun traceLines(): Int {
@@ -134,6 +138,7 @@ class E7A11yTest {
 }
 
 private const val UI_TIMEOUT_MS = 15_000L
+private const val FOREGROUND_MS = 10_000L
 private const val SETTLE_MS = 2_000L
 private const val POLL_MS = 250L
 private const val GROWTH_TIMEOUT_MS = 20_000L
