@@ -80,7 +80,10 @@ class SourceResolverTest {
     @Test
     fun `opener plays resolved source on the engine`() {
         val bridge = FakeMpvBridge()
-        val opener = PlayerOpener(PlayerEngine(bridge, Dispatchers.Unconfined))
+        val engine = PlayerEngine(bridge, Dispatchers.Unconfined)
+        val opener = PlayerOpener(engine)
+        // loadfile is gated on an armed surface (S1-001): arm first.
+        engine.attach(Any())
         val outcome = opener.open("https://x/y.mp4", "video/mp4")
         assertEquals(ResolveOutcome.Ok(MediaSource.Http("https://x/y.mp4")), outcome)
         assertEquals(listOf(listOf("loadfile", "https://x/y.mp4")), bridge.commands)

@@ -79,14 +79,14 @@ class PlayerEngine(
             // aborts the process (S1-001). Bounded wait, then proceed anyway
             // (wid=0 degrades to audio-only, never crashes).
             if (!surfaceArmed) {
-                Log.i("AuPlayer", "open waiting for surface")
+                // (No android.util.Log here: this path runs on JVM unit
+                // tests with the Fake bridge, where Log methods are stubs.)
                 val armed = withTimeoutOrNull(openSurfaceTimeoutMs) {
                     while (!surfaceArmed) delay(OPEN_SURFACE_POLL_MS)
                     true
                 } ?: false
                 if (!armed) {
-                    Log.w("AuPlayer", "open proceeding without surface")
-                    Diag.record("player", "open without surface")
+                    Diag.record("player", "open proceeding without surface")
                 }
             }
             bridge.command(listOf("loadfile", uri))
