@@ -63,6 +63,7 @@ jobs:
         if: always()
         with:
           name: headless-reports
+          retention-days: 7
           path: |
             headless-out/
             headless-subs/

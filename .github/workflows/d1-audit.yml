@@ -20,4 +20,5 @@ jobs:
         if: always()
         with:
           name: d1-audit-report
+          retention-days: 7
           path: d1-audit-report.txt

@@ -50,5 +50,6 @@ jobs:
         if: always()
         with:
           name: smoke-release-reports
+          retention-days: 7
           path: |
             r-logcat.txt

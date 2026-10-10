@@ -75,6 +75,7 @@ jobs:
         if: always()
         with:
           name: native-${{ matrix.arch }}
+          retention-days: 7
           path: buildscripts/prefix/${{ matrix.arch }}/
 
   # Versioned hosting for the app (no binaries in git). Rolling date tag;

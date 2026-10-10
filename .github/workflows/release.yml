@@ -53,11 +53,13 @@ jobs:
         if: always()
         with:
           name: direct-release-apk
+          retention-days: 7
           path: app/build/outputs/apk/direct/release/*.apk
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: direct-release-aab
+          retention-days: 7
           path: app/build/outputs/bundle/directRelease/*.aab
 
   # Pre-launch reports without Firebase (MS-061'): uploads the AAB to the

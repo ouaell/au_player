@@ -84,16 +84,19 @@ jobs:
         if: always()
         with:
           name: direct-debug-apk
+          retention-days: 7
           path: app/build/outputs/apk/direct/debug/*.apk
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: test-corpus
+          retention-days: 7
           path: test-corpus/
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: gate-reports
+          retention-days: 7
           path: |
             **/build/reports/
             **/build/test-results/
