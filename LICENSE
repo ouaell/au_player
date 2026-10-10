@@ -1,0 +1,17 @@
+Copyright (c) 2026 ouaell. All rights reserved.
+
+This repository and its contents (source code, scripts, documents,
+graphics and any other files created for the AU Player project) are the
+exclusive property of the copyright holder. No open-source license is
+granted.
+
+Without prior written permission you may NOT copy, modify, merge,
+publish, distribute, sublicense, sell, or otherwise reuse any part of
+this work, in source or binary form, in whole or in part. Making this
+repository visible does not grant any reuse rights.
+
+Third-party components bundled with or referenced by this project
+(e.g. mpv/FFmpeg and other libraries, shaders, fonts, test fixtures)
+remain governed exclusively by their own licenses; see
+docs/assets-licenses.md, docs/native-licenses.md and the in-app
+Licenses screen. Nothing in this file changes those licenses.

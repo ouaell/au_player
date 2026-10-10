@@ -17,3 +17,10 @@ app/src/main/assets/fonts/
 # Staged native libs + headers (tools/fetch_native.sh, never committed).
 player/src/main/jniLibs/
 player/src/main/cpp/thirdparty/
+# Signing + secrets (P0-A: must never be committed; CI uses Actions secrets).
+*.keystore
+*.jks
+*.p12
+*.pfx
+secrets.properties
+*.pem
