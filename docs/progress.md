@@ -414,3 +414,10 @@
 - Artifacts: 7-day retention + continue-on-error uploads (quota droughts never red-denote green builds)
 - Tests added: none (infra-only change; verified by T1 green on this push)
 - UNVERIFIED-on-device: FTL Robo/MS-054/MS-061 (needs Firebase subscription — owner-side, H6)
+
+## Full suite re-run on HEAD (MS-057 close-out)
+- T1 `38021692373` success 3m04s (proves the MS-057 < 8 min criterion on the change itself)
+- headless `38021893683` success: H1 option lint + H4 subtitle goldens SSIM 1.0 (latin/arabic/cjk/styled)
+- smoke-release `38021902266` success: minified R8 release-variant instrumented smoke
+- emulator `38017724352` success 10/10 (code-identical HEAD; only CI/docs changed since)
+- Tag: MS-057-done
