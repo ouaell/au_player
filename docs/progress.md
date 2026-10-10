@@ -421,3 +421,22 @@
 - smoke-release `38021902266` success: minified R8 release-variant instrumented smoke
 - emulator `38017724352` success 10/10 (code-identical HEAD; only CI/docs changed since)
 - Tag: MS-057-done
+
+## P0-A: repo public + first S1 found by the re-run gate
+- Owner confirmed choice A; repo `ouaell/au_player` is now public (verified via API).
+- Pre-public secrets scan: history grep for keystores/private-keys/tokens/values = clean (only env-var
+  NAMES like `AU_KEYSTORE_PASSWORD` + comments); no `.jks/.keystore/.p12` ever committed; `.gitignore`
+  hardened (`*.keystore,*.jks,*.p12,*.pfx,secrets.properties,*.pem`). gitleaks binary unavailable locally —
+  manual scan stands in; re-run gitleaks in CI if the owner wants it.
+- Proprietary `LICENSE` (all rights reserved, third-party licenses carved out) committed as `7250f01`.
+- Overstated tags removed (local + remote): MS-065/068/069/070/073-done (67 tags remain).
+- Honesty infra: `docs/claims.json` + `tools/audit/status.sh` + CI `claims-check` (green `38075993271`)
+  + `no-fakes-in-release` gate vs `tools/audit/fakes-allowlist.txt` (19 reference sites; FX-01 shrinks it).
+- Public-HEAD re-runs: T1 `38075662321` success 2m22s; headless `38075706247` success;
+  smoke-release `38075710749` success 5m25s; T1 `38075993201` success 2m42s; claims-check `38075993271` success.
+- S1-001 (NEW, open): emulator `38075714069` failed on `E: native crash in our process`. Tombstone
+  (`emulator-reports/logcat.txt:35632`): SIGABRT `JNI DETECTED ERROR IN APPLICATION: use of deleted global
+  reference`, crashing in `libmpv.so vo_android_init → ANativeWindow_fromSurface → GetField` on a dead
+  Surface global ref — surface attach/detach vs VO-init race in our `wid` plumbing. E1 trace gate had passed;
+  crash killed the suite early. Intermittent (prior 10/10 greens) → real race, fix in FX (surface lifecycle).
+- UNVERIFIED-on-device: everything from prior entries still stands; plus S1-001 needs a regression test.
