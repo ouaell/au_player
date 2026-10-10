@@ -10,7 +10,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -136,7 +138,7 @@ fun PlayerScreen(
         if (controls) {
             Column(modifier = Modifier.fillMaxSize()) {
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(8.dp),
+                    modifier = Modifier.fillMaxWidth().padding(8.dp).statusBarsPadding(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     TextButton(
@@ -162,17 +164,21 @@ fun PlayerScreen(
                     }
                 }
                 Box(modifier = Modifier.weight(1f))
-                PlayerControls(
-                    state = uiState,
-                    playing = playing,
-                    controller = controller,
-                    onSeek = { fraction ->
-                        val durationSec = uiState.durationMs / MILLIS_PER_SECOND.toFloat()
-                        if (durationSec > 0) {
-                            engine.seekTo((fraction * durationSec).toDouble())
+                // Above the navigation bar: content under an opaque nav bar is
+                // invisible to touches and dropped from the a11y tree (E8).
+                Box(modifier = Modifier.navigationBarsPadding()) {
+                    PlayerControls(
+                        state = uiState,
+                        playing = playing,
+                        controller = controller,
+                        onSeek = { fraction ->
+                            val durationSec = uiState.durationMs / MILLIS_PER_SECOND.toFloat()
+                            if (durationSec > 0) {
+                                engine.seekTo((fraction * durationSec).toDouble())
+                            }
                         }
-                    }
-                )
+                    )
+                }
             }
         }
         if (showSheet) {
