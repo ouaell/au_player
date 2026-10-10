@@ -8,6 +8,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.UiSelector
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -91,13 +92,39 @@ class E8PlayerControlsTest {
     }
 
     /**
-     * Pixel proof that controls render (dump-free): on frozen video, tap to
-     * show, shoot, wait out the 3 s auto-hide, shoot again. Differing pixels
-     * in the control strip can only be the controls chrome.
+     * Pixel proof that controls render (dump-free): tap center to show the
+     * chrome (retry: device.click can silently return false), poll for a
+     * Play/Pause node so the shot is really taken while chrome is up, shoot,
+     * wait out the 3 s auto-hide, shoot again. Differing pixels in the
+     * control strips can only be the controls chrome.
      */
     private suspend fun assertControlsRender(device: UiDevice) {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val dir = instrumentation.targetContext.filesDir
+        var tapOk = false
+        for (attempt in 1..5) {
+            if (device.click(device.displayWidth / 2, device.displayHeight / 2)) {
+                tapOk = true
+                break
+            }
+            Log.w(GATE_TAG, "center tap attempt $attempt returned false")
+            delay(POLL_MS)
+        }
+        assertTrue("center tap never dispatched", tapOk)
+        var chromeUp = false
+        for (attempt in 1..20) {
+            if (device.findObject(UiSelector().text("Play")).exists() ||
+                device.findObject(UiSelector().text("Pause")).exists()
+            ) {
+                chromeUp = true
+                break
+            }
+            delay(POLL_MS)
+        }
+        assertTrue("controls chrome never appeared after tap", chromeUp)
+        // Shoot promptly: the 3 s auto-hide runs from the tap, and polling
+        // already consumed part of it.
+        delay(SETTLE_MS)
         val shown = File(dir, "e8-shown.png")
         assertTrue("screenshot failed", device.takeScreenshot(shown))
         delay(HIDE_MS)
@@ -146,6 +173,7 @@ class E8PlayerControlsTest {
 private const val POLL_MS = 250L
 private const val FREEZE_MS = 2_500L
 private const val SHOW_MS = 1_000L
+private const val SETTLE_MS = 300L
 private const val HIDE_MS = 4_000L
 private const val MIN_DIFF = 2_000
 private const val DIFF_LUMA = 40
