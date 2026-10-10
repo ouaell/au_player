@@ -111,6 +111,11 @@ assert mean_delta > 0.5 or var_delta > 0.5, "screenshots identical (frozen video
 print("E: trace gate pass")
 EOF
 adb_retry adb logcat -d > "$GITHUB_WORKSPACE/logcat.txt" || echo "logcat unavailable" > "$GITHUB_WORKSPACE/logcat.txt"
+echo "=== E-evidence digest (artifact-free verification; full logcat.txt is best-effort) ==="
+grep -a 'E[0-9]GATE' "$GITHUB_WORKSPACE/logcat.txt" | tail -80 || true
+echo "--- player/mpv lines ---"
+grep -a ' I AuPlayer: ' "$GITHUB_WORKSPACE/logcat.txt" | tail -40 || true
+grep -a 'mpv \[' "$GITHUB_WORKSPACE/logcat.txt" | tail -30 || true
 # Package-scoped crash gate (unscoped greps catch GMS/system noise).
 CRASHED=0
 if grep -A4 'FATAL EXCEPTION' "$GITHUB_WORKSPACE/logcat.txt" | grep -q 'com.example.auplayer'; then

@@ -50,12 +50,14 @@ jobs:
       - name: 16KB alignment check (release)
         run: sh tools/check_16kb.sh app/build/outputs/apk/direct/release/*.apk
       - uses: actions/upload-artifact@v4
+        continue-on-error: true  # quota droughts must not red-denote green builds
         if: always()
         with:
           name: direct-release-apk
           retention-days: 7
           path: app/build/outputs/apk/direct/release/*.apk
       - uses: actions/upload-artifact@v4
+        continue-on-error: true  # quota droughts must not red-denote green builds
         if: always()
         with:
           name: direct-release-aab

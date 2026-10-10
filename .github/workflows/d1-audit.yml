@@ -17,6 +17,7 @@ jobs:
       - name: D1 libmpv audit (MS-004, report-only)
         run: sh tools/audit_libmpv.sh 2>&1 | tee d1-audit-report.txt
       - uses: actions/upload-artifact@v4
+        continue-on-error: true  # quota droughts must not red-denote green builds
         if: always()
         with:
           name: d1-audit-report
