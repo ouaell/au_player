@@ -439,4 +439,11 @@
   reference`, crashing in `libmpv.so vo_android_init → ANativeWindow_fromSurface → GetField` on a dead
   Surface global ref — surface attach/detach vs VO-init race in our `wid` plumbing. E1 trace gate had passed;
   crash killed the suite early. Intermittent (prior 10/10 greens) → real race, fix in FX (surface lifecycle).
+- S1-001 FIXED: `wid` parked on "0" before any global-ref delete/create (`LibmpvBridge.attach/detach`,
+  synchronized for direct callers); `PlayerEngine.open` waits (bounded 5 s) for an armed surface before
+  `loadfile` (vo init trigger); JVM gate tests (defer/proceed/timeout) + `S1SurfaceStressTest` (500
+  attach/detach cycles + 20 real rotations + 50 interleaved opens, final playback + screenshot proof).
+  Proof: 5 consecutive full emulator runs green with logcat-clean gates —
+  `38084237468`, `38084903039`, `38084910400`, `38084917588`, `38084914706` (11/11 incl. S1 each).
+  T1 `38083983156` green (3m06s).
 - UNVERIFIED-on-device: everything from prior entries still stands; plus S1-001 needs a regression test.
