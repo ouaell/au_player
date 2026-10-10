@@ -1,0 +1,17 @@
+name: claims-check
+on:
+  push:
+    branches: [main]
+    paths: ['docs/claims.json', 'docs/status.md', 'tools/audit/**', '**/src/androidTest/**', 'tools/headless/**', 'tools/run_smoke_release.sh']
+  pull_request:
+  workflow_dispatch: {}
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: claims-check (done needs an existing test id)
+        run: sh tools/audit/status.sh --check
+      - name: no-fakes-in-release gate
+        run: sh tools/audit/no_fakes.sh

@@ -1,0 +1,21 @@
+# no-fakes-in-release allowlist (CURRENT bad state — FX-01 shrinks this).
+# Format: <repo-relative path>:<code, leading whitespace stripped>. Compared sorted; keep sorted.
+app/src/main/java/com/example/auplayer/AppContainer.kt:/** Manual DI root (§2: no Hilt/Koin). Fakes back seams until natives land. */
+app/src/main/java/com/example/auplayer/AppContainer.kt:PlayerEngine(FakeMpvBridge())
+app/src/main/java/com/example/auplayer/AppContainer.kt:import com.example.auplayer.player.FakeMpvBridge
+app/src/main/java/com/example/auplayer/Nav.kt:StubScreen("Reader")
+app/src/main/java/com/example/auplayer/Nav.kt:StubScreen("Web unavailable in this build")
+app/src/main/java/com/example/auplayer/Nav.kt:composable(NavDest.Player.route) { StubScreen("Player") }
+app/src/main/java/com/example/auplayer/Nav.kt:composable(NavDest.Settings.route) { StubScreen("Settings") }
+app/src/main/java/com/example/auplayer/Nav.kt:private fun StubScreen(name: String) {
+core/src/main/java/com/example/auplayer/monetization/AdProvider.kt:* default binding is [NoOpAdProvider] and the real network lands behind a
+core/src/main/java/com/example/auplayer/monetization/AdProvider.kt:class NoOpAdProvider : AdProvider {
+core/src/main/java/com/example/auplayer/monetization/AdProvider.kt:class StubConsentManager : ConsentManager {
+enhance/src/main/java/com/example/auplayer/enhance/EnhanceEngine.kt:class FakeEnhanceEngine : EnhanceEngine {
+enhance/src/main/java/com/example/auplayer/enhance/Ncnn.kt:class FakeNcnnBridge(
+library/src/main/java/com/example/auplayer/library/Library.kt:class FakeLibrarySource : LibrarySource {
+player/src/main/java/com/example/auplayer/player/MpvBridge.kt:* then [FakeMpvBridge] backs the engine. Surface travels as `Any?` so engine
+player/src/main/java/com/example/auplayer/player/MpvBridge.kt:class FakeMpvBridge : MpvBridge {
+player/src/main/java/com/example/auplayer/player/PlayerController.kt:class FakePlayerController : PlayerController {
+reader/src/main/java/com/example/auplayer/reader/PageProvider.kt:class FakePageProvider(
+websource/src/main/java/com/example/auplayer/websource/WebSource.kt:class FakeWebSourceExtractor : WebSourceExtractor {

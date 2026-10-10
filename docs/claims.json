@@ -1,0 +1,23 @@
+{
+  "$schema": "au-player-claims/1",
+  "note": "Machine-readable evidence ledger. Every E2E-VERIFIED row in docs/status.md must appear here with an existing test_id (repo-relative path), or claims-check fails. Run ids are the latest passing runs; update them when suites re-run.",
+  "claims": [
+    {"feature": "engine-presence", "test_id": "app/src/androidTest/java/com/example/auplayer/E1PlayerTest.kt", "run_id": "38017724352", "artifact": "emulator-reports/logcat.txt"},
+    {"feature": "open-events-eof", "test_id": "app/src/androidTest/java/com/example/auplayer/E1PlayerTest.kt", "run_id": "38017724352", "artifact": "emulator-reports/e1-trace.txt"},
+    {"feature": "play-pause-seek", "test_id": "app/src/androidTest/java/com/example/auplayer/E8PlayerControlsTest.kt", "run_id": "38017724352", "artifact": "emulator-reports/logcat.txt"},
+    {"feature": "seek-storm", "test_id": "app/src/androidTest/java/com/example/auplayer/E5SeekTest.kt", "run_id": "38017724352", "artifact": "emulator-reports/logcat.txt"},
+    {"feature": "lifecycle", "test_id": "app/src/androidTest/java/com/example/auplayer/E2LifecycleTest.kt", "run_id": "38017724352", "artifact": "emulator-reports/logcat.txt"},
+    {"feature": "controller-chrome", "test_id": "app/src/androidTest/java/com/example/auplayer/E8PlayerControlsTest.kt", "run_id": "38017724352", "artifact": "emulator-reports/e8-shown.png"},
+    {"feature": "controller-a11y", "test_id": "app/src/androidTest/java/com/example/auplayer/E7A11yTest.kt", "run_id": "38017724352", "artifact": "emulator-reports/logcat.txt"},
+    {"feature": "shader-compile-gpu", "test_id": "app/src/androidTest/java/com/example/auplayer/E3EnhanceTest.kt", "run_id": "38017724352", "artifact": "emulator-reports/logcat.txt"},
+    {"feature": "reader-cbz", "test_id": "app/src/androidTest/java/com/example/auplayer/E4ReaderTest.kt", "run_id": "38017724352", "artifact": "emulator-reports/logcat.txt"},
+    {"feature": "reader-pdf", "test_id": "app/src/androidTest/java/com/example/auplayer/E4ReaderTest.kt", "run_id": "38017724352", "artifact": "emulator-reports/logcat.txt"},
+    {"feature": "web-extract", "test_id": "app/src/androidTest/java/com/example/auplayer/E6WebTest.kt", "run_id": "38017724352", "artifact": "emulator-reports/logcat.txt"},
+    {"feature": "resume", "test_id": "app/src/androidTest/java/com/example/auplayer/E9ResumeTest.kt", "run_id": "38017724352", "artifact": "emulator-reports/logcat.txt"},
+    {"feature": "minified-smoke", "test_id": "tools/run_smoke_release.sh", "run_id": "38021902266", "artifact": "smoke-release reports"},
+    {"feature": "headless-h1", "test_id": "tools/headless/option_lint.sh", "run_id": "38021893683", "artifact": "headless-out/"},
+    {"feature": "headless-h2", "test_id": "tools/headless/shader_compile.sh", "run_id": "38021893683", "artifact": "headless-out/"},
+    {"feature": "headless-h4", "test_id": "tools/headless/check_golden.sh", "run_id": "38021893683", "artifact": "headless-out/"},
+    {"feature": "t1-gates", "test_id": ".github/workflows/android-t1.yml", "run_id": "38021692373", "artifact": "direct-debug-apk, gate-reports"}
+  ]
+}
