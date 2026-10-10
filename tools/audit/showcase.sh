@@ -3,7 +3,7 @@
 # one screen recording on the CI emulator. Best-effort per shot; a missing
 # shot is recorded in showcase/STATUS.txt, never fatal.
 set -eu
-PKG="${PKG:-com.example.au_player}"
+PKG="${PKG:-com.example.auplayer}"
 OUT="${OUT:-showcase}"
 mkdir -p "$OUT"
 ADB="adb -s emulator-5554"
@@ -21,6 +21,10 @@ $ADB wait-for-device
 $ADB shell input keyevent 82 || true
 APK=$(ls app/build/outputs/apk/direct/debug/*.apk | head -1)
 $ADB install -r "$APK"
+# Resolve the real package id (flavors may suffix it); fail fast if absent.
+PKG=$( $ADB shell pm list packages 2>/dev/null | grep auplayer | head -1 | tr -d '\r' | cut -d: -f2 )
+if [ -z "$PKG" ]; then echo "showcase: auplayer package not installed"; exit 1; fi
+echo "showcase: package=$PKG"
 sh tools/gen_corpus.sh showcase-corpus >/dev/null 2>&1 || true
 CLIP=$(ls showcase-corpus/*.mp4 2>/dev/null | head -1 || true)
 CBZ=$(ls showcase-corpus/*.cbz showcase-corpus/*.zip 2>/dev/null | head -1 || true)

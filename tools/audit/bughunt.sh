@@ -3,7 +3,7 @@
 # FATAL EXCEPTION / native crash / ANR implicating our package appears).
 # Runs inside the audit-bughunt workflow on the CI emulator.
 set -eu
-PKG="${PKG:-com.example.au_player}"
+PKG="${PKG:-com.example.auplayer}"
 OUT="${OUT:-bughunt-out}"
 mkdir -p "$OUT"
 ADB="adb -s emulator-5554"
@@ -14,6 +14,10 @@ $ADB shell input keyevent 82 || true
 echo "== installing debug APK =="
 APK=$(ls app/build/outputs/apk/direct/debug/*.apk | head -1)
 $ADB install -r "$APK"
+# Resolve the real package id (flavors may suffix it); fail fast if absent.
+PKG=$( $ADB shell pm list packages 2>/dev/null | grep auplayer | head -1 | tr -d '\r' | cut -d: -f2 )
+if [ -z "$PKG" ]; then echo "bughunt: auplayer package not installed"; exit 1; fi
+echo "bughunt: package=$PKG"
 
 echo "== pushing corpus =="
 sh tools/gen_corpus.sh audit-corpus >/dev/null 2>&1 || true
