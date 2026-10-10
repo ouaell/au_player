@@ -17,6 +17,9 @@ class LibmpvBridge(private val paths: MpvPaths, traceDir: File? = null) : MpvBri
     private var handle: Long = 0L
     private var listener: ((MpvEvent) -> Unit)? = null
     private val tracer = EventTracer(traceDir)
+    /** Serializes direct (non-engine) attach/detach callers against each
+     *  other; engine callers are already single-dispatcher ordered. */
+    private val surfaceLock = Any()
 
     @Volatile
     var surface: Surface? = null
@@ -69,30 +72,53 @@ class LibmpvBridge(private val paths: MpvPaths, traceDir: File? = null) : MpvBri
     }
 
     override fun attach(token: Any?) {
-        surface = token as? Surface
-        // vo/gpu android-context takes the Surface from the `wid` option
-        // (WinID = jobject address) at vo init. Never throws: failures only
-        // degrade to audio-only, recorded for diagnosis.
-        val ref = if (surface != null && handle != 0L) {
-            MpvSurface.nativeAttachSurface(handle, surface)
-        } else {
-            0L
-        }
-        if (ref != 0L) {
-            try {
-                setOption(WID_OPTION, ref.toString())
-            } catch (error: MpvCommandException) {
-                Log.e("AuPlayer", "wid rejected: " + error.message)
-                Diag.record("surface", "wid rejected: ${error.message}")
+        synchronized(surfaceLock) {
+            surface = token as? Surface
+            // vo/gpu android-context takes the Surface from the `wid` option
+            // (WinID = jobject address) at vo init. mpv reads wid on ITS vo
+            // thread, so wid must never point at a deleted ref: park it on 0
+            // before swapping the global ref (S1-001: SIGABRT in
+            // vo_android_init on a dangling address). Failures only degrade
+            // to audio-only, recorded for diagnosis.
+            parkWid()
+            if (surface == null || handle == 0L) {
+                if (handle != 0L) MpvSurface.nativeDetachSurface(handle)
+                Diag.record("surface", "released")
+                return
             }
+            val ref = MpvSurface.nativeAttachSurface(handle, surface)
+            if (ref != 0L) {
+                try {
+                    setOption(WID_OPTION, ref.toString())
+                } catch (error: MpvCommandException) {
+                    Log.e("AuPlayer", "wid rejected: " + error.message)
+                    Diag.record("surface", "wid rejected: ${error.message}")
+                }
+            }
+            Diag.record("surface", "stored")
         }
-        Diag.record("surface", if (surface == null) "released" else "stored")
     }
 
     override fun detach() {
-        surface = null
-        if (handle != 0L) {
-            MpvSurface.nativeDetachSurface(handle)
+        synchronized(surfaceLock) {
+            surface = null
+            if (handle != 0L) {
+                // Park wid BEFORE deleting the ref: a concurrent vo init
+                // must see 0 (graceful no-video), never a dangling address.
+                parkWid()
+                MpvSurface.nativeDetachSurface(handle)
+            }
+        }
+    }
+
+    /** Best-effort wid reset; detach/attach paths must never throw. */
+    private fun parkWid() {
+        if (handle == 0L) return
+        try {
+            setOption(WID_OPTION, "0")
+        } catch (error: MpvCommandException) {
+            Log.w("AuPlayer", "wid park rejected: " + error.message)
+            Diag.record("surface", "wid park rejected: ${error.message}")
         }
     }
 

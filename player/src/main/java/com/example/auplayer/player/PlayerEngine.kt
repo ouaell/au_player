@@ -9,10 +9,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import java.util.concurrent.Executors
 
 /**
@@ -27,6 +29,8 @@ class PlayerEngine(
     dispatcher: CoroutineDispatcher = Executors.newSingleThreadExecutor { runnable ->
         Thread(runnable, "mpv-cmd").apply { isDaemon = true }
     }.asCoroutineDispatcher(),
+    /** Bound on waiting for a surface before loadfile (S1-001). */
+    private val openSurfaceTimeoutMs: Long = OPEN_SURFACE_TIMEOUT_MS,
 ) {
     private val scope = CoroutineScope(SupervisorJob() + dispatcher)
 
@@ -69,7 +73,24 @@ class PlayerEngine(
     }
 
     fun open(uri: String) {
-        cmd { bridge.command(listOf("loadfile", uri)) }
+        cmd {
+            // Never let vo init run without a live surface: loadfile is what
+            // triggers mpv's vo init, and a wid pointing at a deleted ref
+            // aborts the process (S1-001). Bounded wait, then proceed anyway
+            // (wid=0 degrades to audio-only, never crashes).
+            if (!surfaceArmed) {
+                Log.i("AuPlayer", "open waiting for surface")
+                val armed = withTimeoutOrNull(openSurfaceTimeoutMs) {
+                    while (!surfaceArmed) delay(OPEN_SURFACE_POLL_MS)
+                    true
+                } ?: false
+                if (!armed) {
+                    Log.w("AuPlayer", "open proceeding without surface")
+                    Diag.record("player", "open without surface")
+                }
+            }
+            bridge.command(listOf("loadfile", uri))
+        }
     }
 
     fun play() {
@@ -85,11 +106,17 @@ class PlayerEngine(
     }
 
     fun attach(token: Any?) {
-        cmd { bridge.attach(token) }
+        cmd {
+            bridge.attach(token)
+            surfaceArmed = token != null
+        }
     }
 
     fun detach() {
-        cmd { bridge.detach() }
+        cmd {
+            bridge.detach()
+            surfaceArmed = false
+        }
     }
 
     /** Track/prop/subtitle-file commands route here (MS-017/018); mapping lives
@@ -102,7 +129,17 @@ class PlayerEngine(
         scope.cancel()
         bridge.destroy()
     }
+
+    /**
+     * Written only inside [cmd] blocks (single thread, ordered); read there
+     * too. Volatile for test dispatchers that resume on other threads.
+     */
+    @Volatile
+    private var surfaceArmed = false
 }
+
+private const val OPEN_SURFACE_TIMEOUT_MS = 5_000L
+private const val OPEN_SURFACE_POLL_MS = 50L
 
 /** [PlayerController] backed by the real engine (Fake covers tests). */
 class EnginePlayerController(private val engine: PlayerEngine) : PlayerController {

@@ -14,9 +14,34 @@ class PlayerEngineTest {
         PlayerEngine(bridge, Dispatchers.Unconfined)
 
     @Test
-    fun `open issues loadfile`() {
+    fun `open after attach issues loadfile immediately`() {
         val bridge = FakeMpvBridge()
-        engine(bridge).open("file:///x.mp4")
+        val engine = engine(bridge)
+        engine.attach(Any())
+        engine.open("file:///x.mp4")
+        assertEquals(listOf(listOf("loadfile", "file:///x.mp4")), bridge.commands)
+    }
+
+    @Test
+    fun `open without surface still loads after timeout`() = runBlocking {
+        val bridge = FakeMpvBridge()
+        PlayerEngine(bridge, Dispatchers.Unconfined, openSurfaceTimeoutMs = 200).open("file:///x.mp4")
+        withTimeout(5_000) {
+            while (bridge.commands.isEmpty()) delay(10)
+        }
+        assertEquals(listOf(listOf("loadfile", "file:///x.mp4")), bridge.commands)
+    }
+
+    @Test
+    fun `open waits for a later attach`() = runBlocking {
+        val bridge = FakeMpvBridge()
+        val engine = PlayerEngine(bridge, Dispatchers.Unconfined, openSurfaceTimeoutMs = 5_000)
+        engine.open("file:///x.mp4")
+        assertEquals(emptyList<List<String>>(), bridge.commands)
+        engine.attach(Any())
+        withTimeout(5_000) {
+            while (bridge.commands.isEmpty()) delay(10)
+        }
         assertEquals(listOf(listOf("loadfile", "file:///x.mp4")), bridge.commands)
     }
 
