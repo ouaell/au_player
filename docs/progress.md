@@ -403,3 +403,14 @@
 - E4 PDF: white eraseColor fill (transparent pages rendered dark)
 - Tests added/changed: E7A11yTest, E8PlayerControlsTest, E9ResumeTest (instrumented, API-30 emulator)
 - UNVERIFIED-on-device: physical-device playback, PiP, MediaSession notification, SAF tree, pre-launch report
+
+## MS-057 — CI tiers T1/T2/T3, caching, path filters, KVM step, artifacts
+- Status: DONE (T1 green runs 38016361664 3m32s, 38017466797 3m56s — both < 8 min on real changes)
+- Sections used: §2 (MS-002 gates run inside T1), §15 (row)
+- T1 (`android-t1.yml`): push/PR/dispatch, concurrency cancel-in-progress, gates (forbidden/arch/licenses/notices/shaders/16KB/native) + detekt/ktlint/test/lint/assemble, 3 artifact bundles (APK, corpus, reports)
+- T2/T3 dispatchable: `emulator` (api-level input, KVM step `.github/workflows/emulator.yml:35`, reactivecircus runner), `headless`, `smoke-release`, `release` — all `workflow_dispatch`
+- Caching: gradle/actions/setup-gradle + staged-native cache keyed on pins/fetch script
+- Path filters: T1 push trigger ignores `docs/**` + `**/*.md` (docs-only pushes skip the gate)
+- Artifacts: 7-day retention + continue-on-error uploads (quota droughts never red-denote green builds)
+- Tests added: none (infra-only change; verified by T1 green on this push)
+- UNVERIFIED-on-device: FTL Robo/MS-054/MS-061 (needs Firebase subscription — owner-side, H6)
