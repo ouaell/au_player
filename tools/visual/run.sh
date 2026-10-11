@@ -68,7 +68,8 @@ done
 
 echo "== collect maestro screenshots =="
 mkdir -p "$OUT/maestro"
-find . -maxdepth 1 -name "*.png" -exec mv {} "$OUT/maestro/" \; || true
+# Maestro drops takeScreenshot PNGs under the working tree; gather fresh ones.
+find . -maxdepth 3 -name "*.png" -mmin -40 -not -path "./fastlane/*" -exec cp {} "$OUT/maestro/" \; 2>/dev/null || true
 ls "$OUT/maestro" || true
 
 echo "== diagnostic shot (always, even on flow failure) =="
