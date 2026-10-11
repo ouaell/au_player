@@ -91,7 +91,9 @@ $ADB shell dumpsys gfxinfo "$PKG" > "$OUT/gfxinfo.txt" 2>&1 || true
 $ADB logcat -d > "$OUT/logcat.txt" 2>&1 || true
 echo "== db ground truth (chapters+mangas, best-effort) =="
 $ADB shell "run-as $PKG ls /data/data/$PKG/databases/" || true
-$ADB shell "run-as $PKG cat /data/data/$PKG/databases/tachiyomi.db" > "$OUT/tachiyomi.db" 2>/dev/null || true
+for suffix in "" "-shm" "-wal"; do
+  $ADB shell "run-as $PKG cat /data/data/$PKG/databases/tachiyomi.db$suffix" > "$OUT/tachiyomi.db$suffix" 2>/dev/null || true
+done
 python3 - "$OUT/tachiyomi.db" <<'EOF' || true
 import sqlite3, sys
 try:
