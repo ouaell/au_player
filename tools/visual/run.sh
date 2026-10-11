@@ -68,10 +68,9 @@ done
 
 echo "== collect maestro screenshots =="
 mkdir -p "$OUT/maestro"
-# Maestro drops takeScreenshot PNGs outside the repo tree (home/tmp); gather
-# anything fresh, excluding repo-bundled images and our own generated corpus.
-find "$HOME" /tmp . -maxdepth 4 -name "*.png" -mmin -25 \
-  -not -path "./fastlane/*" -not -path "./.github/*" -not -path "*visual-corpus*" \
+# Maestro drops takeScreenshot PNGs under the runner home (deep); gather
+# anything fresh, excluding caches and repo-bundled/generated images.
+find "$HOME" -name "*.png" -mmin -30 -not -path "*/.gradle/*" \
   -exec cp {} "$OUT/maestro/" \; 2>/dev/null || true
 ls "$OUT/maestro" || true
 
