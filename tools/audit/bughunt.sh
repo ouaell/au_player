@@ -7,6 +7,7 @@ PKG="${PKG:-com.example.auplayer}"
 OUT="${OUT:-bughunt-out}"
 mkdir -p "$OUT"
 ADB="adb -s emulator-5554"
+. tools/audit/fg_check.sh
 echo "== waiting for device =="
 $ADB wait-for-device
 $ADB shell input keyevent 82 || true
@@ -28,36 +29,44 @@ echo "== clearing logcat =="
 $ADB logcat -c
 
 echo "== monkey: home + launcher (20000 events) =="
-$ADB shell monkey -p "$PKG" --throttle 80 -s 42 20000 > "$OUT/monkey-home.txt" 2>&1 || true
+$ADB shell monkey -p "$PKG" --throttle 50 -s 42 20000 > "$OUT/monkey-home.txt" 2>&1 || true
+grep -q "Monkey finished" "$OUT/monkey-home.txt" || { echo "E: home monkey did not finish 20000 events" >&2; exit 1; }
 
 echo "== monkey: player (VIEW intent, then events) =="
-$ADB shell am start -a android.intent.action.VIEW -d file:///sdcard/bughunt.mp4 -t video/mp4 "$PKG/.MainActivity" || true
+$ADB shell am start -a android.intent.action.VIEW -d file:///sdcard/bughunt.mp4 -t video/mp4 "$PKG/.MainActivity"
 sleep 5
-$ADB shell monkey -p "$PKG" --throttle 80 -s 7 20000 > "$OUT/monkey-player.txt" 2>&1 || true
+assert_foreground "$PKG"
+$ADB shell monkey -p "$PKG" --throttle 50 -s 7 20000 > "$OUT/monkey-player.txt" 2>&1 || true
+grep -q "Monkey finished" "$OUT/monkey-player.txt" || { echo "E: player monkey did not finish 20000 events" >&2; exit 1; }
 
 echo "== negative inputs =="
 $ADB shell "head -c 0 /dev/null > /sdcard/zero.mp4" || : > /sdcard/zero.mp4
 $ADB shell am start -a android.intent.action.VIEW -d file:///sdcard/zero.mp4 -t video/mp4 "$PKG/.MainActivity" || true
 sleep 5
+assert_process "$PKG"
 $ADB shell "head -c 1024 /dev/urandom > /sdcard/corrupt.mp4" || true
 $ADB shell am start -a android.intent.action.VIEW -d file:///sdcard/corrupt.mp4 -t video/mp4 "$PKG/.MainActivity" || true
 sleep 5
+assert_process "$PKG"
 printf 'not a zip' > "$OUT/evil.cbz"
 $ADB push "$OUT/evil.cbz" /sdcard/evil.cbz || true
 $ADB shell am start -a android.intent.action.VIEW -d file:///sdcard/evil.cbz -t application/x-cbz "$PKG/.MainActivity" || true
 sleep 5
+assert_process "$PKG"
 
 echo "== lifecycle/system =="
 $ADB shell am send-trim-memory "$PKG" RUNNING_CRITICAL || true
 sleep 2
 $ADB shell settings put system font_scale 2.0 || true
-$ADB shell am start -a android.intent.action.MAIN -n "$PKG/.MainActivity" || true
+$ADB shell am start -a android.intent.action.MAIN -n "$PKG/.MainActivity"
 sleep 5
+assert_foreground "$PKG"
 $ADB shell settings put system font_scale 1.0 || true
 $ADB shell am kill "$PKG" || true
 sleep 2
-$ADB shell am start -a android.intent.action.MAIN -n "$PKG/.MainActivity" || true
+$ADB shell am start -a android.intent.action.MAIN -n "$PKG/.MainActivity"
 sleep 5
+assert_foreground "$PKG"
 
 echo "== meminfo/gfxinfo =="
 $ADB shell dumpsys meminfo "$PKG" > "$OUT/meminfo-after.txt" 2>&1 || true

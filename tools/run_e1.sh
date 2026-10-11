@@ -42,6 +42,27 @@ echo "=== APK native libs ==="
 unzip -l app/build/outputs/apk/direct/debug/*.apk | grep '\.so' || true
 echo "=== androidTest results ==="
 find app/build -name "*.xml" -path "*androidTest-results*" -exec grep -h "<testsuite " {} \; || true
+echo "=== anti-no-op: testsuite counts (vacuous green is a failure) ==="
+python3 - <<'EOF'
+import glob, sys, xml.etree.ElementTree as ET
+tests = failures = errors = skipped = 0
+files = glob.glob("app/build/**/androidTest-results/**/*.xml", recursive=True)
+assert files, "no androidTest result XML at all"
+for path in files:
+    try:
+        root = ET.parse(path).getroot()
+    except ET.ParseError:
+        continue
+    for suite in root.iter("testsuite"):
+        tests += int(float(suite.get("tests", 0)))
+        failures += int(float(suite.get("failures", 0)))
+        errors += int(float(suite.get("errors", 0)))
+        skipped += int(float(suite.get("skipped", 0)))
+print(f"tests={tests} failures={failures} errors={errors} skipped={skipped}")
+assert tests > 0, "zero tests ran"
+assert failures == 0 and errors == 0 and skipped == 0, "non-green suite"
+print("E: suite counts ok")
+EOF
 adb_retry adb logcat -d > "$GITHUB_WORKSPACE/logcat.txt" || echo "logcat unavailable" > "$GITHUB_WORKSPACE/logcat.txt"
 # API 30+ scoped storage hides /sdcard/Android/data/<pkg>/ from adb shell
 # ("No such file"), and `adb exec-out run-as` fails with "unknown package",

@@ -7,6 +7,7 @@ PKG="${PKG:-com.example.auplayer}"
 OUT="${OUT:-showcase}"
 mkdir -p "$OUT"
 ADB="adb -s emulator-5554"
+. tools/audit/fg_check.sh
 shot() { # $1=name; best-effort screencap pull
   if $ADB exec-out screencap -p > "$OUT/$1.png" 2>/dev/null && [ -s "$OUT/$1.png" ]; then
     echo "OK $1" >> "$OUT/STATUS.txt"
@@ -34,11 +35,13 @@ CBZ=$(ls showcase-corpus/*.cbz showcase-corpus/*.zip 2>/dev/null | head -1 || tr
 echo "== home (en, dark) =="
 $ADB shell am start -a android.intent.action.MAIN -n "$PKG/.MainActivity"
 sleep 4
+assert_foreground "$PKG"
 shot home-en-dark
 
 echo "== player with controls (tap center to show) =="
 $ADB shell am start -a android.intent.action.VIEW -d file:///sdcard/showcase.mp4 -t video/mp4 "$PKG/.MainActivity"
 sleep 6
+assert_foreground "$PKG"
 $ADB shell input tap 720 1280
 sleep 1
 shot player-controls-en-dark
@@ -53,6 +56,7 @@ $ADB pull /sdcard/showcase-play.mp4 "$OUT/showcase-play.mp4" || echo "MISS showc
 echo "== reader: cbz + pdf =="
 $ADB shell am start -a android.intent.action.VIEW -d file:///sdcard/showcase.cbz -t application/x-cbz "$PKG/.MainActivity"
 sleep 5
+assert_foreground "$PKG"
 shot reader-cbz-en-dark
 $ADB shell input keyevent 4
 sleep 1
@@ -60,6 +64,7 @@ sleep 1
 echo "== web source =="
 $ADB shell am start -a android.intent.action.MAIN -n "$PKG/.MainActivity"
 sleep 3
+assert_foreground "$PKG"
 shot home-2-en-dark
 
 echo "== arabic locale (best-effort, needs adb root) =="
@@ -68,6 +73,7 @@ $ADB shell "setprop persist.sys.locale ar-EG; stop; start" || true
 sleep 15
 $ADB shell am start -a android.intent.action.MAIN -n "$PKG/.MainActivity"
 sleep 4
+assert_foreground "$PKG" || echo "MISS home-ar-dark (locale switch failed)" >> "$OUT/STATUS.txt"
 shot home-ar-dark
 $ADB shell "setprop persist.sys.locale en-US; stop; start" || true
 sleep 15

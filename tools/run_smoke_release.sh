@@ -29,6 +29,7 @@ EOF
 gradle :app:assembleDirectSmoke --stacktrace
 APK=$(ls app/build/outputs/apk/direct/smoke/*.apk | head -1)
 echo "smoke: release APK $APK"
+. tools/audit/fg_check.sh
 adb_retry adb install -r "$APK"
 adb_retry adb push test-corpus/h264-720p.mp4 /data/local/tmp/r.mp4
 adb_retry adb push test-corpus/r-pages.cbz /data/local/tmp/r-pages.cbz
@@ -37,10 +38,12 @@ adb shell am start -a android.intent.action.VIEW \
   -d file:///data/local/tmp/r.mp4 -t video/mp4 \
   -n com.example.auplayer/.MainActivity
 sleep 12
+assert_foreground com.example.auplayer
 adb shell am start -a android.intent.action.VIEW \
   -d file:///data/local/tmp/r-pages.cbz -t application/vnd.comicbook+zip \
   -n com.example.auplayer/.MainActivity
 sleep 8
+assert_foreground com.example.auplayer
 adb_retry adb logcat -d > "$GITHUB_WORKSPACE/r-logcat.txt" || echo "logcat unavailable" > "$GITHUB_WORKSPACE/r-logcat.txt"
 echo "=== MS-063 release smoke gate ==="
 grep -a 'AuPlayer' "$GITHUB_WORKSPACE/r-logcat.txt" | tail -20 || true
