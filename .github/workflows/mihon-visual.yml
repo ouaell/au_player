@@ -6,9 +6,6 @@ on:
         description: Flow name filter (empty = all)
         default: ""
         required: false
-  push:
-    branches: [mihon-line]
-    paths: ['maestro/**', 'tools/visual/**', '.github/workflows/mihon-visual.yml']
 jobs:
   capture:
     runs-on: ubuntu-latest
