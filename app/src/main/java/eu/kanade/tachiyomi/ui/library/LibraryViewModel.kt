@@ -645,7 +645,7 @@ class LibraryViewModel(
             logcat(LogPriority.DEBUG) { "scanLocal: added=$added" }
             added
         } catch (e: Exception) {
-            logcat(LogPriority.ERROR, e)
+            logcat(LogPriority.ERROR, e) { "scanLocal failed" }
             -1
         }
     }
