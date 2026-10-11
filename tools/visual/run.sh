@@ -35,9 +35,11 @@ echo "== seed local series =="
 sh tools/gen_corpus.sh visual-corpus >/dev/null 2>&1 || true
 CBZ=$(ls visual-corpus/*.cbz visual-corpus/*.zip 2>/dev/null | head -1 || true)
 # Local source base = /sdcard/<app_name>/local (AndroidStorageFolderProvider).
+# NOTE: adb shell splits on spaces remotely — single-quote every remote path.
 LOCALDIR="/sdcard/AU Player/local/Demo"
-$ADB shell mkdir -p "$LOCALDIR" || true
-[ -n "$CBZ" ] && $ADB push "$CBZ" "$LOCALDIR/ch1.cbz" || true
+$ADB shell "mkdir -p '$LOCALDIR'"
+[ -n "$CBZ" ] && $ADB push "$CBZ" "$LOCALDIR/ch1.cbz"
+$ADB shell "ls -l '$LOCALDIR'"
 
 echo "== cold-start timing =="
 $ADB shell am start -W -a android.intent.action.MAIN -n "$PKG/eu.kanade.tachiyomi.ui.main.MainActivity" 2>&1 | tee "$OUT/coldstart.txt" || true
