@@ -460,3 +460,12 @@
   swiftshader load), NOT our app (auplayer pid 3892 idle at 0% CPU, no FATAL/tombstone for our package).
   Harness hardened (monkey `--ignore-crashes/timeouts/security-exceptions`; verdict stays with the
   package-scoped logcat gate). Re-running for the real baseline.
+- Bughunt baseline (`38104796581`, job FAILED on harness assert only): home monkey injected all 20000 events
+  and found a REAL deterministic S2 — 43 identical crashes, single root cause:
+  `java.lang.SecurityException: Permission denied - application missing INTERNET permission`
+  at `WebSupportKt.applyHardenedSettings(WebSupport.kt:37)` ← `BrowserPane (WebScreen.kt:163)`.
+  Monkey tapped "Web page" → WebView safe-browsing setup requires INTERNET → manifest lacks it → crash,
+  every time (pids 3770, 4701, 5847, ...). E6 never caught it (tests extractor logic, never composes BrowserPane).
+  No other distinct crash/ANR for our package in 20000 events. NOT fixed yet (FX session).
+  Harness note: monkey omits the trailing "Monkey finished" line in this mode — assert now checks
+  "Events injected: 20000". Player-monkey + negative/lifecycle legs did not run (job stopped at the assert).

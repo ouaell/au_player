@@ -35,14 +35,14 @@ MONKEY_FLAGS="--ignore-crashes --ignore-timeouts --ignore-security-exceptions"
 
 echo "== monkey: home + launcher (20000 events) =="
 $ADB shell monkey -p "$PKG" $MONKEY_FLAGS --throttle 50 -s 42 20000 > "$OUT/monkey-home.txt" 2>&1 || true
-grep -q "Monkey finished" "$OUT/monkey-home.txt" || { echo "E: home monkey did not finish 20000 events" >&2; exit 1; }
+grep -q "Events injected: 20000" "$OUT/monkey-home.txt" || { echo "E: home monkey did not inject 20000 events" >&2; exit 1; }
 
 echo "== monkey: player (VIEW intent, then events) =="
 $ADB shell am start -a android.intent.action.VIEW -d file:///sdcard/bughunt.mp4 -t video/mp4 "$PKG/.MainActivity"
 sleep 5
 assert_foreground "$PKG"
 $ADB shell monkey -p "$PKG" $MONKEY_FLAGS --throttle 50 -s 7 20000 > "$OUT/monkey-player.txt" 2>&1 || true
-grep -q "Monkey finished" "$OUT/monkey-player.txt" || { echo "E: player monkey did not finish 20000 events" >&2; exit 1; }
+grep -q "Events injected: 20000" "$OUT/monkey-player.txt" || { echo "E: player monkey did not inject 20000 events" >&2; exit 1; }
 
 echo "== negative inputs =="
 $ADB shell "head -c 0 /dev/null > /sdcard/zero.mp4" || : > /sdcard/zero.mp4
