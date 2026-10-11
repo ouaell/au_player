@@ -6,5 +6,6 @@ appId: app.auplayer.debug
 - tapOn: "Scan local folder"
 - assertVisible: "Demo"
 - tapOn: "Demo"
+- takeScreenshot: series-before-chapters
 - assertVisible: "Chapters"
 - takeScreenshot: series-demo

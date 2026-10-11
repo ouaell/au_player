@@ -66,6 +66,11 @@ for flow in maestro/mihon/*.yaml; do
 done
 [ "$FAIL" -eq 0 ] || echo "E: a maestro flow failed (see junit + diag shot)"
 
+echo "== collect maestro screenshots =="
+mkdir -p "$OUT/maestro"
+find . -maxdepth 1 -name "*.png" -exec mv {} "$OUT/maestro/" \; || true
+ls "$OUT/maestro" || true
+
 echo "== diagnostic shot (always, even on flow failure) =="
 $ADB exec-out screencap -p > "$OUT/shots/00-diag.png" || true
 launch_app
