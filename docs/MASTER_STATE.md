@@ -13,7 +13,7 @@
 - mihon-line: clean object import (31beac7); working tree verified after a zero-byte corruption incident (rebuilt via git objects, no file copies).
 
 ## Next
-1. Reader flow (run 38183445419): chapter row tap + reader page proof + Maestro shot dirs.
+1. Reader flow (run 38184988572): back-out + re-enter reads DB-cached chapters (fetch is async on first open).
 2. Phase B gate: full mihon-visual green (tabs/scan/reader) + contact sheet review.
 3. Promote to main at gate; Phase C (REX integration).
 
