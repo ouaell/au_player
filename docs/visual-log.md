@@ -12,8 +12,10 @@
   triangle mark (ic_au_mark) + LogoHeader swap.
 - The screen is otherwise indistinguishable from Mihon (it is Mihon) — correct for Phase B.
 
-## 2026-10-11 — scan flow failing, tabs green
-- Maestro tabs flow passes all 5 tabs. Scan flow taps succeed but "Added 1 series" never appears.
-- Root causes so far: (1) seed CBZ pushed to wrong dir (adb space-split; fixed + verified with ls);
-  (2) Local base is /sdcard/AU Player/local (uses app_name). Added scanLocalSource logcat
-  breadcrumbs (listed=/added=) to discriminate empty-dir vs denied vs exception.
+## 2026-10-11 — Library with scanned Demo series (mihon-visual 38180934854)
+- Library tab shows the "Demo" card (local-folder badge) after overflow → "Scan local folder".
+  The scan action works end-to-end (seed CBZ → scan → library entry). Bottom nav rebranded.
+- Earlier scan-assert failures were snackbar exact-text timing, not function (reader flow proved
+  Demo appears). Chapter header shows plural "1 chapter", not "Chapters" — flow fixed.
+- Earlier root causes, both fixed: (1) seed CBZ pushed to wrong dir (adb space-split; fixed +
+  verified with ls); (2) correct local base is /sdcard/AU Player/local (uses app_name).
