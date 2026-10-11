@@ -6,9 +6,10 @@ appId: app.auplayer.debug
 - tapOn: "Scan local folder"
 - assertVisible: "Demo"
 - tapOn: "Demo"
+- takeScreenshot: series-first-open
+- pressKey: back
+- tapOn: "Demo"
 - takeScreenshot: series-before-chapters
-- assertVisible:
-    text: "ch1"
-    timeout: 60000
+- assertVisible: "ch1"
 - tapOn: "ch1"
 - takeScreenshot: reader-page
