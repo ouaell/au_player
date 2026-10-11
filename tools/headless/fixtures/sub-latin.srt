@@ -1,0 +1,7 @@
+1
+00:00:00,500 --> 00:00:02,000
+Hello world, this is a latin subtitle line.
+
+2
+00:00:02,000 --> 00:00:02,900
+Second cue with punctuation: äöü ß?!

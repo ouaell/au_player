@@ -1,0 +1,11 @@
+# Shader fetch manifest (MS-026). Format: <local-filename>|<pinned-raw-url>
+# URLs pin a commit SHA (immutable). PENDING entries are wanted filenames
+# whose license/source is NOT yet verified — fetch refuses them loudly.
+Anime4K_Clamp_Highlights.glsl|https://raw.githubusercontent.com/bloc97/Anime4K/7684e9586f8dcc738af08a1cdceb024cc184f426/glsl/Restore/Anime4K_Clamp_Highlights.glsl
+Anime4K_Restore_CNN_M.glsl|https://raw.githubusercontent.com/bloc97/Anime4K/7684e9586f8dcc738af08a1cdceb024cc184f426/glsl/Restore/Anime4K_Restore_CNN_M.glsl
+Anime4K_Upscale_CNN_x2_M.glsl|https://raw.githubusercontent.com/bloc97/Anime4K/7684e9586f8dcc738af08a1cdceb024cc184f426/glsl/Upscale/Anime4K_Upscale_CNN_x2_M.glsl
+Anime4K_Upscale_CNN_x2_S.glsl|https://raw.githubusercontent.com/bloc97/Anime4K/7684e9586f8dcc738af08a1cdceb024cc184f426/glsl/Upscale/Anime4K_Upscale_CNN_x2_S.glsl
+ravu-lite-r4.hook|https://raw.githubusercontent.com/bjin/mpv-prescalers/b3f0a59d68f33b7162051ea5970a5169558f0ea2/ravu-lite-r4.hook
+# REJECTED (not fetched): FSRCNNX — only traceable source (igv) is GPL-3.0.
+# PENDING (license/source unverified — see docs/assets-licenses.md):
+# FSR_EASU_RCAS|<url> (AMD MIT source needs an mpv-ready port)

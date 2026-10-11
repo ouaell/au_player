@@ -1,0 +1,5 @@
+appId: com.example.auplayer
+---
+- launchApp
+- assertVisible: "AU Player"
+- takeScreenshot: home-en

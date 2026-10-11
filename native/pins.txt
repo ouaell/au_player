@@ -1,0 +1,34 @@
+# P0 pins (OPENCODE_COMMAND §3). Commit SHAs are the integrity pins
+# (GitHub archives/clones are content-addressed by them).
+
+# Official buildscripts (NOT vendored; fetched in CI)
+MPV_ANDROID_SHA=c2e02fe111541e4063ab8f868bf629649ed937a3
+
+# git-tagged sources (shallow clone at tag)
+MPV_TAG=v0.41.0
+FFMPEG_BRANCH=n9.0
+DAV1D_TAG=1.5.4
+LIBASS_TAG=0.17.5
+LIBPLACEBO_TAG=v7.360.1
+
+# Versioned tarballs (from official depinfo.sh — unchanged)
+NDK=r30
+LUA=5.2.4
+UNIBREAK=8.0
+HARFBUZZ=14.5.0
+FRIBIDI=1.0.17
+FREETYPE=2-14-3
+MBEDTLS=3.6.7
+LIBXML2=2.15.4
+FONTCONFIG=2.18.3
+CURL=8.22.0
+SDK_PLATFORM=36
+
+# ABI map: buildscripts name -> Android ABI
+# arm64 -> arm64-v8a, armv7l -> armeabi-v7a, x86_64 -> x86_64
+
+# NDK for both native builds and app-side libc++_shared staging
+NDK_VERSION=30.0.16248370
+
+# First published release consumed by the app (tools/fetch_native.sh)
+NATIVE_RELEASE_TAG=native-20261008
