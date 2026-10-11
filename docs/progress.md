@@ -447,3 +447,16 @@
   `38084237468`, `38084903039`, `38084910400`, `38084917588`, `38084914706` (11/11 incl. S1 each).
   T1 `38083983156` green (3m06s).
 - UNVERIFIED-on-device: everything from prior entries still stands; plus S1-001 needs a regression test.
+
+## Guards + bughunt baseline (no app fixes yet)
+- Anti-no-op audit: E1–E9/S1 tests are clean (all `wait`/`takeScreenshot`/selectors asserted;
+  package via `context.packageName`, never hardcoded). Found + fixed: showcase/bughunt scripts hardcoded
+  the wrong package (`com.example.au_player`, now runtime-resolved); `run_e1.sh` had no testsuite-count
+  assert (vacuous green possible — added python count gate: tests>0, failures=errors=skipped=0);
+  `SmokeTest` was `assertTrue(true)` (now asserts our package owns the foreground).
+  New `tools/audit/fg_check.sh` (`assert_foreground`/`assert_process`) wired into bughunt/showcase/smoke scripts.
+- Bughunt baseline attempt 1 (`38104380585`, FAILED): home monkey aborted at event 528/20000 —
+  cause was a SYSTEM ANR (`NOT RESPONDING: googlequicksearchbox:search`, launcher input timeout under
+  swiftshader load), NOT our app (auplayer pid 3892 idle at 0% CPU, no FATAL/tombstone for our package).
+  Harness hardened (monkey `--ignore-crashes/timeouts/security-exceptions`; verdict stays with the
+  package-scoped logcat gate). Re-running for the real baseline.
