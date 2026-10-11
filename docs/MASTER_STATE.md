@@ -1,24 +1,26 @@
-# MASTER_STATE — single source of truth (updated every 30–45 min + after each phase)
+# MASTER_STATE — single source of truth
 
 ## Clock
-- Run start (T+0): 2026-10-11 ~03:45 UTC. Now: Phase A.
+- Run start (T+0): 2026-10-11 ~03:45 UTC. Now: Phase B mid (~T+17:00 wall, CI-parallelized).
 
 ## Phase
-- A setup IN PROGRESS (agents+skills created; visual.yml written; dossier kickoff next).
+- B IN PROGRESS. mihon-ci GREEN (assembleDebug): dep ports (flexible-adapter/davidea, imagedecoder v16, injekt kohesive + vendored registrar), rebrand (app.auplayer, AU Player, amber icon, About→repo), manifest strip, Videos/Web tabs, local-scan action.
+- mihon-visual running: Maestro tabs/scan/reader + contact sheet (run 38173282244).
 
 ## Done
-- `legacy-v1` tag pushed (old app archived).
-- Native engine artifacts present: release `native-20261009` (arm64/armv7l/x86_64 TGZ) — no rebuild needed.
-- S1-001 fix proven (5× emulator green); E1–E9+Smoke+S1 suite green.
+- Phase A gates: agents+skills, visual.yml green on legacy, dossier + gap-matrix seeded, recon (Mihon v0.20.4, REX usable primary).
+- legacy-v1 tag; native artifacts present (no rebuild).
+- mihon-line: clean object import (31beac7); working tree verified after a zero-byte corruption incident (rebuilt via git objects, no file copies).
 
 ## Next
-1. Commit Phase A files, dispatch visual skeleton run (trivial-app proof).
-2. Background: competitor dossier (Task agent) + Mihon/REX recon.
-3. Phase B: Mihon orphan branch, rebrand `app.auplayer`, strip online machinery, tabs, build + visual gate.
+1. View mihon-visual contact sheet → visual-log entries → fix Maestro texts if mismatched.
+2. Phase B gate: Library/series/reader pager/RTL/webtoon/History/More indistinguishable from Mihon.
+3. Promote to main at gate; Phase C (REX integration).
 
 ## Open defects
-- S2-001: WebView INTERNET crash (legacy app; dies with the old UI unless ported — Web tab rewrite covers it).
-- Showcase/bughunt scripts: fixed package resolution (done).
+- S2-001 (legacy WebView INTERNET crash) — dies with old UI.
+- Maestro texts guessed (More options/Scan/Chapters/Demo) — screenshots will confirm.
 
-## CI run ids
-- (append newest last; old ledger in docs/progress.md)
+## CI run ids (mihon-line)
+- mihon-ci 38172687343 green (4m01s, rebrand+tabs+scan).
+- mihon-visual 38173282244 running.
