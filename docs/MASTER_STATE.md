@@ -13,7 +13,7 @@
 - mihon-line: clean object import (31beac7); working tree verified after a zero-byte corruption incident (rebuilt via git objects, no file copies).
 
 ## Next
-1. Reader flow (run 38184988572): back-out + re-enter reads DB-cached chapters (fetch is async on first open).
+1. Reader flow (run 38185705246): DB dump tells whether chapters exist (fetch bug) or UI lags (timing).
 2. Phase B gate: full mihon-visual green (tabs/scan/reader) + contact sheet review.
 3. Promote to main at gate; Phase C (REX integration).
 
