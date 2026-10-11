@@ -13,7 +13,7 @@
 - mihon-line: clean object import (31beac7); working tree verified after a zero-byte corruption incident (rebuilt via git objects, no file copies).
 
 ## Next
-1. View mihon-visual contact sheet → visual-log entries → fix Maestro texts if mismatched.
+1. mihon-ci on scan diagnostics (import check), then mihon-visual: expect scan result in logcat.
 2. Phase B gate: Library/series/reader pager/RTL/webtoon/History/More indistinguishable from Mihon.
 3. Promote to main at gate; Phase C (REX integration).
 
