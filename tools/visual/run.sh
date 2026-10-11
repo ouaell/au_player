@@ -68,10 +68,11 @@ done
 
 echo "== collect maestro screenshots =="
 mkdir -p "$OUT/maestro"
-# Maestro drops takeScreenshot PNGs under the runner home (deep); gather
-# anything fresh, excluding caches and repo-bundled/generated images.
-find "$HOME" -name "*.png" -mmin -30 -not -path "*/.gradle/*" \
-  -exec cp {} "$OUT/maestro/" \; 2>/dev/null || true
+# Locate where this Maestro version drops takeScreenshot PNGs, then gather.
+find "$HOME/.maestro" /tmp -name "*.png" 2>/dev/null | head -20 || true
+find . -name "series-*.png" -o -name "scan-*.png" -o -name "tab-*.png" -o -name "library-*.png" -o -name "reader-*.png" 2>/dev/null | head -20 || true
+find "$HOME/.maestro" /tmp -name "*.png" -mmin -30 2>/dev/null -exec cp {} "$OUT/maestro/" \; || true
+find . -maxdepth 1 -name "series-*.png" -o -maxdepth 1 -name "scan-*.png" -o -maxdepth 1 -name "tab-*.png" -o -maxdepth 1 -name "library-*.png" -o -maxdepth 1 -name "reader-*.png" 2>/dev/null -exec cp {} "$OUT/maestro/" \; || true
 ls "$OUT/maestro" || true
 
 echo "== diagnostic shot (always, even on flow failure) =="
