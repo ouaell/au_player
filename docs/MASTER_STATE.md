@@ -13,8 +13,8 @@
 - mihon-line: clean object import (31beac7); working tree verified after a zero-byte corruption incident (rebuilt via git objects, no file copies).
 
 ## Next
-1. mihon-ci on scan diagnostics (import check), then mihon-visual: expect scan result in logcat.
-2. Phase B gate: Library/series/reader pager/RTL/webtoon/History/More indistinguishable from Mihon.
+1. Reader flow (run 38183445419): chapter row tap + reader page proof + Maestro shot dirs.
+2. Phase B gate: full mihon-visual green (tabs/scan/reader) + contact sheet review.
 3. Promote to main at gate; Phase C (REX integration).
 
 ## Open defects
