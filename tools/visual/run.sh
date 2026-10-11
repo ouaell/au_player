@@ -89,6 +89,18 @@ echo "== device stats (always) =="
 $ADB shell dumpsys meminfo "$PKG" > "$OUT/meminfo.txt" 2>&1 || true
 $ADB shell dumpsys gfxinfo "$PKG" > "$OUT/gfxinfo.txt" 2>&1 || true
 $ADB logcat -d > "$OUT/logcat.txt" 2>&1 || true
+echo "== db ground truth (chapters+mangas, best-effort) =="
+$ADB shell "run-as $PKG ls /data/data/$PKG/databases/" || true
+$ADB shell "run-as $PKG cat /data/data/$PKG/databases/tachiyomi.db" > "$OUT/tachiyomi.db" 2>/dev/null || true
+python3 - "$OUT/tachiyomi.db" <<'EOF' || true
+import sqlite3, sys
+try:
+    db = sqlite3.connect(sys.argv[1])
+    print("mangas:", db.execute("SELECT _id, title, favorite, source FROM mangas").fetchall())
+    print("chapters:", db.execute("SELECT _id, manga_id, name, read FROM chapters").fetchall())
+except Exception as e:
+    print("db unreadable:", e)
+EOF
 if grep -A4 'FATAL EXCEPTION' "$OUT/logcat.txt" | grep -q "$PKG"; then
   echo "E: java crash during visual" >&2; exit 1
 fi
