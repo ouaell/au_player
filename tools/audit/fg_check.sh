@@ -20,6 +20,25 @@ assert_foreground() {
   return 0
 }
 
+# Polling variant for slow cold starts (first launch + onboarding on
+# swiftshader can take a minute). Fails after $2 seconds (default 30).
+wait_foreground() {
+  pkg="$1"
+  timeout_s="${2:-30}"
+  waited=0
+  while [ "$waited" -lt "$timeout_s" ]; do
+    if assert_foreground "$pkg" >/dev/null 2>&1; then
+      assert_foreground "$pkg"
+      return 0
+    fi
+    sleep 2
+    waited=$((waited + 2))
+  done
+  echo "E: $pkg never foregrounded within ${timeout_s}s" >&2
+  adb shell dumpsys window 2>/dev/null | grep -a mCurrentFocus | head -1 || true
+  return 1
+}
+
 # Lighter variant for hostile inputs (system chooser/error UI may own the
 # foreground): the process must still be alive.
 assert_process() {

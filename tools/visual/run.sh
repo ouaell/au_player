@@ -33,8 +33,7 @@ $ADB shell mkdir -p "$LOCALDIR" || true
 
 echo "== cold-start timing =="
 $ADB shell am start -W -a android.intent.action.MAIN -n "$PKG/eu.kanade.tachiyomi.ui.main.MainActivity" 2>&1 | tee "$OUT/coldstart.txt" || true
-sleep 3
-assert_foreground "$PKG"
+wait_foreground "$PKG" 120
 
 echo "== maestro flows =="
 FAIL=0
@@ -51,8 +50,7 @@ done
 
 echo "== labelled screenshots =="
 launch_app
-sleep 3
-assert_foreground "$PKG"
+wait_foreground "$PKG" 60
 $ADB exec-out screencap -p > "$OUT/shots/01-tabs.png"
 for shot in "$OUT"/shots/*.png; do
   [ -s "$shot" ] || { echo "E: missing shot $shot"; exit 1; }
