@@ -7,5 +7,6 @@ appId: app.auplayer.debug
 - assertVisible: "Demo"
 - tapOn: "Demo"
 - takeScreenshot: series-before-chapters
-- assertVisible: "Chapters"
-- takeScreenshot: series-demo
+- assertVisible: "1 chapter"
+- tapOn: "1 chapter"
+- takeScreenshot: reader-page
