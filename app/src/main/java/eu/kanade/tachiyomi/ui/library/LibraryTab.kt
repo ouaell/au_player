@@ -134,6 +134,17 @@ data object LibraryTab : Tab {
                             }
                         }
                     },
+                    onClickScanLocal = {
+                        scope.launch {
+                            val added = viewModel.scanLocalSource()
+                            val message = if (added >= 0) {
+                                context.stringResource(MR.strings.scan_local_added, added)
+                            } else {
+                                context.stringResource(MR.strings.scan_local_failed)
+                            }
+                            snackbarHostState.showSnackbar(message)
+                        }
+                    },
                     searchQuery = state.searchQuery,
                     onSearchQueryChange = viewModel::search,
                     // For scroll overlay when no tab

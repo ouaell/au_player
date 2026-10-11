@@ -37,12 +37,14 @@ import kotlinx.coroutines.flow.updateAndGet
 import mihon.core.common.utils.mutate
 import mihon.core.viewmodel.StateViewModel
 import mihon.domain.library.model.search.QueryNode
+import mihon.domain.manga.model.toDomainManga
 import mihon.feature.library.matches
 import tachiyomi.core.common.preference.CheckboxState
 import tachiyomi.core.common.preference.TriState
 import tachiyomi.core.common.util.lang.compareToWithCollator
 import tachiyomi.core.common.util.lang.launchIO
 import tachiyomi.core.common.util.lang.launchNonCancellable
+import tachiyomi.core.common.util.lang.withIOContext
 import tachiyomi.domain.category.interactor.GetCategories
 import tachiyomi.domain.category.interactor.SetMangaCategories
 import tachiyomi.domain.category.model.Category
@@ -56,12 +58,15 @@ import tachiyomi.domain.library.model.LibrarySort
 import tachiyomi.domain.library.model.sort
 import tachiyomi.domain.library.service.LibraryPreferences
 import tachiyomi.domain.manga.interactor.GetLibraryManga
+import tachiyomi.domain.manga.interactor.GetMangaByUrlAndSourceId
 import tachiyomi.domain.manga.model.Manga
 import tachiyomi.domain.manga.model.MangaUpdate
 import tachiyomi.domain.manga.model.applyFilter
+import tachiyomi.domain.manga.repository.MangaRepository
 import tachiyomi.domain.source.service.SourceManager
 import tachiyomi.domain.track.interactor.GetTracksPerManga
 import tachiyomi.domain.track.model.Track
+import tachiyomi.source.local.LocalSource
 import tachiyomi.source.local.isLocal
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
@@ -82,6 +87,8 @@ class LibraryViewModel(
     private val libraryPreferences: LibraryPreferences = Injekt.get(),
     private val coverCache: CoverCache = Injekt.get(),
     private val sourceManager: SourceManager = Injekt.get(),
+    private val getMangaByUrlAndSourceId: GetMangaByUrlAndSourceId = Injekt.get(),
+    private val mangaRepository: MangaRepository = Injekt.get(),
     private val downloadManager: DownloadManager = Injekt.get(),
     private val downloadCache: DownloadCache = Injekt.get(),
     private val trackerManager: TrackerManager = Injekt.get(),
@@ -610,6 +617,31 @@ class LibraryViewModel(
     fun getRandomLibraryItemForCurrentCategory(): LibraryItem? {
         val state = state.value
         return state.getItemsForCategoryId(state.activeCategory?.id).randomOrNull()
+    }
+
+    /**
+     * Scans the Local source directory and adds every found series to the
+     * library using Mihon's own use-cases. Returns the added count, or -1 on
+     * failure (caller shows the snackbar).
+     */
+    suspend fun scanLocalSource(): Int = withIOContext {
+        try {
+            val source = sourceManager.get(LocalSource.ID) as? LocalSource ?: return@withIOContext -1
+            var added = 0
+            for (item in source.getPopularManga(1).mangas) {
+                val existing = getMangaByUrlAndSourceId.await(item.url, LocalSource.ID)
+                val manga = existing
+                    ?: mangaRepository.insertNetworkManga(listOf(item.toDomainManga(LocalSource.ID)))
+                        .firstOrNull()
+                    ?: continue
+                if (!manga.favorite && updateManga.awaitUpdateFavorite(manga.id, true)) {
+                    added++
+                }
+            }
+            added
+        } catch (_: Exception) {
+            -1
+        }
     }
 
     fun showSettingsDialog() {
