@@ -17,6 +17,13 @@ PKG=$( $ADB shell pm list packages 2>/dev/null | grep auplayer | head -1 | tr -d
 [ -n "$PKG" ] || { echo "visual: auplayer package not installed"; exit 1; }
 echo "visual: package=$PKG"
 
+launch_app() {
+  # Explicit-component launches (-n $PKG/.X) resolve .X against the PACKAGE,
+  # which is wrong when the activity lives in another namespace (Mihon) or
+  # the package has a flavor suffix. Launcher-category launch always works.
+  $ADB shell monkey -p "$PKG" -c android.intent.category.LAUNCHER 1
+}
+
 echo "== seed local series =="
 sh tools/gen_corpus.sh visual-corpus >/dev/null 2>&1 || true
 CBZ=$(ls visual-corpus/*.cbz visual-corpus/*.zip 2>/dev/null | head -1 || true)
@@ -25,22 +32,25 @@ $ADB shell mkdir -p "$LOCALDIR" || true
 [ -n "$CBZ" ] && $ADB push "$CBZ" "$LOCALDIR/ch1.cbz" || true
 
 echo "== cold-start timing =="
-$ADB shell am start -W -a android.intent.action.MAIN -n "$PKG/.MainActivity" 2>&1 | tee "$OUT/coldstart.txt" || true
+$ADB shell am start -W -a android.intent.action.MAIN -n "$PKG/eu.kanade.tachiyomi.ui.main.MainActivity" 2>&1 | tee "$OUT/coldstart.txt" || true
 sleep 3
 assert_foreground "$PKG"
 
 echo "== maestro flows =="
 FAIL=0
+mkdir -p "$OUT/flows"
 for flow in maestro/mihon/*.yaml; do
   name=$(basename "$flow" .yaml)
   case "$FILTER" in ""|*"$name"*) ;; *) continue ;; esac
   echo "--- flow: $name ---"
-  maestro test --format junit --output "$OUT/junit-$name.xml" "$flow" || FAIL=1
+  # Pin the resolved package id (flavor suffixes vary by build type).
+  sed "s/^appId: .*/appId: $PKG/" "$flow" > "$OUT/flows/$name.yaml"
+  maestro test --format junit --output "$OUT/junit-$name.xml" "$OUT/flows/$name.yaml" || FAIL=1
 done
 [ "$FAIL" -eq 0 ] || { echo "E: maestro flow failed"; exit 1; }
 
 echo "== labelled screenshots =="
-$ADB shell am start -a android.intent.action.MAIN -n "$PKG/.MainActivity"
+launch_app
 sleep 3
 assert_foreground "$PKG"
 $ADB exec-out screencap -p > "$OUT/shots/01-tabs.png"
