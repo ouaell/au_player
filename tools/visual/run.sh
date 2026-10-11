@@ -17,6 +17,14 @@ PKG=$( $ADB shell pm list packages 2>/dev/null | grep auplayer | head -1 | tr -d
 [ -n "$PKG" ] || { echo "visual: auplayer package not installed"; exit 1; }
 echo "visual: package=$PKG"
 
+echo "== storage access for headless runs =="
+# Real users pick a SAF tree in onboarding StorageStep. Headless CI cannot
+# drive the system folder picker, so grant the equivalent directly (test
+# scaffolding only; the SAF flow itself is untouched product code).
+$ADB shell appops set "$PKG" MANAGE_EXTERNAL_STORAGE allow || true
+$ADB shell appops set "$PKG" READ_MEDIA_IMAGES allow || true
+$ADB shell appops set "$PKG" READ_MEDIA_VIDEO allow || true
+
 echo "== pre-seed prefs (skip first-run onboarding; SAF/permission steps can't run headless) =="
 printf '%s' '<?xml version="1.0" encoding="utf-8" standalone="yes" ?><map><boolean name="__APP_STATE_onboarding_complete" value="true" /></map>' > "$OUT/prefs.xml"
 $ADB shell "run-as $PKG mkdir -p /data/data/$PKG/shared_prefs"
