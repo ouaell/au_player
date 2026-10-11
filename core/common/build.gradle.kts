@@ -33,6 +33,9 @@ dependencies {
 
     implementation(libs.image.decoder)
 
+    // Patched DI registrar lives here (dev.mihon.injekt)
+    implementation(libs.injekt)
+
     implementation(libs.unifile)
     implementation(libs.archive)
 

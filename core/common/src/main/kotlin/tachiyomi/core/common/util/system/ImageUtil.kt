@@ -21,13 +21,12 @@ import androidx.core.graphics.drawable.toDrawable
 import androidx.core.graphics.get
 import androidx.core.graphics.green
 import androidx.core.graphics.red
+import ca.mpreg.imagedecoder.ImageDecoder
 import com.hippo.unifile.UniFile
 import eu.kanade.tachiyomi.util.system.GLUtil
 import logcat.LogPriority
 import okio.Buffer
 import okio.BufferedSource
-import tachiyomi.decoder.Format
-import tachiyomi.decoder.ImageDecoder
 import java.io.InputStream
 import java.util.Locale
 import kotlin.math.abs
@@ -49,14 +48,16 @@ object ImageUtil {
 
     fun findImageType(stream: InputStream): ImageType? {
         return try {
-            when (getImageType(stream)?.format) {
-                Format.Avif -> ImageType.AVIF
-                Format.Gif -> ImageType.GIF
-                Format.Heif -> ImageType.HEIF
-                Format.Jpeg -> ImageType.JPEG
-                Format.Jxl -> ImageType.JXL
-                Format.Png -> ImageType.PNG
-                Format.Webp -> ImageType.WEBP
+            val format = ImageDecoder.open(stream).use { dec -> dec.format }
+            when (format) {
+                ImageDecoder.Format.AVIF -> ImageType.AVIF
+                ImageDecoder.Format.GIF -> ImageType.GIF
+                ImageDecoder.Format.HEIF -> ImageType.HEIF
+                ImageDecoder.Format.JPEG -> ImageType.JPEG
+                ImageDecoder.Format.JP2 -> ImageType.JP2
+                ImageDecoder.Format.JXL -> ImageType.JXL
+                ImageDecoder.Format.PNG -> ImageType.PNG
+                ImageDecoder.Format.WEBP -> ImageType.WEBP
                 else -> null
             }
         } catch (e: Exception) {
@@ -71,36 +72,21 @@ object ImageUtil {
 
     fun isAnimatedAndSupported(source: BufferedSource): Boolean {
         return try {
-            val type = getImageType(source.peek().inputStream()) ?: return false
-            // https://coil-kt.github.io/coil/getting_started/#supported-image-formats
-            when (type.format) {
-                Format.Gif -> true
-                // Animated WebP on Android 9+
-                Format.Webp -> type.isAnimated && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
-                // Animated Heif on Android 11+
-                Format.Heif -> type.isAnimated && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
-                else -> false
+            ImageDecoder.open(source.peek().inputStream()).use { dec ->
+                when (dec.format) {
+                    ImageDecoder.Format.GIF -> true
+                    // Animated WebP on Android 9+
+                    ImageDecoder.Format.WEBP ->
+                        dec.pages > 1 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
+                    // Animated Heif on Android 11+
+                    ImageDecoder.Format.HEIF ->
+                        dec.pages > 1 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+                    else -> false
+                }
             }
         } catch (e: Exception) {
             false
         }
-    }
-
-    private fun getImageType(stream: InputStream): tachiyomi.decoder.ImageType? {
-        val bytes = ByteArray(32)
-
-        val length = if (stream.markSupported()) {
-            stream.mark(bytes.size)
-            stream.read(bytes, 0, bytes.size).also { stream.reset() }
-        } else {
-            stream.read(bytes, 0, bytes.size)
-        }
-
-        if (length == -1) {
-            return null
-        }
-
-        return ImageDecoder.findType(bytes)
     }
 
     enum class ImageType(val mime: String, val extension: String) {
@@ -108,6 +94,7 @@ object ImageUtil {
         GIF("image/gif", "gif"),
         HEIF("image/heif", "heif"),
         JPEG("image/jpeg", "jpg"),
+        JP2("image/jp2", "jp2"),
         JXL("image/jxl", "jxl"),
         PNG("image/png", "png"),
         WEBP("image/webp", "webp"),
@@ -333,9 +320,20 @@ object ImageUtil {
      * Algorithm for determining what background to accompany a comic/manga page
      */
     fun chooseBackground(context: Context, imageStream: InputStream): Drawable {
-        val decoder = ImageDecoder.newInstance(imageStream)
-        val image = decoder?.decode()
-        decoder?.recycle()
+        val image = try {
+            ImageDecoder.open(imageStream).use { it.decodeNext() to it.isHdr }.let { (res, hdr) ->
+                res.use {
+                    val config = if (hdr) Bitmap.Config.RGBA_F16 else Bitmap.Config.ARGB_8888
+                    createBitmap(res.width, res.height, config).also { bitmap ->
+                        res.image.rewind()
+                        bitmap.copyPixelsFromBuffer(res.image)
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            logcat(LogPriority.ERROR) { "chooseBackground: ${e.message}" }
+            null
+        }
 
         val whiteColor = Color.WHITE
         if (image == null) return whiteColor.toDrawable()
