@@ -46,6 +46,10 @@ for flow in maestro/mihon/*.yaml; do
   sed "s/^appId: .*/appId: $PKG/" "$flow" > "$OUT/flows/$name.yaml"
   maestro test --format junit --output "$OUT/junit-$name.xml" "$OUT/flows/$name.yaml" || FAIL=1
 done
+[ "$FAIL" -eq 0 ] || echo "E: a maestro flow failed (see junit + diag shot)"
+
+echo "== diagnostic shot (always, even on flow failure) =="
+$ADB exec-out screencap -p > "$OUT/shots/00-diag.png" || true
 [ "$FAIL" -eq 0 ] || { echo "E: maestro flow failed"; exit 1; }
 
 echo "== labelled screenshots =="
