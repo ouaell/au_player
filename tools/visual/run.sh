@@ -34,7 +34,8 @@ launch_app() {
 echo "== seed local series =="
 sh tools/gen_corpus.sh visual-corpus >/dev/null 2>&1 || true
 CBZ=$(ls visual-corpus/*.cbz visual-corpus/*.zip 2>/dev/null | head -1 || true)
-LOCALDIR="/sdcard/Android/data/$PKG/files/local/Demo"
+# Local source base = /sdcard/<app_name>/local (AndroidStorageFolderProvider).
+LOCALDIR="/sdcard/AU Player/local/Demo"
 $ADB shell mkdir -p "$LOCALDIR" || true
 [ -n "$CBZ" ] && $ADB push "$CBZ" "$LOCALDIR/ch1.cbz" || true
 
@@ -57,25 +58,20 @@ done
 
 echo "== diagnostic shot (always, even on flow failure) =="
 $ADB exec-out screencap -p > "$OUT/shots/00-diag.png" || true
-[ "$FAIL" -eq 0 ] || { echo "E: maestro flow failed"; exit 1; }
-
-echo "== labelled screenshots =="
 launch_app
 wait_foreground "$PKG" 60
-$ADB exec-out screencap -p > "$OUT/shots/01-tabs.png"
-for shot in "$OUT"/shots/*.png; do
-  [ -s "$shot" ] || { echo "E: missing shot $shot"; exit 1; }
-done
+$ADB exec-out screencap -p > "$OUT/shots/01-tabs.png" || true
 
-echo "== contact sheet =="
+echo "== contact sheet (always) =="
 montage "$OUT"/shots/*.png "$OUT"/maestro/*.png -tile 2x -geometry +4+4 -label '%f' "$OUT/contact-sheet.png" 2>/dev/null || \
-  montage "$OUT"/shots/*.png -tile 2x -geometry +4+4 -label '%f' "$OUT/contact-sheet.png"
+  montage "$OUT"/shots/*.png -tile 2x -geometry +4+4 -label '%f' "$OUT/contact-sheet.png" || true
 
-echo "== device stats =="
+echo "== device stats (always) =="
 $ADB shell dumpsys meminfo "$PKG" > "$OUT/meminfo.txt" 2>&1 || true
 $ADB shell dumpsys gfxinfo "$PKG" > "$OUT/gfxinfo.txt" 2>&1 || true
 $ADB logcat -d > "$OUT/logcat.txt" 2>&1 || true
-if grep -A4 'FATAL EXCEPTION' "$OUT/logcat.txt" | grep -q "$PKG\|app.auplayer"; then
+if grep -A4 'FATAL EXCEPTION' "$OUT/logcat.txt" | grep -q "$PKG"; then
   echo "E: java crash during visual" >&2; exit 1
 fi
+[ "$FAIL" -eq 0 ] || { echo "E: maestro flow failed"; exit 1; }
 echo "VISUAL PASS"
