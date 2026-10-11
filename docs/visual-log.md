@@ -16,6 +16,12 @@
 - Library tab shows the "Demo" card (local-folder badge) after overflow → "Scan local folder".
   The scan action works end-to-end (seed CBZ → scan → library entry). Bottom nav rebranded.
 - Earlier scan-assert failures were snackbar exact-text timing, not function (reader flow proved
-  Demo appears). Chapter header shows plural "1 chapter", not "Chapters" — flow fixed.
+  Demo appears).
 - Earlier root causes, both fixed: (1) seed CBZ pushed to wrong dir (adb space-split; fixed +
   verified with ls); (2) correct local base is /sdcard/AU Player/local (uses app_name).
+
+## 2026-10-11 — Demo series screen: "0 chapters" (mihon-visual 38182752074)
+- MangaScreen for the scanned Demo shows title/author/Local-source/"In library" — but chapter list
+  shows "0 chapters" at screenshot time. Either slow async chapter load on swiftshader or a real
+  listing failure. Gave the chapter assert a 60 s timeout; the reader-page screenshot will decide.
+- Maestro shots now collected from $HOME/.maestro (numbered 1.png…); repo-bundled PNGs excluded.
