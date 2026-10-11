@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">Mihon</string>
+    <string name="app_name" translatable="false">AU Player</string>
+
+    <!-- AU Player areas -->
+    <string name="videos_tab">Videos</string>
+    <string name="web_tab">Web</string>
+    <string name="videos_empty">Your videos will live here — folders, continue watching and search arrive with the player.</string>
+    <string name="web_empty">The in-app browser lives here — open any page and read it as a series.</string>
 
     <!-- Generic strings -->
     <string name="on">On</string>
