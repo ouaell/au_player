@@ -34,6 +34,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.updateAndGet
+import logcat.LogPriority
+import logcat.logcat
 import mihon.core.common.utils.mutate
 import mihon.core.viewmodel.StateViewModel
 import mihon.domain.library.model.search.QueryNode
@@ -627,8 +629,10 @@ class LibraryViewModel(
     suspend fun scanLocalSource(): Int = withIOContext {
         try {
             val source = sourceManager.get(LocalSource.ID) as? LocalSource ?: return@withIOContext -1
+            val listed = source.getPopularManga(1).mangas
+            logcat(LogPriority.DEBUG) { "scanLocal: listed=${listed.size}" }
             var added = 0
-            for (item in source.getPopularManga(1).mangas) {
+            for (item in listed) {
                 val existing = getMangaByUrlAndSourceId.await(item.url, LocalSource.ID)
                 val manga = existing
                     ?: mangaRepository.insertNetworkManga(listOf(item.toDomainManga(LocalSource.ID)))
@@ -638,8 +642,10 @@ class LibraryViewModel(
                     added++
                 }
             }
+            logcat(LogPriority.DEBUG) { "scanLocal: added=$added" }
             added
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            logcat(LogPriority.ERROR, e)
             -1
         }
     }
