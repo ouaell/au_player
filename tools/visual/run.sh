@@ -68,8 +68,11 @@ done
 
 echo "== collect maestro screenshots =="
 mkdir -p "$OUT/maestro"
-# Maestro drops takeScreenshot PNGs under the working tree; gather fresh ones.
-find . -maxdepth 3 -name "*.png" -mmin -40 -not -path "./fastlane/*" -exec cp {} "$OUT/maestro/" \; 2>/dev/null || true
+# Maestro drops takeScreenshot PNGs outside the repo tree (home/tmp); gather
+# anything fresh, excluding repo-bundled images and our own generated corpus.
+find "$HOME" /tmp . -maxdepth 4 -name "*.png" -mmin -25 \
+  -not -path "./fastlane/*" -not -path "./.github/*" -not -path "*visual-corpus*" \
+  -exec cp {} "$OUT/maestro/" \; 2>/dev/null || true
 ls "$OUT/maestro" || true
 
 echo "== diagnostic shot (always, even on flow failure) =="
