@@ -17,6 +17,13 @@ PKG=$( $ADB shell pm list packages 2>/dev/null | grep auplayer | head -1 | tr -d
 [ -n "$PKG" ] || { echo "visual: auplayer package not installed"; exit 1; }
 echo "visual: package=$PKG"
 
+echo "== pre-seed prefs (skip first-run onboarding; SAF/permission steps can't run headless) =="
+printf '%s' '<?xml version="1.0" encoding="utf-8" standalone="yes" ?><map><boolean name="__APP_STATE_onboarding_complete" value="true" /></map>' > "$OUT/prefs.xml"
+$ADB shell "run-as $PKG mkdir -p /data/data/$PKG/shared_prefs"
+PREFS_PATH="/data/data/$PKG/shared_prefs/${PKG}_preferences.xml"
+cat "$OUT/prefs.xml" | $ADB shell "run-as $PKG sh -c 'cat > $PREFS_PATH'"
+$ADB shell "run-as $PKG cat $PREFS_PATH"
+
 launch_app() {
   # Explicit-component launches (-n $PKG/.X) resolve .X against the PACKAGE,
   # which is wrong when the activity lives in another namespace (Mihon) or
