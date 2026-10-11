@@ -1,0 +1,10 @@
+appId: app.auplayer.debug
+---
+- launchApp
+- assertVisible: "Library"
+- tapOn: "More options"
+- tapOn: "Scan local folder"
+- assertVisible: "Demo"
+- tapOn: "Demo"
+- assertVisible: "Chapters"
+- takeScreenshot: series-demo

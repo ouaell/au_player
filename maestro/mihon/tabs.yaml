@@ -1,0 +1,17 @@
+appId: app.auplayer.debug
+---
+- launchApp
+- assertVisible: "Library"
+- takeScreenshot: tab-library
+- tapOn: "Videos"
+- assertVisible: "Videos"
+- takeScreenshot: tab-videos
+- tapOn: "History"
+- assertVisible: "History"
+- takeScreenshot: tab-history
+- tapOn: "Web"
+- assertVisible: "Web"
+- takeScreenshot: tab-web
+- tapOn: "More"
+- assertVisible: "More"
+- takeScreenshot: tab-more
