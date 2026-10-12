@@ -74,12 +74,46 @@ done
 
 echo "== collect maestro screenshots =="
 mkdir -p "$OUT/maestro"
-# Locate where this Maestro version drops takeScreenshot PNGs, then gather.
-find "$HOME/.maestro" /tmp -name "*.png" 2>/dev/null | head -20 || true
-find . -name "series-*.png" -o -name "scan-*.png" -o -name "tab-*.png" -o -name "library-*.png" -o -name "reader-*.png" 2>/dev/null | head -20 || true
-find "$HOME/.maestro" /tmp -name "*.png" -mmin -30 2>/dev/null -exec cp {} "$OUT/maestro/" \; || true
-find . -maxdepth 1 -name "series-*.png" -o -maxdepth 1 -name "scan-*.png" -o -maxdepth 1 -name "tab-*.png" -o -maxdepth 1 -name "library-*.png" -o -maxdepth 1 -name "reader-*.png" 2>/dev/null -exec cp {} "$OUT/maestro/" \; || true
+# Maestro drops takeScreenshot PNGs under $HOME/.maestro (deep). The repo itself
+# lives under $HOME/work — exclude it (fastlane art, corpus fixtures).
+find "$HOME/.maestro" /tmp -name "*.png" -mmin -30 -not -path "*/work/*" \
+  -exec cp {} "$OUT/maestro/" \; 2>/dev/null || true
 ls "$OUT/maestro" || true
+
+echo "== reader render proof (adb shot after settle + pixel variance) =="
+case "$FILTER" in
+  ""|*reader*)
+    $ADB exec-out screencap -p > "$OUT/shots/reader-settled.png" || true
+    python3 - "$OUT/shots/reader-settled.png" <<'EOF'
+import struct, sys, zlib
+path = sys.argv[1]
+data = open(path, "rb").read()
+assert data[:8] == b"\x89PNG\r\n\x1a\n", "not a png"
+pos, w, h, ctype, idat = 8, 0, 0, None, b""
+while pos < len(data):
+    (ln,) = struct.unpack(">I", data[pos:pos + 4])
+    typ = data[pos + 4:pos + 8]
+    chunk = data[pos + 8:pos + 8 + ln]
+    if typ == b"IHDR":
+        w, h, _, ctype, _, _, _ = struct.unpack(">IIBBBBB", chunk)
+    elif typ == b"IDAT":
+        idat += chunk
+    pos += 12 + ln
+raw = zlib.decompress(idat)
+ch = 3 if ctype == 2 else 4
+stride = w * ch + 1
+n = len(raw) // stride
+step = max(1, n // 20000)
+px = [raw[i * stride + 1:i * stride + 1 + ch] for i in range(0, n, step)]
+lum = [0.299 * p[0] + 0.587 * p[1] + 0.114 * p[2] for p in px]
+mean = sum(lum) / len(lum)
+var = sum((v - mean) ** 2 for v in lum) / len(lum)
+print(f"reader-settled: {w}x{h} mean={mean:.1f} var={var:.1f}")
+assert var > 30.0, "reader frame near-uniform (blank/black page?)"
+print("E: reader pixels ok")
+EOF
+    ;;
+esac
 
 echo "== diagnostic shot (always, even on flow failure) =="
 $ADB exec-out screencap -p > "$OUT/shots/00-diag.png" || true
