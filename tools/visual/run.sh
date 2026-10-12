@@ -55,6 +55,29 @@ if [ -n "$CBZ" ]; then
 fi
 $ADB shell "run-as $PKG sh -c 'ls -l $SEEDBASE/local/Demo'"
 
+echo "== seed a MediaStore video (the emulator ships with none) =="
+# A generated clip, not a checked-in binary: keeps the repo small and makes the
+# fixture reproducible. Needs a real H.264 stream for hwdec/mediacodec to be
+# exercised at all.
+ffmpeg -y -f lavfi -i "testsrc2=size=640x360:rate=24:duration=8" \
+  -f lavfi -i "sine=frequency=440:duration=8" \
+  -c:v libx264 -pix_fmt yuv420p -preset veryfast -c:a aac -shortest \
+  "$OUT/Sample Clip.mp4" >/dev/null 2>&1 || {
+    echo "E: ffmpeg could not generate the sample clip"; exit 1; }
+$ADB push "$OUT/Sample Clip.mp4" /sdcard/Movies/ >/dev/null
+# The scanner indexes on its own schedule; nudge it and wait for the row.
+$ADB shell "content call --uri content://media/external/video/media --method scan_volume --arg external" >/dev/null 2>&1 || true
+$ADB shell am broadcast -a android.intent.action.MEDIA_MOUNTED \
+  -d file:///sdcard >/dev/null 2>&1 || true
+i=0
+until $ADB shell content query --uri content://media/external/video/media \
+  --projection _display_name 2>/dev/null | grep -q "Sample Clip"; do
+  i=$((i + 1))
+  [ "$i" -lt 30 ] || { echo "E: sample video never entered MediaStore"; exit 1; }
+  sleep 2
+done
+echo "visual: MediaStore seeded with Sample Clip"
+
 echo "== cold-start timing =="
 $ADB shell am start -W -a android.intent.action.MAIN -n "$PKG/eu.kanade.tachiyomi.ui.main.MainActivity" 2>&1 | tee "$OUT/coldstart.txt" || true
 wait_foreground "$PKG" 120
@@ -117,7 +140,37 @@ EOF
     ;;
 esac
 
-echo "== diagnostic shot (always, even on flow failure) =="
+echo "== player render proof (video frame, not a black surface) =="
+case "$FILTER" in
+  ""|*videos*)
+    PLAYER_SHOTS=$(ls -t "$OUT"/maestro/player-frame*.png 2>/dev/null || true)
+    [ -n "$PLAYER_SHOTS" ] || { echo "E: no player-frame Maestro shots collected"; exit 1; }
+    PASS=0
+    for shot in $PLAYER_SHOTS; do
+      # A black player is the failure mode that matters: mpv can come up,
+      # accept the loadfile and still present nothing. Requiring real pixel
+      # variance catches that where a UI assert cannot.
+      if python3 - "$shot" <<'EOF'
+import sys
+try:
+    from PIL import Image, ImageStat
+except ImportError:
+    print("Pillow missing")
+    sys.exit(2)
+img = Image.open(sys.argv[1]).convert("RGB")
+st = ImageStat.Stat(img)
+mean = sum(st.mean) / 3
+std = (sum(v * v for v in st.stddev) / 3) ** 0.5
+print(f"player: {sys.argv[1]} {img.size[0]}x{img.size[1]} mean={mean:.1f} std={std:.1f}")
+sys.exit(0 if (mean > 25.0 and std > 20.0) else 1)
+EOF
+      then
+        PASS=1
+      fi
+    done
+    [ "$PASS" -eq 1 ] || { echo "E: player surface is black in every frame"; exit 1; }
+    ;;
+esac
 
 echo "== diagnostic shot (always, even on flow failure) =="
 $ADB exec-out screencap -p > "$OUT/shots/00-diag.png" || true

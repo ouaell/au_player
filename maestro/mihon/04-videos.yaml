@@ -1,0 +1,19 @@
+appId: app.auplayer.debug
+---
+- launchApp
+- assertVisible: "Library"
+- tapOn: "Videos"
+# MediaStore is seeded by tools/visual/run.sh before this flow runs.
+- extendedWaitUntil:
+    visible: "Sample Clip"
+    timeout: 20000
+- takeScreenshot: videos-library
+- tapOn: "Sample Clip"
+# Controls carry text labels (Pause / time), so UiAutomator can see them
+# without relying on icon nodes, which proved flaky under swiftshader.
+- extendedWaitUntil:
+    visible: "Pause|Pause.*"
+    timeout: 30000
+- takeScreenshot: player-frame-a
+- takeScreenshot: player-frame-b
+- takeScreenshot: player-frame-c
