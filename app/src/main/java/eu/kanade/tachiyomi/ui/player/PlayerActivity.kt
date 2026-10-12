@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.getValue
@@ -15,10 +16,10 @@ import app.auplayer.aucore.Diag
 import app.auplayer.enhance.EnhanceController
 import app.auplayer.player.LibmpvBridge
 import app.auplayer.player.MpvPaths
+import app.auplayer.player.MpvNative
 import app.auplayer.player.PlayerEngine
 import app.auplayer.player.PlayerHandle
 import app.auplayer.player.PlayerScreen
-import app.auplayer.player.applyStartup
 
 /**
  * Full-screen video playback.
@@ -42,14 +43,28 @@ class PlayerActivity : ComponentActivity() {
             return
         }
 
+        if (!MpvNative.load()) {
+            // Without native there is nothing to show but a black rectangle.
+            // Say so and leave, instead of pretending playback started.
+            Log.e(TAG, "native libmpv unavailable: ${MpvNative.lastError}")
+            Toast.makeText(
+                this,
+                "Video playback is unavailable on this build",
+                Toast.LENGTH_LONG,
+            ).show()
+            finish()
+            return
+        }
+
         val paths = MpvPaths(
             configDir = cacheDir,
             cacheDir = cacheDir,
             filesDir = filesDir,
         )
         val bridge = LibmpvBridge(paths)
-        applyStartup(bridge, paths)
-
+        // Startup options are NOT applied here: LibmpvBridge.init() does that
+        // itself, after loading the native library and creating the mpv handle.
+        // Calling it before that would call into an unloaded library.
         val created = PlayerEngine(bridge)
         engine = created
         Diag.record("player", "activity created for $uri")
