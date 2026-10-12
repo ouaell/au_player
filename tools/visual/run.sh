@@ -115,10 +115,10 @@ px = [raw[i * stride + 1:i * stride + 1 + ch] for i in range(0, n, step)]
 lum = [0.299 * p[0] + 0.587 * p[1] + 0.114 * p[2] for p in px]
 mean = sum(lum) / len(lum)
 var = sum((v - mean) ** 2 for v in lum) / len(lum)
-    print(f"reader-settled: {w}x{h} mean={mean:.1f} var={var:.1f}")
-    assert mean > 40.0, "frame too dark (screen off? blank reader?)"
-    assert var > 30.0, "reader frame near-uniform (blank/black page?)"
-    print("E: reader pixels ok")
+print(f"reader-settled: {w}x{h} mean={mean:.1f} var={var:.1f}")
+assert mean > 40.0, "frame too dark (screen off? blank reader?)"
+assert var > 30.0, "reader frame near-uniform (blank/black page?)"
+print("E: reader pixels ok")
 EOF
     ;;
 esac
