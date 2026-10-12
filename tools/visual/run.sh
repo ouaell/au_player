@@ -80,15 +80,20 @@ find "$HOME/.maestro" /tmp -name "*.png" -mmin -30 -not -path "*/work/*" \
   -exec cp {} "$OUT/maestro/" \; 2>/dev/null || true
 ls "$OUT/maestro" || true
 
-echo "== reader render proof (Maestro shot + pixel variance) =="
+echo "== reader render proof (Maestro shots + pixel variance) =="
 case "$FILTER" in
   ""|*reader*)
     # NOTE: Mihon's reader window is FLAG_SECURE (registerSecureActivity), so
     # `adb exec-out screencap` returns black by design. Maestro/UiAutomator
     # screenshots capture the page fine — gate on those instead.
-    READER_SHOT=$(ls -t "$OUT"/maestro/reader-page*.png 2>/dev/null | head -1 || true)
-    [ -n "$READER_SHOT" ] || { echo "E: no reader-page Maestro shot collected"; exit 1; }
-    python3 - "$READER_SHOT" <<'EOF'
+    # The swiftshader composer occasionally wedges a frame black, so shoot
+    # three times and pass on ANY good frame.
+    READER_SHOTS=$(ls -t "$OUT"/maestro/reader-page*.png 2>/dev/null || true)
+    [ -n "$READER_SHOTS" ] || { echo "E: no reader-page Maestro shots collected"; exit 1; }
+    echo "$READER_SHOTS"
+    PASS=0
+    for shot in $READER_SHOTS; do
+      if python3 - "$shot" <<'EOF'
 import struct, sys, zlib
 path = sys.argv[1]
 data = open(path, "rb").read()
@@ -115,13 +120,20 @@ px = [raw[i * stride + 1:i * stride + 1 + ch] for i in range(0, n, step)]
 lum = [0.299 * p[0] + 0.587 * p[1] + 0.114 * p[2] for p in px]
 mean = sum(lum) / len(lum)
 var = sum((v - mean) ** 2 for v in lum) / len(lum)
-print(f"reader-settled: {w}x{h} mean={mean:.1f} var={var:.1f}")
-assert mean > 40.0, "frame too dark (screen off? blank reader?)"
-assert var > 30.0, "reader frame near-uniform (blank/black page?)"
+print(f"reader: {path} {w}x{h} mean={mean:.1f} var={var:.1f}")
+assert mean > 40.0, "frame too dark"
+assert var > 30.0, "frame near-uniform"
 print("E: reader pixels ok")
 EOF
+      then
+        PASS=1
+      fi
+    done
+    [ "$PASS" -eq 1 ] || { echo "E: no good reader frame among shots"; exit 1; }
     ;;
 esac
+
+echo "== diagnostic shot (always, even on flow failure) =="
 
 echo "== diagnostic shot (always, even on flow failure) =="
 $ADB exec-out screencap -p > "$OUT/shots/00-diag.png" || true

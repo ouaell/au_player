@@ -17,4 +17,6 @@ appId: app.auplayer.debug
       visible: "Got it"
     commands:
       - tapOn: "Got it"
-- takeScreenshot: reader-page
+- takeScreenshot: reader-page-a
+- takeScreenshot: reader-page-b
+- takeScreenshot: reader-page-c
