@@ -35,6 +35,13 @@
   base64-decode. No permission needed at all.
 - Maestro shots now collected from $HOME/.maestro (numbered 1.png…); repo-bundled PNGs excluded.
 
+## 2026-10-12 — REAL crash on reader open: stale subsampling decoder (mihon-visual 38196659076)
+- Settled screenshot shows Mihon's crash screen: NoClassDefFoundError tachiyomi/decoder/ImageDecoder
+  from subscaleview Decoder.init. Our imagedecoder port removed the old classes but the old
+  tachiyomiorg subsampling fork still references them. Fixed the same way as upstream: moved to
+  com.github.mihonapp:subsampling-scale-image-view@1b283e2bc4. Also rebranded the crash text
+  (Discord → GitHub). The pixel gate correctly failed the dark frame (mean 23.6).
+
 ## 2026-10-12 — reader flow GREEN, series screen proven (mihon-visual 38192631370)
 - Maestro reader flow passes end to end: scan → Demo → series ("1 chapter", ch1 row, Today,
   Start button, test-pattern cover via our ImageDecoder port) → tap ch1 → reader opens, no crash.
