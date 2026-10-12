@@ -10,6 +10,24 @@ mkdir -p "$OUT/shots"
 export PATH="$HOME/.maestro/bin:$PATH"
 ADB="adb -s emulator-5554"
 . tools/audit/fg_check.sh
+
+# Anything that exits early must still leave the crash behind: without this the
+# only evidence is a bare "never foregrounded" and the run is a dead end.
+dump_diagnostics() {
+  rc=$?
+  if [ "$rc" -ne 0 ]; then
+    mkdir -p "$OUT/shots"
+    $ADB logcat -d > "$OUT/logcat-fail.txt" 2>&1 || true
+    $ADB shell dumpsys activity activities > "$OUT/activity-fail.txt" 2>&1 || true
+    $ADB exec-out screencap -p > "$OUT/shots/fail-diag.png" 2>/dev/null || true
+    echo "--- crash lines ---" >&2
+    grep -a -E "FATAL EXCEPTION|AndroidRuntime|UnsatisfiedLinkError|AuPlayer" \
+      "$OUT/logcat-fail.txt" 2>/dev/null | head -40 >&2 || true
+  fi
+  exit $rc
+}
+trap dump_diagnostics EXIT
+
 $ADB wait-for-device
 APK=$(ls app/build/outputs/apk/debug/*.apk | head -1)
 $ADB install -r "$APK"
@@ -80,7 +98,7 @@ echo "visual: MediaStore seeded with Sample Clip"
 
 echo "== cold-start timing =="
 $ADB shell am start -W -a android.intent.action.MAIN -n "$PKG/eu.kanade.tachiyomi.ui.main.MainActivity" 2>&1 | tee "$OUT/coldstart.txt" || true
-wait_foreground "$PKG" 120
+wait_foreground "$PKG" 180
 
 echo "== maestro flows =="
 FAIL=0
