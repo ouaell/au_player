@@ -30,6 +30,9 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 rootProject.name = "Mihon"
 include(":app")
+include(":aucore")
+include(":enhance")
+include(":player")
 include(":baseline-profile")
 include(":core-metadata")
 include(":core:archive")

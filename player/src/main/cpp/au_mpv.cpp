@@ -1,0 +1,359 @@
+// au_mpv.cpp — own JNI bindings to the self-built libmpv (Apache-2.0, ours).
+//
+// Uses libmpv client.h/render.h symbols resolved against OUR pinned headers
+// at compile time (no hardcoded ABI numbers). Event names cross JNI as
+// stable strings (mpv_event_name), never enum ordinals.
+
+#include <jni.h>
+
+#include <atomic>
+#include <string>
+#include <thread>
+#include <vector>
+
+#include <android/log.h>
+#include <EGL/egl.h>
+#include <mpv/client.h>
+#include <mpv/render.h>
+#include <mpv/render_gl.h>
+
+// av_jni_set_java_vm from shared libavcodec (DT_NEEDED via CMake). Declared
+// locally: staged thirdparty headers carry mpv only, not FFmpeg. Signature
+// matches FFmpeg's libavcodec/jni.h: (void* vm, void* log_ctx). The getter in
+// the same TU is proven present by mpv's own "No Java virtual machine" path.
+
+#define AU_LOGI(...) __android_log_print(ANDROID_LOG_INFO, "AuPlayer", __VA_ARGS__)
+#define AU_LOGE(...) __android_log_print(ANDROID_LOG_ERROR, "AuPlayer", __VA_ARGS__)
+
+extern "C" {
+int av_jni_set_java_vm(void* vm, void* log_ctx);
+}  // extern "C"
+
+// mpv's android backends (vo/gpu android-context, ao audiotrack) fetch the
+// JVM from FFmpeg's av_jni slot. Without this they fail with "No Java virtual
+// machine has been registered" and video never starts (E1: "Video: no video"
+// while audio fell back to opensles). Register once at library load.
+extern "C" {
+JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void*) {
+    if (av_jni_set_java_vm(vm, nullptr) < 0) {
+        __android_log_print(ANDROID_LOG_ERROR, "AuPlayer", "av_jni_set_java_vm failed");
+        return JNI_ERR;
+    }
+    return JNI_VERSION_1_6;
+}
+}  // extern "C"
+
+namespace {
+
+struct Ctx {
+    mpv_handle* mpv = nullptr;
+    mpv_render_context* render = nullptr;
+    JavaVM* jvm = nullptr;
+    jobject callback = nullptr;
+    jmethodID onEvent = nullptr;
+    jobject surface = nullptr;
+    std::thread loop;
+    std::atomic<bool> running{false};
+};
+
+Ctx* fromHandle(jlong handle) {
+    return reinterpret_cast<Ctx*>(handle);
+}
+
+std::string jstr(JNIEnv* env, jstring value) {
+    if (!value) {
+        return {};
+    }
+    const char* chars = env->GetStringUTFChars(value, nullptr);
+    std::string out(chars != nullptr ? chars : "");
+    if (chars != nullptr) {
+        env->ReleaseStringUTFChars(value, chars);
+    }
+    return out;
+}
+
+void* gl_get_proc_address(void*, const char* name) {
+    return reinterpret_cast<void*>(eglGetProcAddress(name));
+}
+
+void eventLoop(Ctx* ctx) {
+    JNIEnv* env = nullptr;
+    ctx->jvm->AttachCurrentThread(&env, nullptr);
+    bool first = true;
+    while (ctx->running.load()) {
+        mpv_event* event = mpv_wait_event(ctx->mpv, 0.25);
+        if (event == nullptr || event->event_id == MPV_EVENT_NONE) {
+            continue;
+        }
+        if (event->event_id == MPV_EVENT_LOG_MESSAGE) {
+            const auto* message = static_cast<mpv_event_log_message*>(event->data);
+            if (message != nullptr) {
+                AU_LOGI("mpv [%s/%s] %s", message->prefix != nullptr ? message->prefix : "?",
+                        message->level != nullptr ? message->level : "?",
+                        message->text != nullptr ? message->text : "");
+            }
+            continue;
+        }
+        if (first) {
+            first = false;
+            AU_LOGI("pump alive, first event id=%d", event->event_id);
+        }
+        const char* name = mpv_event_name(event->event_id);
+        jstring jname = env->NewStringUTF(name != nullptr ? name : "unknown");
+        env->CallVoidMethod(ctx->callback, ctx->onEvent, jname,
+                            static_cast<jlong>(event->reply_userdata));
+        env->DeleteLocalRef(jname);
+        if (env->ExceptionCheck() != 0) {
+            env->ExceptionClear();
+        }
+    }
+    ctx->jvm->DetachCurrentThread();
+}
+
+}  // namespace
+
+extern "C" {
+
+JNIEXPORT jlong JNICALL
+Java_app_auplayer_player_MpvNative_nativeCreate(JNIEnv* env, jobject) {
+    auto* ctx = new (std::nothrow) Ctx();
+    if (ctx == nullptr) {
+        return 0;
+    }
+    ctx->mpv = mpv_create();
+    if (ctx->mpv == nullptr) {
+        delete ctx;
+        return 0;
+    }
+    env->GetJavaVM(&ctx->jvm);
+    return reinterpret_cast<jlong>(ctx);
+}
+
+JNIEXPORT jint JNICALL
+Java_app_auplayer_player_MpvNative_nativeInit(JNIEnv*, jobject, jlong handle) {
+    Ctx* ctx = fromHandle(handle);
+    if (ctx == nullptr || ctx->mpv == nullptr) {
+        return MPV_ERROR_UNINITIALIZED;
+    }
+    return mpv_initialize(ctx->mpv);
+}
+
+JNIEXPORT jint JNICALL
+Java_app_auplayer_player_MpvNative_nativeSetOption(
+    JNIEnv* env, jobject, jlong handle, jstring key, jstring value) {
+    Ctx* ctx = fromHandle(handle);
+    if (ctx == nullptr || ctx->mpv == nullptr) {
+        return MPV_ERROR_UNINITIALIZED;
+    }
+    const std::string k = jstr(env, key);
+    const std::string v = jstr(env, value);
+    return mpv_set_option_string(ctx->mpv, k.c_str(), v.c_str());
+}
+
+JNIEXPORT jint JNICALL
+Java_app_auplayer_player_MpvNative_nativeCommand(
+    JNIEnv* env, jobject, jlong handle, jobjectArray args) {
+    Ctx* ctx = fromHandle(handle);
+    if (ctx == nullptr || ctx->mpv == nullptr) {
+        return MPV_ERROR_UNINITIALIZED;
+    }
+    const jsize count = env->GetArrayLength(args);
+    std::vector<std::string> owned;
+    owned.reserve(static_cast<size_t>(count));
+    for (jsize i = 0; i < count; i++) {
+        auto* item = static_cast<jstring>(env->GetObjectArrayElement(args, i));
+        owned.push_back(jstr(env, item));
+        env->DeleteLocalRef(item);
+    }
+    std::vector<const char*> argv;
+    argv.reserve(owned.size() + 1);
+    for (const auto& item : owned) {
+        argv.push_back(item.c_str());
+    }
+    argv.push_back(nullptr);
+    return mpv_command(ctx->mpv, argv.data());
+}
+
+JNIEXPORT jstring JNICALL
+Java_app_auplayer_player_MpvNative_nativeGetProperty(
+    JNIEnv* env, jobject, jlong handle, jstring name) {
+    Ctx* ctx = fromHandle(handle);
+    if (ctx == nullptr || ctx->mpv == nullptr) {
+        return nullptr;
+    }
+    const std::string key = jstr(env, name);
+    char* value = mpv_get_property_string(ctx->mpv, key.c_str());
+    if (value == nullptr) {
+        return nullptr;
+    }
+    jstring out = env->NewStringUTF(value);
+    mpv_free(value);
+    return out;
+}
+
+JNIEXPORT void JNICALL
+Java_app_auplayer_player_MpvNative_nativeObserve(
+    JNIEnv* env, jobject, jlong handle, jlong id, jstring name) {
+    Ctx* ctx = fromHandle(handle);
+    if (ctx == nullptr || ctx->mpv == nullptr) {
+        return;
+    }
+    const std::string key = jstr(env, name);
+    mpv_observe_property(ctx->mpv, static_cast<uint64_t>(id), key.c_str(), MPV_FORMAT_STRING);
+}
+
+JNIEXPORT void JNICALL
+Java_app_auplayer_player_MpvNative_nativeUnobserve(
+    JNIEnv*, jobject, jlong handle, jlong id) {
+    Ctx* ctx = fromHandle(handle);
+    if (ctx == nullptr || ctx->mpv == nullptr) {
+        return;
+    }
+    mpv_unobserve_property(ctx->mpv, static_cast<uint64_t>(id));
+}
+
+JNIEXPORT jint JNICALL
+Java_app_auplayer_player_MpvRender_nativeRenderInit(
+    JNIEnv*, jobject, jlong handle) {
+    Ctx* ctx = fromHandle(handle);
+    if (ctx == nullptr || ctx->mpv == nullptr || ctx->render != nullptr) {
+        return MPV_ERROR_UNINITIALIZED;
+    }
+    mpv_opengl_init_params gl = {gl_get_proc_address, nullptr};
+    mpv_render_param params[] = {
+        {MPV_RENDER_PARAM_API_TYPE, const_cast<char*>(MPV_RENDER_API_TYPE_OPENGL)},
+        {MPV_RENDER_PARAM_OPENGL_INIT_PARAMS, &gl},
+        {MPV_RENDER_PARAM_INVALID, nullptr},
+    };
+    return mpv_render_context_create(&ctx->render, ctx->mpv, params);
+}
+
+JNIEXPORT jboolean JNICALL
+Java_app_auplayer_player_MpvRender_nativeCheckUpdate(
+    JNIEnv*, jobject, jlong handle) {
+    Ctx* ctx = fromHandle(handle);
+    if (ctx == nullptr || ctx->render == nullptr) {
+        return JNI_FALSE;
+    }
+    const uint64_t flags = mpv_render_context_update(ctx->render);
+    return (flags & MPV_RENDER_UPDATE_FRAME) != 0 ? JNI_TRUE : JNI_FALSE;
+}
+
+JNIEXPORT jint JNICALL
+Java_app_auplayer_player_MpvRender_nativeRender(
+    JNIEnv*, jobject, jlong handle, jint width, jint height) {
+    Ctx* ctx = fromHandle(handle);
+    if (ctx == nullptr || ctx->render == nullptr) {
+        return MPV_ERROR_UNINITIALIZED;
+    }
+    mpv_opengl_fbo fbo = {0, width, height, 0};
+    int flip = 1;
+    mpv_render_param params[] = {
+        {MPV_RENDER_PARAM_OPENGL_FBO, &fbo},
+        {MPV_RENDER_PARAM_FLIP_Y, &flip},
+        {MPV_RENDER_PARAM_INVALID, nullptr},
+    };
+    return mpv_render_context_render(ctx->render, params);
+}
+
+JNIEXPORT jlong JNICALL
+Java_app_auplayer_player_MpvSurface_nativeAttachSurface(
+    JNIEnv* env, jobject, jlong handle, jobject surface) {
+    Ctx* ctx = fromHandle(handle);
+    if (ctx == nullptr || ctx->mpv == nullptr || surface == nullptr) {
+        return 0;
+    }
+    if (ctx->surface != nullptr) {
+        env->DeleteGlobalRef(ctx->surface);
+        ctx->surface = nullptr;
+    }
+    ctx->surface = env->NewGlobalRef(surface);
+    return reinterpret_cast<jlong>(ctx->surface);
+}
+
+JNIEXPORT void JNICALL
+Java_app_auplayer_player_MpvSurface_nativeDetachSurface(
+    JNIEnv* env, jobject, jlong handle) {
+    Ctx* ctx = fromHandle(handle);
+    if (ctx == nullptr) {
+        return;
+    }
+    if (ctx->surface != nullptr) {
+        env->DeleteGlobalRef(ctx->surface);
+        ctx->surface = nullptr;
+    }
+}
+
+JNIEXPORT void JNICALL
+Java_app_auplayer_player_MpvEvents_nativeStartEvents(
+    JNIEnv* env, jobject, jlong handle, jobject callback) {
+    Ctx* ctx = fromHandle(handle);
+    if (ctx == nullptr || ctx->jvm == nullptr || ctx->running.load()) {
+        return;
+    }
+    ctx->callback = env->NewGlobalRef(callback);
+    jclass cls = env->GetObjectClass(callback);
+    ctx->onEvent = env->GetMethodID(cls, "onEvent", "(Ljava/lang/String;J)V");
+    env->DeleteLocalRef(cls);
+    if (ctx->onEvent == nullptr) {
+        AU_LOGE("startEvents: onEvent method missing");
+        env->DeleteGlobalRef(ctx->callback);
+        ctx->callback = nullptr;
+        return;
+    }
+    ctx->running = true;
+    ctx->loop = std::thread(eventLoop, ctx);
+    mpv_request_log_messages(ctx->mpv, "info");
+    AU_LOGI("event pump started");
+}
+
+JNIEXPORT void JNICALL
+Java_app_auplayer_player_MpvEvents_nativeStopEvents(
+    JNIEnv* env, jobject, jlong handle) {
+    Ctx* ctx = fromHandle(handle);
+    if (ctx == nullptr) {
+        return;
+    }
+    ctx->running = false;
+    if (ctx->loop.joinable()) {
+        ctx->loop.join();
+    }
+    if (ctx->callback != nullptr) {
+        env->DeleteGlobalRef(ctx->callback);
+        ctx->callback = nullptr;
+    }
+}
+
+JNIEXPORT jstring JNICALL
+Java_app_auplayer_player_MpvNative_nativeErrorString(
+    JNIEnv* env, jobject, jint code) {
+    return env->NewStringUTF(mpv_error_string(code));
+}
+
+JNIEXPORT void JNICALL
+Java_app_auplayer_player_MpvNative_nativeDestroy(
+    JNIEnv* env, jobject, jlong handle) {
+    Ctx* ctx = fromHandle(handle);
+    if (ctx == nullptr) {
+        return;
+    }
+    ctx->running = false;
+    if (ctx->loop.joinable()) {
+        ctx->loop.join();
+    }
+    if (ctx->callback != nullptr) {
+        env->DeleteGlobalRef(ctx->callback);
+    }
+    if (ctx->surface != nullptr) {
+        env->DeleteGlobalRef(ctx->surface);
+    }
+    if (ctx->render != nullptr) {
+        mpv_render_context_free(ctx->render);
+    }
+    if (ctx->mpv != nullptr) {
+        mpv_terminate_destroy(ctx->mpv);
+    }
+    delete ctx;
+}
+
+}  // extern "C"

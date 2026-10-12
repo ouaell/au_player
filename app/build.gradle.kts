@@ -206,6 +206,9 @@ baselineProfile {
 dependencies {
     baselineProfile(projects.baselineProfile)
 
+    implementation(projects.aucore)
+    implementation(projects.enhance)
+    implementation(projects.player)
     implementation(projects.i18n)
     implementation(projects.core.archive)
     implementation(projects.core.common)
