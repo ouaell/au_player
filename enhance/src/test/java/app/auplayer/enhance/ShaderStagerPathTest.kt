@@ -1,29 +1,26 @@
 package app.auplayer.enhance
 
-import android.content.Context
+import app.auplayer.aucore.EnhanceMode
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import org.mockito.Mockito.mock
 import java.io.File
 
 /**
  * Guards the asset-path -> staged-path mapping. Getting this wrong is silent
- * at build time and only shows up as "Cannot open file" from mpv at runtime,
- * which is exactly how the doubled `shaders/patched/` segment shipped once.
+ * at build time and only surfaces as "Cannot open file" from mpv at runtime,
+ * which is exactly how a doubled `shaders/patched/` segment shipped once.
  */
 class ShaderStagerPathTest {
 
-    private fun stager(filesDir: File): ShaderStager {
-        val context = mock(Context::class.java)
-        org.mockito.Mockito.`when`(context.filesDir).thenReturn(filesDir)
-        return ShaderStager(context)
-    }
+    private val filesDir = File("/data/user/0/app/files")
 
     @Test
     fun `resolve does not repeat the asset root segment`() {
-        val filesDir = File("/data/user/0/app/files")
-        val resolved = stager(filesDir).resolve("shaders/patched/Anime4K_Upscale_CNN_x2_M.glsl")
+        val resolved = ShaderStager.resolveIn(
+            filesDir,
+            "shaders/patched/Anime4K_Upscale_CNN_x2_M.glsl",
+        )
         assertEquals(
             File(filesDir, "shaders/patched/Anime4K_Upscale_CNN_x2_M.glsl").path,
             resolved,
@@ -36,8 +33,6 @@ class ShaderStagerPathTest {
 
     @Test
     fun `resolve places every chain pass inside filesDir`() {
-        val filesDir = File("/data/user/0/app/files")
-        val subject = stager(filesDir)
         listOf(
             "shaders/patched/Anime4K_Clamp_Highlights.glsl",
             "shaders/patched/Anime4K_Restore_CNN_M.glsl",
@@ -47,19 +42,43 @@ class ShaderStagerPathTest {
         ).forEach { pass ->
             assertTrue(
                 "outside filesDir: $pass",
-                subject.resolve(pass).startsWith(filesDir.path),
+                ShaderStager.resolveIn(filesDir, pass).startsWith(filesDir.path),
             )
         }
     }
 
     @Test
-    fun `every anime chain pass resolves to a distinct file`() {
-        val filesDir = File("/data/user/0/app/files")
-        val subject = stager(filesDir)
+    fun `every anime chain pass resolves to a distinct real file`() {
         val resolved = ShaderChainBuilder
-            .build(app.auplayer.aucore.EnhanceMode.ANIME, sourceHeightPx = 720)
-            .map { subject.resolve(it.assetPath) }
+            .build(EnhanceMode.ANIME, sourceHeightPx = 720)
+            .map { ShaderStager.resolveIn(filesDir, it.assetPath) }
+        assertTrue("chain was empty", resolved.isNotEmpty())
+        assertEquals("passes collapsed onto one file", resolved.size, resolved.distinct().size)
+    }
+
+    @Test
+    fun `every standard chain pass resolves to a distinct real file`() {
+        val resolved = ShaderChainBuilder
+            .build(EnhanceMode.STANDARD, sourceHeightPx = 720)
+            .map { ShaderStager.resolveIn(filesDir, it.assetPath) }
+        assertTrue("chain was empty", resolved.isNotEmpty())
         assertEquals(resolved.size, resolved.distinct().size)
-        assertTrue(resolved.isNotEmpty())
+    }
+
+    @Test
+    fun `resolved paths name a file the pack actually stages`() {
+        val staged = listOf(
+            "Anime4K_Clamp_Highlights.glsl",
+            "Anime4K_Restore_CNN_M.glsl",
+            "Anime4K_Upscale_CNN_x2_M.glsl",
+            "Anime4K_Upscale_CNN_x2_S.glsl",
+            "ravu-lite-r4.hook",
+        ).map { File(filesDir, "${ShaderStager.ASSET_ROOT}/$it").path }.toSet()
+        ShaderChainBuilder.build(EnhanceMode.ANIME, sourceHeightPx = 720)
+            .plus(ShaderChainBuilder.build(EnhanceMode.STANDARD, sourceHeightPx = 720))
+            .map { ShaderStager.resolveIn(filesDir, it.assetPath) }
+            .forEach { resolved ->
+                assertTrue("not a staged pack file: $resolved", resolved in staged)
+            }
     }
 }

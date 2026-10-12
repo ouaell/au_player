@@ -41,10 +41,11 @@ class ShaderStager(private val context: Context) {
      * Maps a pack-relative asset path to its staged file.
      *
      * Asset paths are rooted at `filesDir` ("shaders/patched/Foo.glsl"), which
-     * is exactly where [stage] puts them. Joining them onto [root] instead
-     * would repeat the "shaders/patched/" segment.
+     * is exactly where [stage] puts them. Joining them onto the pack root
+     * instead would repeat the "shaders/patched/" segment. Pure so it can be
+     * tested without a Context.
      */
-    fun resolve(assetPath: String): String = File(context.filesDir, assetPath).path
+    fun resolve(assetPath: String): String = resolveIn(context.filesDir, assetPath)
 
     private fun copyIfStale(name: String): Boolean {
         val target = File(root, name)
@@ -75,5 +76,8 @@ class ShaderStager(private val context: Context) {
         private const val TAG = "AuPlayer"
         const val ASSET_ROOT = "shaders/patched"
         private const val STAMP_FILE = ".pack-stamp"
+
+        /** Pack-relative asset path -> absolute staged path under [filesDir]. */
+        fun resolveIn(filesDir: File, assetPath: String): String = File(filesDir, assetPath).path
     }
 }
