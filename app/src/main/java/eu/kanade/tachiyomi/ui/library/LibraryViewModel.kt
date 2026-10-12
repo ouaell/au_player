@@ -647,6 +647,7 @@ class LibraryViewModel(
                 // Sync chapters now so the series is complete offline and the
                 // series screen never shows a transient "0 chapters".
                 val probe = try {
+                    logcat(LogPriority.DEBUG) { "scanLocal: probe url=${manga.url} source=${manga.source}" }
                     source.getMangaUpdate(
                         manga = manga.toSManga(),
                         chapters = emptyList(),
