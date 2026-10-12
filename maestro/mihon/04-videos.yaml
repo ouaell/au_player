@@ -9,11 +9,18 @@ appId: app.auplayer.debug
     timeout: 20000
 - takeScreenshot: videos-library
 - tapOn: "Sample Clip"
-# Controls carry text labels (Pause / time), so UiAutomator can see them
-# without relying on icon nodes, which proved flaky under swiftshader.
+# The controls auto-hide, and the tap catcher only ever reveals them, so tap
+# once to make the top bar assertable again. "Enhance: OFF" is stable text,
+# unlike icon nodes which proved flaky under swiftshader.
+- tapOn:
+    point: "50%,35%"
 - extendedWaitUntil:
-    visible: "Pause|Pause.*"
+    visible: "Enhance: OFF"
     timeout: 30000
+- takeScreenshot: player-controls
+# Playback itself is proven by run.sh: it compares two frames for movement,
+# which no UI assert can fake.
+- tapOn:
+    point: "50%,35%"
 - takeScreenshot: player-frame-a
 - takeScreenshot: player-frame-b
-- takeScreenshot: player-frame-c

@@ -187,6 +187,19 @@ EOF
       fi
     done
     [ "$PASS" -eq 1 ] || { echo "E: player surface is black in every frame"; exit 1; }
+    # Non-black is not playback. Compare two frames taken seconds apart: a
+    # paused or wedged surface renders identically forever, so a real diff is
+    # what separates "loaded" from "playing". testsrc2 moves constantly.
+    A=$(ls -t "$OUT"/maestro/player-frame-a.png 2>/dev/null | head -1)
+    B=$(ls -t "$OUT"/maestro/player-frame-b.png 2>/dev/null | head -1)
+    if [ -n "$A" ] && [ -n "$B" ]; then
+      if ! compare -metric AE "$A" "$B" null: 2>&1 | awk '{exit ($1 > 5000) ? 0 : 1}'; then
+        echo "E: player frames are identical — surface is not advancing"; exit 1
+      fi
+      echo "player: frames differ (surface is advancing)"
+    else
+      echo "E: need two player frames to prove playback advances"; exit 1
+    fi
     ;;
 esac
 
