@@ -12,4 +12,9 @@ appId: app.auplayer.debug
 - takeScreenshot: series-before-chapters
 - assertVisible: "ch1"
 - tapOn: "ch1"
+- runFlow:
+    when:
+      visible: "Got it"
+    commands:
+      - tapOn: "Got it"
 - takeScreenshot: reader-page
