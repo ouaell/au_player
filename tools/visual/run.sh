@@ -76,9 +76,9 @@ $ADB shell "run-as $PKG sh -c 'ls -l $SEEDBASE/local/Demo'"
 echo "== seed a MediaStore video (the emulator ships with none) =="
 # A generated clip, not a checked-in binary: keeps the repo small and makes the
 # fixture reproducible. Needs a real H.264 stream for hwdec/mediacodec to be
-# exercised at all.
-ffmpeg -y -f lavfi -i "testsrc2=size=640x360:rate=24:duration=8" \
-  -f lavfi -i "sine=frequency=440:duration=8" \
+# exercised at all. Long enough that a flow never races to EOF mid-assertion.
+ffmpeg -y -f lavfi -i "testsrc2=size=640x360:rate=24:duration=45" \
+  -f lavfi -i "sine=frequency=440:duration=45" \
   -c:v libx264 -pix_fmt yuv420p -preset veryfast -c:a aac -shortest \
   "$OUT/Sample Clip.mp4" >/dev/null 2>&1 || {
     echo "E: ffmpeg could not generate the sample clip"; exit 1; }

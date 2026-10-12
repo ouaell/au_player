@@ -10,6 +10,10 @@ enum class PlayerState {
     Buffering,
     Error,
     Released,
+    ;
+
+    /** True only while frames are actually advancing. */
+    val isPlaying: Boolean get() = this == Playing
 }
 
 class PlayerStateMachine {
