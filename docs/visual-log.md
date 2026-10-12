@@ -38,6 +38,7 @@
 ## 2026-10-12 — reader flow GREEN, series screen proven (mihon-visual 38192631370)
 - Maestro reader flow passes end to end: scan → Demo → series ("1 chapter", ch1 row, Today,
   Start button, test-pattern cover via our ImageDecoder port) → tap ch1 → reader opens, no crash.
-- BUT the reader-page screenshot is pure black (10 KB). Either screenshot-at-tap timing or a real
-  blank-page render bug. Added a hard gate: adb shot after settle + stdlib pixel variance
-  (var > 30), failing the job on a uniform frame. Run 38193966946 decides.
+- Caution: the tap-instant reader-page shot was black; the settled gate shot decides.
+  Lesson learned: gate screenshots must run while the target screen is open — flows reordered
+  (01-tabs, 02-scan, 03-reader) so the reader is foreground at gate time, plus WAKEUP, plus
+  strict gate (PNG format checks, mean > 40, var > 30).

@@ -13,7 +13,7 @@
 - mihon-line: clean object import (31beac7); working tree verified after a zero-byte corruption incident (rebuilt via git objects, no file copies).
 
 ## Next
-1. Full gate run 38194883335 (durable-state asserts everywhere + reader-pixel gate).
+1. Full gate run 38195812584 (ordered flows, wake+strict pixel gate with format checks).
 2. Phase B gate: green + contact sheet review → promote to main → Phase C (REX).
 
 ## Open defects
