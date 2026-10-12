@@ -7,12 +7,14 @@ appId: app.auplayer.debug
     visible: "Sample Clip"
     timeout: 20000
 - tapOn: "Sample Clip"
+# Controls auto-hide after a few seconds, and a tap on the hidden state lands on
+# the tap-catcher (which only reveals controls) instead of the button. Reveal
+# first, then tap the button — same order that works in 04-videos.
+- tapOn:
+    point: "50%,35%"
 - extendedWaitUntil:
     visible: "Enhance: OFF"
     timeout: 30000
-# Turning Anime on must actually push a shader chain to mpv. The chip label is
-# the user-visible contract; the frames-differ gate in run.sh proves the
-# surface is still live afterwards (a failed chain can black out the video).
 - tapOn: "Enhance: OFF"
 - extendedWaitUntil:
     visible: "Anime"
