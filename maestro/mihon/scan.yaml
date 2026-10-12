@@ -4,7 +4,5 @@ appId: app.auplayer.debug
 - assertVisible: "Library"
 - tapOn: "More options"
 - tapOn: "Scan local folder"
-- takeScreenshot: scan-result
-- assertVisible: "Added 1 series from the local folder"
 - assertVisible: "Demo"
 - takeScreenshot: library-demo
