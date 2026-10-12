@@ -83,6 +83,10 @@ ls "$OUT/maestro" || true
 echo "== reader render proof (adb shot after settle + pixel variance) =="
 case "$FILTER" in
   ""|*reader*)
+    # Flows now run tabs, scan, reader (numeric order) so the reader is open.
+    # Wake the panel first: an asleep screen reads back near-black.
+    $ADB shell input keyevent KEYCODE_WAKEUP || true
+    sleep 3
     $ADB exec-out screencap -p > "$OUT/shots/reader-settled.png" || true
     python3 - "$OUT/shots/reader-settled.png" <<'EOF'
 import struct, sys, zlib
@@ -95,10 +99,13 @@ while pos < len(data):
     typ = data[pos + 4:pos + 8]
     chunk = data[pos + 8:pos + 8 + ln]
     if typ == b"IHDR":
-        w, h, _, ctype, _, _, _ = struct.unpack(">IIBBBBB", chunk)
+        w, h, bitd, ctype, _, _, _ = struct.unpack(">IIBBBBB", chunk)
     elif typ == b"IDAT":
         idat += chunk
     pos += 12 + ln
+print(f"png: {w}x{h} bitdepth={bitd} ctype={ctype}")
+assert bitd == 8, f"unexpected bit depth {bitd}"
+assert ctype in (2, 6), f"unexpected color type {ctype}"
 raw = zlib.decompress(idat)
 ch = 3 if ctype == 2 else 4
 stride = w * ch + 1
@@ -108,9 +115,10 @@ px = [raw[i * stride + 1:i * stride + 1 + ch] for i in range(0, n, step)]
 lum = [0.299 * p[0] + 0.587 * p[1] + 0.114 * p[2] for p in px]
 mean = sum(lum) / len(lum)
 var = sum((v - mean) ** 2 for v in lum) / len(lum)
-print(f"reader-settled: {w}x{h} mean={mean:.1f} var={var:.1f}")
-assert var > 30.0, "reader frame near-uniform (blank/black page?)"
-print("E: reader pixels ok")
+    print(f"reader-settled: {w}x{h} mean={mean:.1f} var={var:.1f}")
+    assert mean > 40.0, "frame too dark (screen off? blank reader?)"
+    assert var > 30.0, "reader frame near-uniform (blank/black page?)"
+    print("E: reader pixels ok")
 EOF
     ;;
 esac
