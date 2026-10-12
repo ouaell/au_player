@@ -30,12 +30,13 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           cache-read-only: false
-      - name: Install Maestro + ImageMagick
+      - name: Install Maestro + ImageMagick + Pillow
         run: |
           curl -Ls https://get.maestro.mobile.dev | bash
           echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
           sudo apt-get update -qq
           sudo apt-get install -y -qq imagemagick ffmpeg
+          python3 -m pip install -q pillow || python3 -m pip install -q --break-system-packages pillow
       - name: Assemble debug APK
         run: |
           chmod +x gradlew

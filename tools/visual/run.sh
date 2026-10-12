@@ -93,37 +93,21 @@ case "$FILTER" in
     echo "$READER_SHOTS"
     PASS=0
     for shot in $READER_SHOTS; do
+      # Pillow decodes all PNG variants (incl. interlaced) correctly; the
+      # hand-rolled parser misreads Adam7 files, so it is retired.
       if python3 - "$shot" <<'EOF'
-import struct, sys, zlib
-path = sys.argv[1]
-data = open(path, "rb").read()
-assert data[:8] == b"\x89PNG\r\n\x1a\n", "not a png"
-pos, w, h, ctype, idat = 8, 0, 0, None, b""
-while pos < len(data):
-    (ln,) = struct.unpack(">I", data[pos:pos + 4])
-    typ = data[pos + 4:pos + 8]
-    chunk = data[pos + 8:pos + 8 + ln]
-    if typ == b"IHDR":
-        w, h, bitd, ctype, _, _, _ = struct.unpack(">IIBBBBB", chunk)
-    elif typ == b"IDAT":
-        idat += chunk
-    pos += 12 + ln
-print(f"png: {w}x{h} bitdepth={bitd} ctype={ctype}")
-assert bitd == 8, f"unexpected bit depth {bitd}"
-assert ctype in (2, 6), f"unexpected color type {ctype}"
-raw = zlib.decompress(idat)
-ch = 3 if ctype == 2 else 4
-stride = w * ch + 1
-n = len(raw) // stride
-step = max(1, n // 20000)
-px = [raw[i * stride + 1:i * stride + 1 + ch] for i in range(0, n, step)]
-lum = [0.299 * p[0] + 0.587 * p[1] + 0.114 * p[2] for p in px]
-mean = sum(lum) / len(lum)
-var = sum((v - mean) ** 2 for v in lum) / len(lum)
-print(f"reader: {path} {w}x{h} mean={mean:.1f} var={var:.1f}")
-assert mean > 40.0, "frame too dark"
-assert var > 30.0, "frame near-uniform"
-print("E: reader pixels ok")
+import sys
+try:
+    from PIL import Image, ImageStat
+except ImportError:
+    print("Pillow missing")
+    sys.exit(2)
+img = Image.open(sys.argv[1]).convert("RGB")
+st = ImageStat.Stat(img)
+mean = sum(st.mean) / 3
+std = (sum(v * v for v in st.stddev) / 3) ** 0.5
+print(f"reader: {sys.argv[1]} {img.size[0]}x{img.size[1]} mean={mean:.1f} std={std:.1f}")
+sys.exit(0 if (mean > 40.0 and std > 15.0) else 1)
 EOF
       then
         PASS=1
