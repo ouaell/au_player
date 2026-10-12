@@ -13,9 +13,8 @@
 - mihon-line: clean object import (31beac7); working tree verified after a zero-byte corruption incident (rebuilt via git objects, no file copies).
 
 ## Next
-1. Reader flow (run 38192034102): internal-storage seed should yield chapters + reader page.
-2. Phase B gate: full mihon-visual green (tabs/scan/reader) + contact sheet review.
-3. Promote to main at gate; Phase C (REX integration).
+1. Full gate run 38193966946 (tabs+scan+reader, hard reader-pixel gate).
+2. Phase B gate: green + contact sheet review → promote to main → Phase C (REX).
 
 ## Open defects
 - S2-001 (legacy WebView INTERNET crash) — dies with old UI.

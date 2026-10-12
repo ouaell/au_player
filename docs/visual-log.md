@@ -20,7 +20,7 @@
 - Earlier root causes, both fixed: (1) seed CBZ pushed to wrong dir (adb space-split; fixed +
   verified with ls); (2) correct local base is /sdcard/AU Player/local (uses app_name).
 
-## 2026-10-11 — Demo series screen: "0 chapters" (mihon-visual 38182752074)
+## 2026-10-12 — "0 chapters" mystery (mihon-visual 38182752074)
 - MangaScreen for the scanned Demo shows title/author/Local-source/"In library" — but chapter list
   shows "0 chapters" at screenshot time. Gave the chapter assert a 60 s timeout (rejected: this
   Maestro version has no per-command timeout); re-enter strategy reads DB-cached chapters.
@@ -33,7 +33,11 @@
 - Product is correct as designed (real users pick a SAF tree in onboarding StorageStep).
   CI fix: storage_dir pref → app-owned internal dir (file://…/files/citest), CBZ via run-as
   base64-decode. No permission needed at all.
-- MangaScreen for the scanned Demo shows title/author/Local-source/"In library" — but chapter list
-  shows "0 chapters" at screenshot time. Either slow async chapter load on swiftshader or a real
-  listing failure. Gave the chapter assert a 60 s timeout; the reader-page screenshot will decide.
 - Maestro shots now collected from $HOME/.maestro (numbered 1.png…); repo-bundled PNGs excluded.
+
+## 2026-10-12 — reader flow GREEN, series screen proven (mihon-visual 38192631370)
+- Maestro reader flow passes end to end: scan → Demo → series ("1 chapter", ch1 row, Today,
+  Start button, test-pattern cover via our ImageDecoder port) → tap ch1 → reader opens, no crash.
+- BUT the reader-page screenshot is pure black (10 KB). Either screenshot-at-tap timing or a real
+  blank-page render bug. Added a hard gate: adb shot after settle + stdlib pixel variance
+  (var > 30), failing the job on a uniform frame. Run 38193966946 decides.
