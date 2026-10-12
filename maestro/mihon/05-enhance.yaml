@@ -7,14 +7,12 @@ appId: app.auplayer.debug
     visible: "Sample Clip"
     timeout: 20000
 - tapOn: "Sample Clip"
-# Controls auto-hide after a few seconds, and a tap on the hidden state lands on
-# the tap-catcher (which only reveals controls) instead of the button. Reveal
-# first, then tap the button — same order that works in 04-videos.
+# Controls auto-hide. Reveal them and tap the Enhance button back to back:
+# inserting a waitForAnimationToComplete between them costs enough wall time
+# for the bar to hide again, and the tap then lands on the reveal-catcher
+# instead of the button, which silently opens nothing.
 - tapOn:
     point: "50%,35%"
-- extendedWaitUntil:
-    visible: "Enhance: OFF"
-    timeout: 30000
 - tapOn: "Enhance: OFF"
 - extendedWaitUntil:
     visible: "Anime"

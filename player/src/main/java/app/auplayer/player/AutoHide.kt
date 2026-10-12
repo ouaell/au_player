@@ -46,7 +46,7 @@ fun formatTime(millis: Long): String {
     }
 }
 
-private const val AUTO_HIDE_TIMEOUT_MS = 3_000L
+private const val AUTO_HIDE_TIMEOUT_MS = 5_000L
 private const val NO_TIME = 0L
 private const val MILLIS_PER_SECOND = 1_000L
 private const val SECONDS_PER_MINUTE = 60L
