@@ -67,6 +67,7 @@ import tachiyomi.domain.manga.model.Manga
 import tachiyomi.domain.manga.model.MangaUpdate
 import tachiyomi.domain.manga.model.applyFilter
 import tachiyomi.domain.manga.repository.MangaRepository
+import tachiyomi.domain.storage.service.StoragePreferences
 import tachiyomi.domain.source.service.SourceManager
 import tachiyomi.domain.track.interactor.GetTracksPerManga
 import tachiyomi.domain.track.model.Track
@@ -648,6 +649,17 @@ class LibraryViewModel(
                 // series screen never shows a transient "0 chapters".
                 val probe = try {
                     logcat(LogPriority.DEBUG) { "scanLocal: probe url=${manga.url} source=${manga.source}" }
+                    // TEMP diagnosis: raw java.io visibility of the same paths UniFile sees.
+                    val prefs = Injekt.get<StoragePreferences>()
+                    val baseUri = prefs.baseStorageDirectory.get()
+                    val baseFile = java.io.File(android.net.Uri.parse(baseUri).path.orEmpty())
+                    val demoFile = java.io.File(java.io.File(baseFile, "local"), "Demo")
+                    logcat(LogPriority.DEBUG) {
+                        "scanLocal: baseUri=$baseUri baseExists=${baseFile.exists()} " +
+                            "baseList=${baseFile.listFiles()?.map { it.name }} " +
+                            "demoExists=${demoFile.exists()} demoDir=${demoFile.isDirectory} " +
+                            "demoList=${demoFile.listFiles()?.map { it.name }}"
+                    }
                     source.getMangaUpdate(
                         manga = manga.toSManga(),
                         chapters = emptyList(),
