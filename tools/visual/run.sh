@@ -33,6 +33,7 @@ echo "== pre-seed prefs (skip first-run onboarding; SAF/permission steps can't r
 # apply to undeclared apps. Internal storage needs no permission at all.
 SEEDBASE="/data/data/$PKG/files/citest"
 $ADB shell "run-as $PKG mkdir -p $SEEDBASE/local/Demo"
+$ADB shell "run-as $PKG mkdir -p /data/data/$PKG/shared_prefs"
 printf '%s' '<?xml version="1.0" encoding="utf-8" standalone="yes" ?><map><boolean name="__APP_STATE_onboarding_complete" value="true" /><string name="__APP_STATE_storage_dir">file://'"$SEEDBASE"'</string></map>' > "$OUT/prefs.xml"
 PREFS_PATH="/data/data/$PKG/shared_prefs/${PKG}_preferences.xml"
 cat "$OUT/prefs.xml" | $ADB shell "run-as $PKG sh -c 'cat > $PREFS_PATH'"
