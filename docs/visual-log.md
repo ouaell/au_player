@@ -54,6 +54,12 @@
   everything (mean crushed below the gate). Dismiss "Got it" in-flow (runFlow/when-visible)
   from now on. Full gate re-running as 38199758328.
 
+## 2026-10-12 — my PNG parser lied, the app was fine (mihon-visual 38200667362)
+- The "black" reader frames were Adam7-interlaced PNGs that my hand-rolled stdlib parser
+  misdecoded (garbage mean/var). The actual pixels — viewed directly — show the rendered
+  test-pattern page with 1/3 indicator. Gate rewritten on Pillow (handles interlace).
+  Lesson: never trust a number you computed with an unverified tool; look at the image.
+
 ## 2026-10-12 — swiftshader wedges screenshot frames black (mihon-visual 38199758328)
 - Same flow green twice, but one run's Maestro shot came back pure black (RGB mean 0.3).
   Composer flake ("Failed to find ColorBuffer" in logs), not app state. Gate now shoots 3×
