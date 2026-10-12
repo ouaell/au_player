@@ -22,6 +22,17 @@
 
 ## 2026-10-11 — Demo series screen: "0 chapters" (mihon-visual 38182752074)
 - MangaScreen for the scanned Demo shows title/author/Local-source/"In library" — but chapter list
+  shows "0 chapters" at screenshot time. Gave the chapter assert a 60 s timeout (rejected: this
+  Maestro version has no per-command timeout); re-enter strategy reads DB-cached chapters.
+
+## 2026-10-12 — root cause: shell-pushed files invisible to the app (scoped storage)
+- In-app File probe proved it: base dir lists [local, downloads], Demo/ exists and is a dir,
+  but demoList=[] while adb-shell ls shows ch1.cbz. Dir metadata readable, children of a
+  shell-owned file not — classic scoped-storage ownership. getChapterList silently [].
+- Product is correct as designed (real users pick a SAF tree in onboarding StorageStep;
+  UniFile DocumentFile path bypasses this). CI seeds must be APP-OWNED: run-as base64-decode.
+  Also prints appops state to verify whether the MANAGE grant takes effect undeclared.
+- MangaScreen for the scanned Demo shows title/author/Local-source/"In library" — but chapter list
   shows "0 chapters" at screenshot time. Either slow async chapter load on swiftshader or a real
   listing failure. Gave the chapter assert a 60 s timeout; the reader-page screenshot will decide.
 - Maestro shots now collected from $HOME/.maestro (numbered 1.png…); repo-bundled PNGs excluded.
