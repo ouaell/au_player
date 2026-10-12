@@ -42,10 +42,9 @@
   com.github.mihonapp:subsampling-scale-image-view@1b283e2bc4. Also rebranded the crash text
   (Discord → GitHub). The pixel gate correctly failed the dark frame (mean 23.6).
 
-## 2026-10-12 — reader flow GREEN, series screen proven (mihon-visual 38192631370)
-- Maestro reader flow passes end to end: scan → Demo → series ("1 chapter", ch1 row, Today,
-  Start button, test-pattern cover via our ImageDecoder port) → tap ch1 → reader opens, no crash.
-- Caution: the tap-instant reader-page shot was black; the settled gate shot decides.
-  Lesson learned: gate screenshots must run while the target screen is open — flows reordered
-  (01-tabs, 02-scan, 03-reader) so the reader is foreground at gate time, plus WAKEUP, plus
-  strict gate (PNG format checks, mean > 40, var > 30).
+## 2026-10-12 — reader renders: test-pattern page + 1/3 indicator (mihon-visual 38197997050)
+- Maestro reader-page.png: manga page renders (color bars), "1 / 3" indicator, Left/Right tap
+  zones, fullscreen system hint overlay. The subsampling fork fix works; chapters sync works.
+- The adb settled shot was BLACK by design: Mihon marks the reader FLAG_SECURE
+  (registerSecureActivity), which adb screencap honors. Gate rewired to Maestro shots.
+- All 3 flows passed in that run; only the (wrong) adb gate failed.
