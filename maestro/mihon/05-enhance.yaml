@@ -23,8 +23,14 @@ appId: app.auplayer.debug
     timeout: 15000
 - takeScreenshot: enhance-sheet
 - tapOn: "Anime"
+# Selecting closes the sheet and restarts the auto-hide clock, so the chip has
+# to be revealed again before it can be asserted on.
+- tapOn:
+    point: "50%,35%"
 - extendedWaitUntil:
     visible: "Enhance: ANIME"
     timeout: 15000
 - takeScreenshot: enhance-applied-a
+- tapOn:
+    point: "50%,35%"
 - takeScreenshot: enhance-applied-b
