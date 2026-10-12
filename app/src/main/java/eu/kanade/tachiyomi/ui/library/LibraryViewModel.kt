@@ -645,13 +645,16 @@ class LibraryViewModel(
                 }
                 // Sync chapters now so the series is complete offline and the
                 // series screen never shows a transient "0 chapters".
-                updateMangaFromRemote(
+                val update = updateMangaFromRemote(
                     source = source,
                     manga = manga,
                     fetchDetails = false,
                     fetchChapters = true,
                     manualFetch = false,
                 )
+                logcat(LogPriority.DEBUG) {
+                    "scanLocal: chapters synced=${update.getOrNull()?.newChapters?.size} failure=${update.exceptionOrNull()?.message}"
+                }
             }
             logcat(LogPriority.DEBUG) { "scanLocal: added=$added" }
             added
