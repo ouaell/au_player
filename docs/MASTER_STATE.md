@@ -1,20 +1,19 @@
 # MASTER_STATE — single source of truth
 
 ## Clock
-- Run start (T+0): 2026-10-11 ~03:45 UTC. Now: Phase B gate run (~T+23:00 wall).
+- Run start (T+0): 2026-10-11 ~03:45 UTC. Now: Phase B gate run (~T+24:00 wall).
 
 ## Phase
-- B GATE RUN. Reader renders (Maestro proof). adb screencap is black BY DESIGN
-  (FLAG_SECURE reader); gate rewired to Maestro shots.
-  Full gate run 38199002354.
+- B GATE RUN. Reader renders (Maestro proof). 3-shot gate defeats composer flakes.
+  Full gate run 38200667362.
 
 ## Done
 - Phase A gates: agents+skills, visual.yml green on legacy, dossier + gap-matrix seeded, recon (Mihon v0.20.4, REX usable primary).
 - legacy-v1 tag; native artifacts present (no rebuild).
-- mihon-line: rebrand, tabs, scan+chapter-sync, dep ports, crash-text rebrand.
+- mihon-line: rebrand, tabs, scan+chapter-sync, dep ports, crash-text rebrand, scrim dismissal.
 
 ## Next
-1. Gate run 38199002354 → contact sheet review → promote mihon-line to main.
+1. Gate run 38200667362 → contact sheet review → promote mihon-line to main.
 2. Phase C (REX integration).
 
 ## Open defects
@@ -23,4 +22,4 @@
 
 ## CI run ids (mihon-line)
 - mihon-ci green repeatedly (latest validates subsampling fork).
-- mihon-visual 38199002354: FULL GATE running.
+- mihon-visual 38200667362: FULL GATE running.

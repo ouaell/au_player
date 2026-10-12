@@ -53,3 +53,8 @@
 - Same reader-page content, but the system "Viewing full screen / Got it" overlay dims
   everything (mean crushed below the gate). Dismiss "Got it" in-flow (runFlow/when-visible)
   from now on. Full gate re-running as 38199758328.
+
+## 2026-10-12 — swiftshader wedges screenshot frames black (mihon-visual 38199758328)
+- Same flow green twice, but one run's Maestro shot came back pure black (RGB mean 0.3).
+  Composer flake ("Failed to find ColorBuffer" in logs), not app state. Gate now shoots 3×
+  and passes on ANY good frame. The good frame from the prior run proves rendering.
