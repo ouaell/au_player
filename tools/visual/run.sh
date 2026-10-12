@@ -24,6 +24,7 @@ echo "== storage access for headless runs =="
 $ADB shell appops set "$PKG" MANAGE_EXTERNAL_STORAGE allow || true
 $ADB shell appops set "$PKG" READ_MEDIA_IMAGES allow || true
 $ADB shell appops set "$PKG" READ_MEDIA_VIDEO allow || true
+$ADB shell appops get "$PKG" || true
 
 echo "== pre-seed prefs (skip first-run onboarding; SAF/permission steps can't run headless) =="
 printf '%s' '<?xml version="1.0" encoding="utf-8" standalone="yes" ?><map><boolean name="__APP_STATE_onboarding_complete" value="true" /></map>' > "$OUT/prefs.xml"
@@ -46,8 +47,15 @@ CBZ=$(ls visual-corpus/*.cbz visual-corpus/*.zip 2>/dev/null | head -1 || true)
 # NOTE: adb shell splits on spaces remotely — single-quote every remote path.
 LOCALDIR="/sdcard/AU Player/local/Demo"
 $ADB shell "mkdir -p '$LOCALDIR'"
-[ -n "$CBZ" ] && $ADB push "$CBZ" "$LOCALDIR/ch1.cbz"
+# Files must be APP-OWNED: shell-pushed files are invisible to the app UID on
+# scoped storage (dir listing works, children read as empty). Decode via run-as
+# so ownership — and readability — belong to the app, like a real file manager.
+if [ -n "$CBZ" ]; then
+  base64 -w0 "$CBZ" > "$OUT/ch1.b64"
+  $ADB shell "run-as $PKG sh -c 'base64 -d > $LOCALDIR/ch1.cbz'" < "$OUT/ch1.b64"
+fi
 $ADB shell "ls -l '$LOCALDIR'"
+$ADB shell "run-as $PKG sh -c 'ls -l $LOCALDIR'" || echo "NO-APP-READ (app UID cannot list seed dir)"
 
 echo "== cold-start timing =="
 $ADB shell am start -W -a android.intent.action.MAIN -n "$PKG/eu.kanade.tachiyomi.ui.main.MainActivity" 2>&1 | tee "$OUT/coldstart.txt" || true
