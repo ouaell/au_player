@@ -64,3 +64,9 @@
 - Same flow green twice, but one run's Maestro shot came back pure black (RGB mean 0.3).
   Composer flake ("Failed to find ColorBuffer" in logs), not app state. Gate now shoots 3×
   and passes on ANY good frame. The good frame from the prior run proves rendering.
+
+## 2026-10-12 — Phase B GATE MET (mihon-visual 38201760941)
+- All 3 flows green; pixel gate green on real numbers (mean=119.0 std=88.3 ×3).
+- Contact sheet reviewed panel by panel: reader pages, Library Demo card + snackbar, series
+  screen, History/Library empty states, More screen, Videos/Web placeholders. Real Mihon
+  quality throughout, no black/empty/default screens. Promoting mihon-line to main.
