@@ -80,15 +80,15 @@ find "$HOME/.maestro" /tmp -name "*.png" -mmin -30 -not -path "*/work/*" \
   -exec cp {} "$OUT/maestro/" \; 2>/dev/null || true
 ls "$OUT/maestro" || true
 
-echo "== reader render proof (adb shot after settle + pixel variance) =="
+echo "== reader render proof (Maestro shot + pixel variance) =="
 case "$FILTER" in
   ""|*reader*)
-    # Flows now run tabs, scan, reader (numeric order) so the reader is open.
-    # Wake the panel first: an asleep screen reads back near-black.
-    $ADB shell input keyevent KEYCODE_WAKEUP || true
-    sleep 3
-    $ADB exec-out screencap -p > "$OUT/shots/reader-settled.png" || true
-    python3 - "$OUT/shots/reader-settled.png" <<'EOF'
+    # NOTE: Mihon's reader window is FLAG_SECURE (registerSecureActivity), so
+    # `adb exec-out screencap` returns black by design. Maestro/UiAutomator
+    # screenshots capture the page fine — gate on those instead.
+    READER_SHOT=$(ls -t "$OUT"/maestro/reader-page*.png 2>/dev/null | head -1 || true)
+    [ -n "$READER_SHOT" ] || { echo "E: no reader-page Maestro shot collected"; exit 1; }
+    python3 - "$READER_SHOT" <<'EOF'
 import struct, sys, zlib
 path = sys.argv[1]
 data = open(path, "rb").read()
