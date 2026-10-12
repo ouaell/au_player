@@ -70,3 +70,35 @@
 - Contact sheet reviewed panel by panel: reader pages, Library Demo card + snackbar, series
   screen, History/Library empty states, More screen, Videos/Web placeholders. Real Mihon
   quality throughout, no black/empty/default screens. Promoting mihon-line to main.
+
+## 2026-10-12 — PLAYBACK PROVEN (mihon-visual 38223901993, VISUAL PASS)
+Viewed every frame. This is the Phase C gate: self-built LGPL libmpv v0.41.0
+playing a MediaStore video inside the Mihon shell.
+
+- `tab-videos.png` / `videos-library.png`: real platform thumbnail (testsrc2 bars),
+  title "Sample Clip" with the extension stripped, "751 KB", "0:08" duration badge.
+  Bottom nav reads Library/Videos/History/Web/More with Videos selected. Real
+  content, no placeholder, no empty state.
+- `player-controls.png`: player chrome over a live frame. Top bar has Back and
+  "Enhance: OFF"; transport shows **Pause**, which is the honest label only while
+  playing. Burned-in source timecode reads `00:00:00.000` frame 0.
+- `player-frame-a.png`: controls auto-hidden, clean fullscreen. Source timecode
+  reads `00:00:04.667` frame **112**. Against frame 0 in the earlier shot that is
+  unambiguous motion — not a loaded first frame, not a black surface.
+- Gate numbers: player frames `mean=56.3 std=103.7` (was 21.4/69.2 when the
+  stream failed to open), and `compare -metric AE` proves the two frames differ.
+- Reader untouched by all this: `mean=119.0 std=88.3`, unchanged from Phase B.
+
+Defects seen in these frames, both still open:
+- The seek slider bleeds a purple sliver past the left screen edge
+  (`PlayerControls` has no horizontal inset). Cosmetic; Phase D polish.
+- A 16:9 clip is letterboxed with large black bars in portrait. Correct scaling,
+  but the player does not rotate to landscape — a real gap vs MX/REX.
+
+Two crashes found by this loop, not by reading code:
+- S3-001 `UnsatisfiedLinkError`: PlayerActivity applied mpv startup options
+  before the native library was loaded and before a handle existed. The bridge
+  already does this inside `init()`.
+- S3-002 `android_content: application context is not set`: FFmpeg could not
+  resolve the `content://` URI until `av_jni_set_android_app_ctx` was wired
+  through a new `nativeSetAppContext` JNI entry point.

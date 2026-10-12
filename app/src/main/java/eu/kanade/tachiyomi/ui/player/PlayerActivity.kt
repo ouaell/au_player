@@ -14,6 +14,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import app.auplayer.aucore.Diag
 import app.auplayer.enhance.EnhanceController
+import app.auplayer.enhance.ShaderStager
 import app.auplayer.player.LibmpvBridge
 import app.auplayer.player.MpvPaths
 import app.auplayer.player.MpvNative
@@ -61,7 +62,12 @@ class PlayerActivity : ComponentActivity() {
             cacheDir = cacheDir,
             filesDir = filesDir,
         )
-        val bridge = LibmpvBridge(paths, appContext = applicationContext)
+        val stager = ShaderStager(applicationContext)
+        stager.stage()
+        val bridge = LibmpvBridge(
+            paths,
+            appContext = applicationContext,
+        )
         // Startup options are NOT applied here: LibmpvBridge.init() does that
         // itself, after loading the native library and creating the mpv handle.
         // Calling it before that would call into an unloaded library.
@@ -76,7 +82,10 @@ class PlayerActivity : ComponentActivity() {
             val handle = remember(created) {
                 PlayerHandle(
                     engine = created,
-                    enhance = EnhanceController(send = created::send),
+                    enhance = EnhanceController(
+                        send = created::send,
+                        pathResolver = stager::resolve,
+                    ),
                     onBack = { finish() },
                     onProgress = { position, _ ->
                         positionMs = position

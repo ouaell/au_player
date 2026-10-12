@@ -200,6 +200,32 @@ EOF
     else
       echo "E: need two player frames to prove playback advances"; exit 1
     fi
+    # Enhancement must not black out the picture it is applied to: same
+    # variance bar as plain playback, after the Anime chain is pushed.
+    ENC_SHOTS=$(ls -t "$OUT"/maestro/enhance-applied*.png 2>/dev/null || true)
+    if [ -n "$ENC_SHOTS" ]; then
+      ENC_PASS=0
+      for shot in $ENC_SHOTS; do
+        if python3 - "$shot" <<'EOF'
+import sys
+try:
+    from PIL import Image, ImageStat
+except ImportError:
+    print("Pillow missing")
+    sys.exit(2)
+img = Image.open(sys.argv[1]).convert("RGB")
+st = ImageStat.Stat(img)
+mean = sum(st.mean) / 3
+std = (sum(v * v for v in st.stddev) / 3) ** 0.5
+print(f"enhance: {sys.argv[1]} mean={mean:.1f} std={std:.1f}")
+sys.exit(0 if (mean > 25.0 and std > 20.0) else 1)
+EOF
+        then
+          ENC_PASS=1
+        fi
+      done
+      [ "$ENC_PASS" -eq 1 ] || { echo "E: enhancement blacked out the surface"; exit 1; }
+    fi
     ;;
 esac
 

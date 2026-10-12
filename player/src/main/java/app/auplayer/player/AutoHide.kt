@@ -2,6 +2,8 @@ package app.auplayer.player
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.unit.dp
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -61,7 +63,9 @@ fun PlayerControls(
     controller: PlayerController,
     onSeek: (Float) -> Unit,
 ) {
-    Column {
+    // The Slider's thumb overhangs its track at both ends; without an inset
+    // it bleeds past the screen edge at position 0 and 1.
+    Column(modifier = Modifier.padding(horizontal = 12.dp)) {
         Slider(
             value = state.progress,
             onValueChange = onSeek,

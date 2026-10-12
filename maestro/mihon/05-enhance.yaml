@@ -1,0 +1,26 @@
+appId: app.auplayer.debug
+---
+- launchApp
+- assertVisible: "Library"
+- tapOn: "Videos"
+- extendedWaitUntil:
+    visible: "Sample Clip"
+    timeout: 20000
+- tapOn: "Sample Clip"
+- extendedWaitUntil:
+    visible: "Enhance: OFF"
+    timeout: 30000
+# Turning Anime on must actually push a shader chain to mpv. The chip label is
+# the user-visible contract; the frames-differ gate in run.sh proves the
+# surface is still live afterwards (a failed chain can black out the video).
+- tapOn: "Enhance: OFF"
+- extendedWaitUntil:
+    visible: "Anime"
+    timeout: 15000
+- takeScreenshot: enhance-sheet
+- tapOn: "Anime"
+- extendedWaitUntil:
+    visible: "Enhance: ANIME"
+    timeout: 15000
+- takeScreenshot: enhance-applied-a
+- takeScreenshot: enhance-applied-b
