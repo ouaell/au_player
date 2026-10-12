@@ -102,3 +102,25 @@ Two crashes found by this loop, not by reading code:
 - S3-002 `android_content: application context is not set`: FFmpeg could not
   resolve the `content://` URI until `av_jni_set_android_app_ctx` was wired
   through a new `nativeSetAppContext` JNI entry point.
+
+## 2026-10-12 — PHASE D GATE MET (mihon-visual 38272177419, success)
+All 5 flows green. Enhancement reached the screen, not just the code path.
+
+- `enhance-sheet.png`: the sheet renders Off / Anime / Standard with a check on
+  the active mode, plus Close. Playback continues behind it (00:00:05.458 f131).
+- `enhance-applied-a.png`: top bar reads **Enhance: ANIME**, video still live at
+  00:00:10.200 f245, transport reads Pause, slider filled to ~23%. Enhancement
+  did not black out the picture, which is what the gate checks.
+- S3-003 found and fixed here: shader paths resolved to
+  `.../shaders/patched/shaders/patched/...` (root segment repeated). Logcat now
+  shows no "Cannot open file" after selecting Anime. Regression tests added for
+  the mapping, made pure so it needs no Android Context.
+
+Honest limit on this gate: the fixture is a synthetic test pattern, and Anime4K
+is trained for line art, so there is no *visible* upscale to photograph here.
+What is proven is that the chain is selected, its files resolve, mpv raises no
+file/stream errors, and playback survives. A real anime clip on real hardware is
+still needed to judge quality — that is the Phase D follow-up, not a done item.
+
+Slider fix verified in the same frame: the track no longer bleeds past the left
+edge (the purple sliver at position 0 is gone).
