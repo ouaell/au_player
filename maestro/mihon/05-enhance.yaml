@@ -7,13 +7,17 @@ appId: app.auplayer.debug
     visible: "Sample Clip"
     timeout: 20000
 - tapOn: "Sample Clip"
-# Controls auto-hide. Reveal them and tap the Enhance button back to back:
-# inserting a waitForAnimationToComplete between them costs enough wall time
-# for the bar to hide again, and the tap then lands on the reveal-catcher
-# instead of the button, which silently opens nothing.
+# Controls auto-hide during playback, so the bar has to be revealed before it
+# can be tapped. The tap catcher sits under the chrome and only reveals.
 - tapOn:
     point: "50%,35%"
-- tapOn: "Enhance: OFF"
+- extendedWaitUntil:
+    visible: "Enhance: OFF"
+    timeout: 30000
+# Tapped by coordinate, not by text: the text node sits inside a merged
+# semantics button and Maestro's lookup on it has proven unreliable here.
+- tapOn:
+    point: "87%,6%"
 - extendedWaitUntil:
     visible: "Anime"
     timeout: 15000

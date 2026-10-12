@@ -156,12 +156,15 @@ fun PlayerScreen(
                         maxLines = 1,
                         modifier = Modifier.weight(1f),
                     )
-                    TextButton(
-                        onClick = { showSheet = true },
-                        modifier = Modifier.semantics(mergeDescendants = true) {
-                            contentDescription = "Enhance: ${enhanceMode.name}"
-                        },
-                    ) {
+TextButton(
+                    onClick = {
+                        Log.i("AuPlayer", "enhance: sheet opened")
+                        showSheet = true
+                    },
+                    modifier = Modifier.semantics(mergeDescendants = true) {
+                        contentDescription = "Enhance: ${enhanceMode.name}"
+                    },
+                ) {
                         Text(text = "Enhance: ${enhanceMode.name}")
                     }
                 }
@@ -189,6 +192,7 @@ fun PlayerScreen(
                 lowered = enhance.currentRung > 0,
                 sourceHeightPx = videoHeight,
                 onSelect = { mode ->
+                    Log.i("AuPlayer", "enhance: selected $mode")
                     enhanceMode = mode
                     enhance.apply(mode, videoHeight)
                     showSheet = false
