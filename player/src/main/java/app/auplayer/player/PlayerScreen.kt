@@ -81,11 +81,8 @@ fun PlayerScreen(
             if (visible != controls) {
                 Log.i("AuPlayer", "controls tick visible=$visible")
             }
-            // Auto-hide only applies to live playback. Paused, stopped and
-            // finished media keep the controls up: hiding them mid-pause
-            // strands the user with no visible way to resume or reach a
-            // setting, which is every other player's behaviour too.
-            controls = visible || !uiState.state.isPlaying
+            // Auto-hide only applies to live playback; see controlsVisible().
+            controls = controlsVisible(visible, uiState.state.isPlaying)
         }
     }
     LaunchedEffect(showSheet) {

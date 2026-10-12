@@ -17,7 +17,16 @@ class ControlsLogicTest {
     fun `hidden after timeout`() {
         val hide = AutoHide()
         hide.interact(1_000)
-        assertFalse(hide.visible(1_000 + 3_000))
+        // Derived from the constant, not a literal: a hardcoded window silently
+        // rots the moment the timeout is retuned.
+        assertFalse(hide.visible(1_000 + AUTO_HIDE_TIMEOUT + 1))
+    }
+
+    @Test
+    fun `still visible just before the timeout`() {
+        val hide = AutoHide()
+        hide.interact(1_000)
+        assertTrue(hide.visible(1_000 + AUTO_HIDE_TIMEOUT - 1))
     }
 
     @Test
@@ -36,5 +45,17 @@ class ControlsLogicTest {
         assertEquals("01:01", formatTime(61_000))
         assertEquals("1:00:00", formatTime(3_600_000))
         assertEquals("00:00", formatTime(-500))
+    }
+
+    @Test
+    fun `controls auto hide only while playing`() {
+        assertFalse(controlsVisible(autoHideVisible = false, isPlaying = true))
+        assertTrue(controlsVisible(autoHideVisible = false, isPlaying = false))
+    }
+
+    @Test
+    fun `controls never hide while a sheet or tap keeps them alive`() {
+        assertTrue(controlsVisible(autoHideVisible = true, isPlaying = true))
+        assertTrue(controlsVisible(autoHideVisible = true, isPlaying = false))
     }
 }

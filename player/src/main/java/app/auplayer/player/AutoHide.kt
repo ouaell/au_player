@@ -47,6 +47,19 @@ fun formatTime(millis: Long): String {
 }
 
 private const val AUTO_HIDE_TIMEOUT_MS = 5_000L
+
+/** How long the controls stay up after an interaction. */
+const val AUTO_HIDE_TIMEOUT = AUTO_HIDE_TIMEOUT_MS
+
+/**
+ * Whether the transport controls should be on screen.
+ *
+ * Auto-hide applies only to live playback: paused, stopped and finished media
+ * keep the controls up, because hiding them mid-pause leaves no visible way to
+ * resume or reach a setting. Pure so the rule is testable on its own.
+ */
+fun controlsVisible(autoHideVisible: Boolean, isPlaying: Boolean): Boolean =
+    autoHideVisible || !isPlaying
 private const val NO_TIME = 0L
 private const val MILLIS_PER_SECOND = 1_000L
 private const val SECONDS_PER_MINUTE = 60L
