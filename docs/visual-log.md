@@ -29,9 +29,10 @@
 - In-app File probe proved it: base dir lists [local, downloads], Demo/ exists and is a dir,
   but demoList=[] while adb-shell ls shows ch1.cbz. Dir metadata readable, children of a
   shell-owned file not — classic scoped-storage ownership. getChapterList silently [].
-- Product is correct as designed (real users pick a SAF tree in onboarding StorageStep;
-  UniFile DocumentFile path bypasses this). CI seeds must be APP-OWNED: run-as base64-decode.
-  Also prints appops state to verify whether the MANAGE grant takes effect undeclared.
+- MANAGE_EXTERNAL_STORAGE via appops does NOT apply (undeclared; absent from appops get).
+- Product is correct as designed (real users pick a SAF tree in onboarding StorageStep).
+  CI fix: storage_dir pref → app-owned internal dir (file://…/files/citest), CBZ via run-as
+  base64-decode. No permission needed at all.
 - MangaScreen for the scanned Demo shows title/author/Local-source/"In library" — but chapter list
   shows "0 chapters" at screenshot time. Either slow async chapter load on swiftshader or a real
   listing failure. Gave the chapter assert a 60 s timeout; the reader-page screenshot will decide.

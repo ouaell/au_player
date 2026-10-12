@@ -13,7 +13,7 @@
 - mihon-line: clean object import (31beac7); working tree verified after a zero-byte corruption incident (rebuilt via git objects, no file copies).
 
 ## Next
-1. Reader flow (run 38189105818): raw probeChapters=N discriminates listing-empty vs sync-drop.
+1. Reader flow (run 38192034102): internal-storage seed should yield chapters + reader page.
 2. Phase B gate: full mihon-visual green (tabs/scan/reader) + contact sheet review.
 3. Promote to main at gate; Phase C (REX integration).
 
