@@ -61,7 +61,7 @@ class PlayerActivity : ComponentActivity() {
             cacheDir = cacheDir,
             filesDir = filesDir,
         )
-        val bridge = LibmpvBridge(paths)
+        val bridge = LibmpvBridge(paths, appContext = applicationContext)
         // Startup options are NOT applied here: LibmpvBridge.init() does that
         // itself, after loading the native library and creating the mpv handle.
         // Calling it before that would call into an unloaded library.

@@ -33,6 +33,23 @@ object MpvNative {
         return loaded
     }
 
+    /**
+     * Hands FFmpeg the application Context so its `android_content` protocol
+     * can read `content://` URIs. Without this mpv reports "application
+     * context is not set" and every MediaStore item fails to open. Typed as
+     * Any so this file stays usable from plain JVM unit tests.
+     */
+    fun setAppContext(context: Any?) {
+        if (!load() || context == null) return
+        try {
+            nativeSetAppContext(context)
+        } catch (error: UnsatisfiedLinkError) {
+            lastError = error.message
+            Diag.record("mpv", "app context rejected: " + error.message.toString())
+        }
+    }
+
+    external fun nativeSetAppContext(context: Any)
     external fun nativeCreate(): Long
     external fun nativeInit(handle: Long): Int
     external fun nativeSetOption(handle: Long, key: String, value: String): Int

@@ -13,7 +13,12 @@ import java.io.IOException
  * Events arrive by name (`end-file`, `property-change`). Instantiation on a
  * JVM without native libs throws — tests guard with `assumeTrue(load())`.
  */
-class LibmpvBridge(private val paths: MpvPaths, traceDir: File? = null) : MpvBridge {
+class LibmpvBridge(
+    private val paths: MpvPaths,
+    traceDir: File? = null,
+    /** Application Context; required for `content://` sources. */
+    private val appContext: Any? = null,
+) : MpvBridge {
     private var handle: Long = 0L
     private var listener: ((MpvEvent) -> Unit)? = null
     private val tracer = EventTracer(traceDir)
@@ -32,6 +37,8 @@ class LibmpvBridge(private val paths: MpvPaths, traceDir: File? = null) : MpvBri
             Log.i("AuPlayer", "native libmpv absent")
             throw MpvCommandException("native libmpv absent")
         }
+        // Must precede loadfile: FFmpeg resolves content:// through this ctx.
+        MpvNative.setAppContext(appContext)
         val created = MpvNative.nativeCreate()
         if (created == 0L) throw MpvCommandException("mpv_create failed")
         handle = created

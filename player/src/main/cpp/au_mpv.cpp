@@ -27,6 +27,11 @@
 
 extern "C" {
 int av_jni_set_java_vm(void* vm, void* log_ctx);
+// FFmpeg's android_content protocol (content:// URIs, i.e. everything the
+// MediaStore browser hands us) resolves through this app context. Without it
+// mpv fails with "android_content: application context is not set" and the
+// stream never opens.
+int av_jni_set_android_app_ctx(void* ctx);
 }  // extern "C"
 
 // mpv's android backends (vo/gpu android-context, ao audiotrack) fetch the
@@ -34,12 +39,34 @@ int av_jni_set_java_vm(void* vm, void* log_ctx);
 // machine has been registered" and video never starts (E1: "Video: no video"
 // while audio fell back to opensles). Register once at library load.
 extern "C" {
+
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void*) {
     if (av_jni_set_java_vm(vm, nullptr) < 0) {
         __android_log_print(ANDROID_LOG_ERROR, "AuPlayer", "av_jni_set_java_vm failed");
         return JNI_ERR;
     }
     return JNI_VERSION_1_6;
+}
+
+// Hands FFmpeg the application Context used to resolve content:// URIs.
+// The global ref is kept for the process lifetime: FFmpeg dereferences it
+// whenever the android_content protocol is opened, well past this call.
+JNIEXPORT void JNICALL
+Java_app_auplayer_player_MpvNative_nativeSetAppContext(JNIEnv* env, jobject, jobject ctx) {
+    static JavaVM* vm = nullptr;
+    if (ctx == nullptr) {
+        return;
+    }
+    env->GetJavaVM(&vm);
+    jobject global = env->NewGlobalRef(ctx);
+    if (global == nullptr) {
+        AU_LOGE("nativeSetAppContext: NewGlobalRef failed");
+        return;
+    }
+    if (av_jni_set_android_app_ctx(global) < 0) {
+        AU_LOGE("nativeSetAppContext: av_jni_set_android_app_ctx failed");
+        env->DeleteGlobalRef(global);
+    }
 }
 }  // extern "C"
 
