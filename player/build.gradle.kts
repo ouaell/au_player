@@ -69,7 +69,7 @@ dependencies {
     testRuntimeOnly(libs.junit.vintage.engine)
 }
 
-/** Stages pinned native libs (no binaries in git); up-to-date when present. */
+// Stages pinned native libs (no binaries in git); up-to-date when present.
 tasks.register<FetchNativeLibs>("fetchNativeLibs") {
     tag.set(
         rootProject.file("native/pins.txt").readLines()
