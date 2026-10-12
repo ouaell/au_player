@@ -11,6 +11,7 @@ import eu.kanade.core.util.fastFilterNot
 import eu.kanade.domain.base.BasePreferences
 import eu.kanade.domain.chapter.interactor.SetReadStatus
 import eu.kanade.domain.manga.interactor.UpdateManga
+import eu.kanade.domain.manga.model.toSManga
 import eu.kanade.presentation.library.components.LibraryToolbarTitle
 import eu.kanade.presentation.manga.DownloadAction
 import eu.kanade.tachiyomi.data.cache.CoverCache
@@ -645,6 +646,17 @@ class LibraryViewModel(
                 }
                 // Sync chapters now so the series is complete offline and the
                 // series screen never shows a transient "0 chapters".
+                val probe = try {
+                    source.getMangaUpdate(
+                        manga = manga.toSManga(),
+                        chapters = emptyList(),
+                        fetchDetails = false,
+                        fetchChapters = true,
+                    ).chapters.size
+                } catch (e: Exception) {
+                    logcat(LogPriority.ERROR, e) { "scanLocal probe failed" }
+                    -1
+                }
                 val update = updateMangaFromRemote(
                     source = source,
                     manga = manga,
@@ -653,7 +665,7 @@ class LibraryViewModel(
                     manualFetch = false,
                 )
                 logcat(LogPriority.DEBUG) {
-                    "scanLocal: chapters synced=${update.getOrNull()?.newChapters?.size} failure=${update.exceptionOrNull()?.message}"
+                    "scanLocal: probeChapters=$probe synced=${update.getOrNull()?.newChapters?.size} failure=${update.exceptionOrNull()?.message}"
                 }
             }
             logcat(LogPriority.DEBUG) { "scanLocal: added=$added" }
