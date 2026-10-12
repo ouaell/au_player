@@ -40,7 +40,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import eu.kanade.tachiyomi.ui.videos.VideoRepository.Companion.displayName
+import eu.kanade.tachiyomi.ui.videos.displayName
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import tachiyomi.presentation.core.screens.EmptyScreen
@@ -171,8 +171,7 @@ private fun VideoThumbnail(uri: Uri, modifier: Modifier = Modifier) {
     val bitmap by produceState<Bitmap?>(initialValue = null, uri) {
         value = withContext(Dispatchers.IO) {
             runCatching {
-                val loader = context.contentResolver.loadThumbnail(uri, Size(384, 216), null)
-                loader.use { it }
+                context.contentResolver.loadThumbnail(uri, Size(384, 216), null)
             }.getOrNull()
         }
     }

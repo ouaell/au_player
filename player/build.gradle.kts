@@ -1,9 +1,3 @@
-plugins {
-    alias(mihonx.plugins.android.library)
-    alias(mihonx.plugins.compose)
-    alias(mihonx.plugins.spotless)
-}
-
 import java.io.File
 import javax.inject.Inject
 import org.gradle.api.DefaultTask
@@ -11,6 +5,12 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import org.gradle.process.ExecOperations
+
+plugins {
+    alias(mihonx.plugins.android.library)
+    alias(mihonx.plugins.compose)
+    alias(mihonx.plugins.spotless)
+}
 
 /** Stages pinned native libs (CC-safe: no project captures in the action). */
 abstract class FetchNativeLibs : DefaultTask() {
