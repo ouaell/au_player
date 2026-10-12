@@ -67,6 +67,7 @@ dependencies {
 
     testImplementation(libs.junit4)
     testRuntimeOnly(libs.junit.vintage.engine)
+    testRuntimeOnly(libs.junit.platform.launcher)
 }
 
 // Stages pinned native libs (no binaries in git); up-to-date when present.

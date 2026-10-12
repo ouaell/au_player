@@ -12,4 +12,5 @@ dependencies {
     implementation(libs.bundles.kotlinx.coroutines)
     testImplementation(libs.junit4)
     testRuntimeOnly(libs.junit.vintage.engine)
+    testRuntimeOnly(libs.junit.platform.launcher)
 }
