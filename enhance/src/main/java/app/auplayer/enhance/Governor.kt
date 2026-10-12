@@ -51,7 +51,7 @@ class EnhanceGovernor(private val maxRung: Int = 1) {
 enum class GovernorDecision {
     STAY,
     STEP_DOWN,
-    AT_BOTTOM
+    AT_BOTTOM,
 }
 
 private const val DROPS_PER_SAMPLE = 3L

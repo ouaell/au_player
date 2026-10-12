@@ -17,7 +17,7 @@ class SubtitleStyleTest {
         assertEquals(null, subtitleProps(SubtitleStyle())["sub-font"])
         assertEquals(
             "Noto",
-            subtitleProps(SubtitleStyle(font = "Noto"))["sub-font"]
+            subtitleProps(SubtitleStyle(font = "Noto"))["sub-font"],
         )
     }
 
@@ -31,7 +31,7 @@ class SubtitleStyleTest {
     fun `delays map to sub and audio props`() {
         assertEquals(
             mapOf("sub-delay" to "0.5", "audio-delay" to "-0.2"),
-            delayProps(0.5, -0.2)
+            delayProps(0.5, -0.2),
         )
     }
 }

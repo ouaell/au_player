@@ -17,6 +17,7 @@ class LibmpvBridge(private val paths: MpvPaths, traceDir: File? = null) : MpvBri
     private var handle: Long = 0L
     private var listener: ((MpvEvent) -> Unit)? = null
     private val tracer = EventTracer(traceDir)
+
     /** Serializes direct (non-engine) attach/detach callers against each
      *  other; engine callers are already single-dispatcher ordered. */
     private val surfaceLock = Any()

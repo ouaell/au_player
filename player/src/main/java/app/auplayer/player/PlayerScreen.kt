@@ -47,7 +47,7 @@ import kotlinx.coroutines.delay
 fun PlayerScreen(
     uri: String,
     handle: PlayerHandle,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val engine = handle.engine
     val enhance = handle.enhance
@@ -91,7 +91,7 @@ fun PlayerScreen(
     }
     ReportProgress(uri = uri, uiState = uiState, onProgress = handle.onProgress)
     Box(
-        modifier = modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize(),
     ) {
         AndroidView(
             factory = { context ->
@@ -106,7 +106,7 @@ fun PlayerScreen(
                             holder: SurfaceHolder,
                             format: Int,
                             width: Int,
-                            height: Int
+                            height: Int,
                         ) {
                             surfaces.onSurfaceCreated(holder.surface)
                             surfaceReady = usableFrame(holder) != null
@@ -120,7 +120,7 @@ fun PlayerScreen(
                     })
                 }
             },
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
         )
         // Transparent tap catcher above the native view (which consumes all
         // touches): taps toggle controls. Below the controls so buttons win.
@@ -133,32 +133,30 @@ fun PlayerScreen(
                         autoHide.interact(System.currentTimeMillis())
                         controls = true
                     }
-                }
+                },
         )
         if (controls) {
             Column(modifier = Modifier.fillMaxSize()) {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(8.dp).statusBarsPadding(),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     TextButton(
                         onClick = handle.onBack,
                         modifier = Modifier.semantics(mergeDescendants = true) {
                             contentDescription = BACK_DESCRIPTION
-
-                        }
+                        },
                     ) { Text(BACK_DESCRIPTION) }
                     Text(
                         text = uri.substringAfterLast('/'),
                         maxLines = 1,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
                     )
                     TextButton(
                         onClick = { showSheet = true },
                         modifier = Modifier.semantics(mergeDescendants = true) {
                             contentDescription = "Enhance: ${enhanceMode.name}"
-
-                        }
+                        },
                     ) {
                         Text(text = "Enhance: ${enhanceMode.name}")
                     }
@@ -176,7 +174,7 @@ fun PlayerScreen(
                             if (durationSec > 0) {
                                 engine.seekTo((fraction * durationSec).toDouble())
                             }
-                        }
+                        },
                     )
                 }
             }
@@ -191,7 +189,7 @@ fun PlayerScreen(
                     enhance.apply(mode, videoHeight)
                     showSheet = false
                 },
-                onDismiss = { showSheet = false }
+                onDismiss = { showSheet = false },
             )
         }
     }
@@ -202,7 +200,7 @@ fun PlayerScreen(
 private fun ReportProgress(
     uri: String,
     uiState: PlayerUiState,
-    onProgress: (Long, Long) -> Unit
+    onProgress: (Long, Long) -> Unit,
 ) {
     var lastSaved by remember(uri) { mutableStateOf(0L) }
     LaunchedEffect(uiState.positionMs, uiState.durationMs) {
@@ -218,7 +216,7 @@ private fun ReportProgress(
         onDispose {
             Log.i(
                 "E9GATE",
-                "report dispose pos=${latest.positionMs} dur=${latest.durationMs}"
+                "report dispose pos=${latest.positionMs} dur=${latest.durationMs}",
             )
             if (latest.durationMs > 0 && latest.positionMs > 0) {
                 onProgress(latest.positionMs, latest.durationMs)
@@ -248,19 +246,19 @@ fun rememberPlayerUiState(engine: PlayerEngine): State<PlayerUiState> {
                         lastTickMs = now
                         current.copy(
                             positionMs = (event.seconds * MILLIS_PER_SECOND).toLong(),
-                            state = if (paused) PlayerState.Paused else PlayerState.Playing
+                            state = if (paused) PlayerState.Paused else PlayerState.Playing,
                         )
                     } else {
                         current
                     }
                 }
                 is MpvEvent.Duration -> current.copy(
-                    durationMs = (event.seconds * MILLIS_PER_SECOND).toLong()
+                    durationMs = (event.seconds * MILLIS_PER_SECOND).toLong(),
                 )
                 is MpvEvent.Paused -> {
                     paused = event.paused
                     current.copy(
-                        state = if (event.paused) PlayerState.Paused else PlayerState.Playing
+                        state = if (event.paused) PlayerState.Paused else PlayerState.Playing,
                     )
                 }
                 is MpvEvent.Eof -> current.copy(state = PlayerState.Idle, positionMs = 0)
@@ -277,14 +275,14 @@ private fun EnhanceSheetOverlay(
     lowered: Boolean,
     sourceHeightPx: Int,
     onSelect: (EnhanceMode) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         EnhanceSheet(
             selected = selected,
             lowered = lowered,
             sourceHeightPx = sourceHeightPx,
-            onSelect = onSelect
+            onSelect = onSelect,
         )
         Button(onClick = onDismiss) { Text("Close") }
     }

@@ -9,7 +9,7 @@ enum class PlayerState {
     Paused,
     Buffering,
     Error,
-    Released
+    Released,
 }
 
 class PlayerStateMachine {
@@ -31,19 +31,19 @@ class PlayerStateMachine {
                 PlayerState.Paused,
                 PlayerState.Buffering,
                 PlayerState.Error,
-                PlayerState.Released
+                PlayerState.Released,
             )
             PlayerState.Paused -> setOf(
                 PlayerState.Playing,
                 PlayerState.Buffering,
                 PlayerState.Error,
-                PlayerState.Released
+                PlayerState.Released,
             )
             PlayerState.Buffering -> setOf(
                 PlayerState.Playing,
                 PlayerState.Paused,
                 PlayerState.Error,
-                PlayerState.Released
+                PlayerState.Released,
             )
             PlayerState.Error -> setOf(PlayerState.Loading, PlayerState.Released)
             PlayerState.Released -> emptySet()
@@ -57,7 +57,7 @@ data class PlayerUiState(
     val positionMs: Long = 0,
     val durationMs: Long = 0,
     val speed: Float = DEFAULT_SPEED,
-    val locked: Boolean = false
+    val locked: Boolean = false,
 ) {
     val progress: Float
         get() = if (durationMs <= 0) {

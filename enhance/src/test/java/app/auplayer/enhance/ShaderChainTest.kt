@@ -13,9 +13,9 @@ class ShaderChainTest {
             listOf(
                 ShaderPass("shaders/patched/Anime4K_Clamp_Highlights.glsl"),
                 ShaderPass("shaders/patched/Anime4K_Restore_CNN_M.glsl"),
-                ShaderPass("shaders/patched/Anime4K_Upscale_CNN_x2_M.glsl")
+                ShaderPass("shaders/patched/Anime4K_Upscale_CNN_x2_M.glsl"),
             ),
-            ShaderChainBuilder.build(EnhanceMode.ANIME, 1080)
+            ShaderChainBuilder.build(EnhanceMode.ANIME, 1080),
         )
     }
 
@@ -24,9 +24,9 @@ class ShaderChainTest {
         assertEquals(
             listOf(
                 ShaderPass("shaders/patched/Anime4K_Clamp_Highlights.glsl"),
-                ShaderPass("shaders/patched/Anime4K_Upscale_CNN_x2_S.glsl")
+                ShaderPass("shaders/patched/Anime4K_Upscale_CNN_x2_S.glsl"),
             ),
-            ShaderChainBuilder.build(EnhanceMode.ANIME, 1080, rung = 1)
+            ShaderChainBuilder.build(EnhanceMode.ANIME, 1080, rung = 1),
         )
         assertTrue(ShaderChainBuilder.build(EnhanceMode.ANIME, 1080, rung = 2).isEmpty())
     }
@@ -35,7 +35,7 @@ class ShaderChainTest {
     fun `standard top rung is ravu lite`() {
         assertEquals(
             listOf(ShaderPass("shaders/patched/ravu-lite-r4.hook")),
-            ShaderChainBuilder.build(EnhanceMode.STANDARD, 720)
+            ShaderChainBuilder.build(EnhanceMode.STANDARD, 720),
         )
         assertTrue(ShaderChainBuilder.build(EnhanceMode.STANDARD, 720, rung = 1).isEmpty())
     }

@@ -10,7 +10,7 @@ class SidecarTest {
         "movie.srt",
         "movie.forced.eng.srt",
         "other.eng.srt",
-        "movie.nfo"
+        "movie.nfo",
     )
 
     @Test
@@ -20,9 +20,9 @@ class SidecarTest {
                 Sidecar("movie.eng.srt", "eng"),
                 Sidecar("movie.ara.ass", "ara"),
                 Sidecar("movie.srt", null),
-                Sidecar("movie.forced.eng.srt", "eng")
+                Sidecar("movie.forced.eng.srt", "eng"),
             ),
-            matchSidecars("movie.mkv", files)
+            matchSidecars("movie.mkv", files),
         )
     }
 

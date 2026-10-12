@@ -4,7 +4,7 @@ package app.auplayer.player
 enum class TapZone {
     LEFT,
     CENTER,
-    RIGHT
+    RIGHT,
 }
 
 /** Pure gesture→action outputs. Screen effects (brightness/volume) bind in MS-014+. */
@@ -22,7 +22,7 @@ sealed interface GestureAction {
 data class GestureConfig(
     val doubleTapSeconds: Long = DEFAULT_DOUBLE_TAP_SECONDS,
     val pinchMinZoom: Float = MIN_ZOOM,
-    val pinchMaxZoom: Float = MAX_ZOOM
+    val pinchMaxZoom: Float = MAX_ZOOM,
 )
 
 /**

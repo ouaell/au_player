@@ -23,7 +23,7 @@ class AudioFocusTest {
         val handler = AudioFocusHandler()
         assertEquals(
             FocusAction.Pause,
-            handler.onChange(AudioFocusChange.TRANSIENT_LOSS, playing = true)
+            handler.onChange(AudioFocusChange.TRANSIENT_LOSS, playing = true),
         )
         val ducker = AudioFocusHandler()
         assertEquals(FocusAction.Duck, ducker.onChange(AudioFocusChange.DUCK, playing = true))

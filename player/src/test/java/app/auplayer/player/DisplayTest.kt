@@ -21,15 +21,15 @@ class DisplayTest {
     fun `follow video picks the long edge`() {
         assertEquals(
             EffectiveOrientation.LANDSCAPE,
-            effectiveOrientation(OrientationPref.FOLLOW_VIDEO, 1920, 1080)
+            effectiveOrientation(OrientationPref.FOLLOW_VIDEO, 1920, 1080),
         )
         assertEquals(
             EffectiveOrientation.PORTRAIT,
-            effectiveOrientation(OrientationPref.FOLLOW_VIDEO, 720, 1280)
+            effectiveOrientation(OrientationPref.FOLLOW_VIDEO, 720, 1280),
         )
         assertEquals(
             EffectiveOrientation.UNSPECIFIED,
-            effectiveOrientation(OrientationPref.AUTO, 1920, 1080)
+            effectiveOrientation(OrientationPref.AUTO, 1920, 1080),
         )
     }
 

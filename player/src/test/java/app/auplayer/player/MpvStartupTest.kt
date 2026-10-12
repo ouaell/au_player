@@ -14,7 +14,7 @@ class MpvStartupTest {
     private fun paths() = MpvPaths(
         configDir = tmp.newFolder("config"),
         cacheDir = tmp.newFolder("cache"),
-        filesDir = tmp.newFolder("files")
+        filesDir = tmp.newFolder("files"),
     )
 
     @Test

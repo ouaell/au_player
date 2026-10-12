@@ -41,7 +41,7 @@ object JniNcnnBridge : NcnnBridge {
 /** Fake for unit tests. */
 class FakeNcnnBridge(
     var vulkanWorks: Boolean = true,
-    var scale: Int = 2
+    var scale: Int = 2,
 ) : NcnnBridge {
     var releases = 0
     override fun init(): Boolean = true
@@ -57,7 +57,7 @@ class FakeNcnnBridge(
 enum class NcnnBackend {
     VULKAN,
     CPU,
-    DISABLED
+    DISABLED,
 }
 
 /**

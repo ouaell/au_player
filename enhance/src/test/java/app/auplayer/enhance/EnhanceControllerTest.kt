@@ -18,7 +18,7 @@ class FakeSender(var fail: Boolean = false) : (List<String>) -> Unit {
 
 class EnhanceControllerTest {
     private fun controller(
-        sender: FakeSender = FakeSender()
+        sender: FakeSender = FakeSender(),
     ): Pair<EnhanceController, FakeSender> {
         return EnhanceController(sender) to sender
     }
@@ -37,9 +37,9 @@ class EnhanceControllerTest {
                 "change-list glsl-shaders set " +
                     "shaders/patched/Anime4K_Clamp_Highlights.glsl:" +
                     "shaders/patched/Anime4K_Restore_CNN_M.glsl:" +
-                    "shaders/patched/Anime4K_Upscale_CNN_x2_M.glsl"
+                    "shaders/patched/Anime4K_Upscale_CNN_x2_M.glsl",
             ),
-            commands
+            commands,
         )
         assertEquals(EnhanceMode.ANIME, controller.currentMode)
     }
@@ -72,7 +72,7 @@ class EnhanceControllerTest {
         val (controller, sender) = controller()
         assertEquals(EnhanceResult.Applied, controller.applyAsync(EnhanceMode.STANDARD, 720))
         assertTrue(
-            sender.sent.any { command -> command.any { it.contains("ravu-lite-r4") } }
+            sender.sent.any { command -> command.any { it.contains("ravu-lite-r4") } },
         )
     }
 }

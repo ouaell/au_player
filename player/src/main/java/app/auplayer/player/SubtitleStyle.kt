@@ -9,7 +9,7 @@ data class SubtitleStyle(
     val colorArgb: Long = WHITE_ARGB,
     val outlineSize: Int = DEFAULT_OUTLINE,
     val position: Float = DEFAULT_POSITION,
-    val font: String? = null
+    val font: String? = null,
 )
 
 fun subtitleProps(style: SubtitleStyle): Map<String, String> {
@@ -17,7 +17,7 @@ fun subtitleProps(style: SubtitleStyle): Map<String, String> {
         "sub-font-size" to style.sizeSp.toString(),
         "sub-color" to mpvColor(style.colorArgb),
         "sub-border-size" to style.outlineSize.toString(),
-        "sub-pos" to style.position.toString()
+        "sub-pos" to style.position.toString(),
     )
     val font = style.font
     if (font != null) {
@@ -29,12 +29,12 @@ fun subtitleProps(style: SubtitleStyle): Map<String, String> {
 /** ARGB Long → mpv `#AARRGGBB`. */
 fun mpvColor(argb: Long): String = COLOR_HASH + argb.toString(HEX_RADIX).uppercase().padStart(
     COLOR_WIDTH,
-    COLOR_PAD
+    COLOR_PAD,
 )
 
 fun delayProps(subDelaySec: Double, audioDelaySec: Double): Map<String, String> = mapOf(
     "sub-delay" to subDelaySec.toString(),
-    "audio-delay" to audioDelaySec.toString()
+    "audio-delay" to audioDelaySec.toString(),
 )
 
 private const val DEFAULT_SUB_SIZE = 16

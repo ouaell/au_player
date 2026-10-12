@@ -7,7 +7,7 @@ enum class AspectMode {
     STRETCH,
     SIXTEEN_NINE,
     FOUR_THREE,
-    CUSTOM
+    CUSTOM,
 }
 
 fun cycleAspect(current: AspectMode): AspectMode {
@@ -33,13 +33,13 @@ enum class OrientationPref {
     AUTO,
     LANDSCAPE,
     PORTRAIT,
-    FOLLOW_VIDEO
+    FOLLOW_VIDEO,
 }
 
 enum class EffectiveOrientation {
     UNSPECIFIED,
     LANDSCAPE,
-    PORTRAIT
+    PORTRAIT,
 }
 
 fun effectiveOrientation(pref: OrientationPref, videoW: Int, videoH: Int): EffectiveOrientation {

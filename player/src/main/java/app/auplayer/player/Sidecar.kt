@@ -4,7 +4,7 @@ package app.auplayer.player
 data class Sidecar(val file: String, val lang: String?)
 
 private val knownLangs = setOf(
-    "en", "eng", "ar", "ara", "fr", "fra", "de", "deu", "es", "spa", "und"
+    "en", "eng", "ar", "ara", "fr", "fra", "de", "deu", "es", "spa", "und",
 )
 
 /**
@@ -14,7 +14,7 @@ private val knownLangs = setOf(
 fun matchSidecars(
     videoName: String,
     candidates: List<String>,
-    subExts: Set<String> = setOf("srt", "ass", "vtt")
+    subExts: Set<String> = setOf("srt", "ass", "vtt"),
 ): List<Sidecar> {
     val stem = videoName.substringBeforeLast('.', videoName)
     return candidates.mapNotNull { file ->

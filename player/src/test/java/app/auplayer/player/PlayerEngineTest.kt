@@ -53,7 +53,7 @@ class PlayerEngineTest {
         engine.pause()
         assertEquals(
             listOf(listOf("set", "pause", "no"), listOf("set", "pause", "yes")),
-            bridge.commands
+            bridge.commands,
         )
     }
 
@@ -90,7 +90,7 @@ class PlayerEngineTest {
         controller.pause()
         assertEquals(
             listOf(listOf("set", "pause", "no"), listOf("set", "pause", "yes")),
-            bridge.commands
+            bridge.commands,
         )
     }
 }

@@ -10,7 +10,7 @@ class SourceResolverTest {
     fun `http file resolves to Http`() {
         assertEquals(
             ResolveOutcome.Ok(MediaSource.Http("https://x/y.mp4")),
-            SourceResolver.resolve("https://x/y.mp4", "video/mp4")
+            SourceResolver.resolve("https://x/y.mp4", "video/mp4"),
         )
     }
 
@@ -18,11 +18,11 @@ class SourceResolverTest {
     fun `m3u8 resolves to Hls by mime and by extension`() {
         assertEquals(
             ResolveOutcome.Ok(MediaSource.Hls("https://x/y.m3u8")),
-            SourceResolver.resolve("https://x/y.m3u8", null)
+            SourceResolver.resolve("https://x/y.m3u8", null),
         )
         assertEquals(
             ResolveOutcome.Ok(MediaSource.Hls("https://x/y")),
-            SourceResolver.resolve("https://x/y", "application/x-mpegurl")
+            SourceResolver.resolve("https://x/y", "application/x-mpegurl"),
         )
     }
 
@@ -30,7 +30,7 @@ class SourceResolverTest {
     fun `mpd resolves to Dash`() {
         assertEquals(
             ResolveOutcome.Ok(MediaSource.Dash("https://x/y.mpd")),
-            SourceResolver.resolve("https://x/y.mpd", null)
+            SourceResolver.resolve("https://x/y.mpd", null),
         )
     }
 
@@ -38,7 +38,7 @@ class SourceResolverTest {
     fun `file scheme resolves to File`() {
         assertEquals(
             ResolveOutcome.Ok(MediaSource.File("/s/v.mp4")),
-            SourceResolver.resolve("file:///s/v.mp4", null)
+            SourceResolver.resolve("file:///s/v.mp4", null),
         )
     }
 
@@ -47,7 +47,7 @@ class SourceResolverTest {
         val uri = "content://media/video/1"
         assertEquals(
             ResolveOutcome.Ok(MediaSource.Content(uri)),
-            SourceResolver.resolve(uri, "video/mp4")
+            SourceResolver.resolve(uri, "video/mp4"),
         )
     }
 
@@ -55,7 +55,7 @@ class SourceResolverTest {
     fun `content image is rejected`() {
         assertEquals(
             ResolveOutcome.Err(PlayerError.UnsupportedMime("image/jpeg")),
-            SourceResolver.resolve("content://media/img/1", "image/jpeg")
+            SourceResolver.resolve("content://media/img/1", "image/jpeg"),
         )
     }
 
@@ -63,7 +63,7 @@ class SourceResolverTest {
     fun `blank uri is EmptyUri`() {
         assertEquals(
             ResolveOutcome.Err(PlayerError.EmptyUri),
-            SourceResolver.resolve("  ", null)
+            SourceResolver.resolve("  ", null),
         )
     }
 
@@ -73,7 +73,7 @@ class SourceResolverTest {
         assertTrue(outcome is ResolveOutcome.Err)
         assertEquals(
             PlayerError.UnsupportedScheme("ftp"),
-            (outcome as ResolveOutcome.Err).error
+            (outcome as ResolveOutcome.Err).error,
         )
     }
 

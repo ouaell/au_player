@@ -11,7 +11,7 @@ enum class IndicatorKind {
     BRIGHTNESS,
     VOLUME,
     SPEED,
-    ZOOM
+    ZOOM,
 }
 
 /** Pure indicator model; [indicatorText] is JVM-tested, the overlay is T2-tested. */
@@ -44,7 +44,7 @@ fun GestureOverlay(indicator: GestureIndicator?) {
     if (indicator == null) return
     Surface(
         color = MaterialTheme.colorScheme.surface.copy(alpha = OVERLAY_ALPHA),
-        shape = MaterialTheme.shapes.medium
+        shape = MaterialTheme.shapes.medium,
     ) {
         Text(text = indicatorText(indicator))
     }

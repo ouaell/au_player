@@ -11,7 +11,7 @@ object RungProbe {
     fun choose(
         rungMs: Map<Int, Double>,
         frameIntervalMs: Double,
-        fps: Double
+        fps: Double,
     ): Int? {
         if (frameIntervalMs <= 0) return null
         val budget = if (fps >= HIGH_FPS) {

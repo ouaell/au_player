@@ -14,6 +14,7 @@ interface MpvBridge {
     fun attach(token: Any?)
     fun detach()
     fun destroy()
+
     /** String property read (null when unavailable); used for video height. */
     fun property(name: String): String?
 }

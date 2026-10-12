@@ -9,6 +9,10 @@ interface EnhanceEngine {
 class FakeEnhanceEngine : EnhanceEngine {
     val applied = mutableListOf<String>()
     var clears = 0
-    override fun apply(mode: String) { applied += mode }
-    override fun clear() { clears++ }
+    override fun apply(mode: String) {
+        applied += mode
+    }
+    override fun clear() {
+        clears++
+    }
 }

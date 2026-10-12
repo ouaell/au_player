@@ -59,13 +59,13 @@ fun PlayerControls(
     state: PlayerUiState,
     playing: Boolean,
     controller: PlayerController,
-    onSeek: (Float) -> Unit
+    onSeek: (Float) -> Unit,
 ) {
     Column {
         Slider(
             value = state.progress,
             onValueChange = onSeek,
-            modifier = Modifier.semantics { contentDescription = SEEK_DESCRIPTION }
+            modifier = Modifier.semantics { contentDescription = SEEK_DESCRIPTION },
         )
         Row {
             val transport = if (playing) PAUSE_LABEL else PLAY_LABEL
@@ -73,8 +73,7 @@ fun PlayerControls(
                 onClick = { if (playing) controller.pause() else controller.play() },
                 modifier = Modifier.semantics(mergeDescendants = true) {
                     contentDescription = transport
-
-                }
+                },
             ) {
                 // Text label (not glyph-only): readable, TalkBack-friendly,
                 // and stable under UiAutomator (icon nodes proved flaky).

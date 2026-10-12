@@ -3,7 +3,7 @@ package app.auplayer.player
 enum class TrackKind {
     AUDIO,
     SUBTITLE,
-    VIDEO
+    VIDEO,
 }
 
 data class Track(
@@ -11,7 +11,7 @@ data class Track(
     val kind: TrackKind,
     val lang: String? = null,
     val title: String? = null,
-    val codec: String? = null
+    val codec: String? = null,
 )
 
 /** Track extensions the player can load as sidecars (MS-017). */

@@ -13,8 +13,8 @@ class TracksTest {
             Track(2, TrackKind.AUDIO, lang = "ar", codec = "ac3"),
             Track(0, TrackKind.VIDEO, codec = "h264"),
             Track(3, TrackKind.SUBTITLE, lang = "en"),
-            Track(4, TrackKind.SUBTITLE, lang = "ar")
-        )
+            Track(4, TrackKind.SUBTITLE, lang = "ar"),
+        ),
     )
 
     @Test
@@ -60,9 +60,9 @@ class TracksTest {
             listOf(
                 listOf("set", "aid", "2"),
                 listOf("set", "sid", "no"),
-                listOf("sub-add", "/s/a.srt")
+                listOf("sub-add", "/s/a.srt"),
             ),
-            bridge.commands
+            bridge.commands,
         )
     }
 }

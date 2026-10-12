@@ -52,7 +52,7 @@ class PlayerStateMachineTest {
             PlayerState.Playing to PlayerState.Ready,
             PlayerState.Paused to PlayerState.Idle,
             PlayerState.Error to PlayerState.Playing,
-            PlayerState.Released to PlayerState.Loading
+            PlayerState.Released to PlayerState.Loading,
         )
         illegal.forEach { (from, to) ->
             val machine = PlayerStateMachine()

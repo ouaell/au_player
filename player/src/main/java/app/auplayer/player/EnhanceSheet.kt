@@ -31,7 +31,7 @@ fun EnhanceSheet(
     selected: EnhanceMode,
     lowered: Boolean,
     sourceHeightPx: Int,
-    onSelect: (EnhanceMode) -> Unit
+    onSelect: (EnhanceMode) -> Unit,
 ) {
     Column {
         EnhanceMode.entries.forEach { mode ->
@@ -40,14 +40,14 @@ fun EnhanceSheet(
             val label = enhanceLabel(mode, lowered)
             TextButton(
                 onClick = { onSelect(mode) },
-                enabled = enabled
+                enabled = enabled,
             ) {
                 Text(
                     text = if (mode == selected) {
                         SELECTED_PREFIX + label + enabledSuffix(mode, enabled)
                     } else {
                         label + enabledSuffix(mode, enabled)
-                    }
+                    },
                 )
             }
         }

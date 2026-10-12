@@ -24,7 +24,7 @@ sealed interface EnhanceResult {
  */
 class EnhanceController(
     private val send: (List<String>) -> Unit,
-    private val pathResolver: (String) -> String = { it }
+    private val pathResolver: (String) -> String = { it },
 ) {
     var currentMode: EnhanceMode = EnhanceMode.OFF
         private set
@@ -61,7 +61,7 @@ class EnhanceController(
     suspend fun applyAsync(
         mode: EnhanceMode,
         sourceHeightPx: Int,
-        rung: Int = 0
+        rung: Int = 0,
     ): EnhanceResult = withContext(Dispatchers.Default) {
         apply(mode, sourceHeightPx, rung)
     }

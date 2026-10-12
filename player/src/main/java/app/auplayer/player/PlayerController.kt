@@ -10,6 +10,10 @@ interface PlayerController {
 class FakePlayerController : PlayerController {
     var plays = 0
     var pauses = 0
-    override fun play() { plays++ }
-    override fun pause() { pauses++ }
+    override fun play() {
+        plays++
+    }
+    override fun pause() {
+        pauses++
+    }
 }

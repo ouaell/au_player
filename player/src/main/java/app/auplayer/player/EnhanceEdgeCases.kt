@@ -8,7 +8,7 @@ import app.auplayer.aucore.Diag
  */
 class EnhanceEdgeCases(
     private val engine: PlayerEngine,
-    private val surfaces: SurfaceHost
+    private val surfaces: SurfaceHost,
 ) {
     /** Surface lost mid-playback: detach now; next surface re-attaches cleanly. */
     fun onSurfaceLost() {

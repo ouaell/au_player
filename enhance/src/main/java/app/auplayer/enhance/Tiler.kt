@@ -15,7 +15,7 @@ object Tiler {
         width: Int,
         height: Int,
         tile: Int,
-        overlap: Int
+        overlap: Int,
     ): List<TilePixels> {
         return Tiling.grid(width, height, tile, overlap).map { rect ->
             extract(pixels, width, rect)
@@ -27,7 +27,7 @@ object Tiler {
         width: Int,
         height: Int,
         overlap: Int,
-        scale: Int
+        scale: Int,
     ): IntArray {
         val outW = width * scale
         val outH = height * scale
@@ -47,7 +47,7 @@ object Tiler {
     private class Stitcher(
         private val outW: Int,
         private val overlap: Int,
-        private val scale: Int
+        private val scale: Int,
     ) {
         fun splatTile(out: IntArray, weight: IntArray, tilePixels: TilePixels) {
             val rect = tilePixels.rect
@@ -81,7 +81,7 @@ object Tiler {
     private class Doubler(
         private val out: IntArray,
         private val width: Int,
-        private val scale: Int
+        private val scale: Int,
     ) {
         fun splat(x: Int, y: Int, px: Int) {
             for (sy in 0 until scale) {
@@ -120,7 +120,7 @@ data class TilePixels(val rect: Tile, val pixels: IntArray, val width: Int, val 
         rect,
         pixels,
         rect.right - rect.left,
-        rect.bottom - rect.top
+        rect.bottom - rect.top,
     )
 }
 

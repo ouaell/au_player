@@ -21,7 +21,7 @@ class GesturePropertyTest {
             assertEquals(GestureAction.Ignored, GestureMapper.rightVertical(dy, true))
             assertEquals(
                 GestureAction.Ignored,
-                GestureMapper.doubleTap(TapZone.values().random(random), config, true)
+                GestureMapper.doubleTap(TapZone.values().random(random), config, true),
             )
         }
     }
@@ -36,7 +36,7 @@ class GesturePropertyTest {
                 is GestureAction.SeekBy -> {
                     assertTrue(
                         "seek proportional",
-                        abs(action.deltaMs) <= (abs(dx) * duration).toLong() + 1
+                        abs(action.deltaMs) <= (abs(dx) * duration).toLong() + 1,
                     )
                 }
                 else -> throw AssertionError("unexpected $action")

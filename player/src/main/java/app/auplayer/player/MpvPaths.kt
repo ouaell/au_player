@@ -31,14 +31,14 @@ fun startupOptions(paths: MpvPaths): List<Pair<String, String>> = listOf(
     "demuxer-max-back-bytes" to "16MiB",
     "save-position-on-quit" to "no",
     "scale" to "bilinear",
-    "dscale" to "bilinear"
+    "dscale" to "bilinear",
 )
 
 /** Creates shader-cache + fonts dirs. Returns the dirs (created or existing). */
 fun ensureMpvDirs(paths: MpvPaths): List<File> {
     val dirs = listOf(
         File(paths.cacheDir, "mpv-shaders"),
-        File(paths.filesDir, "fonts")
+        File(paths.filesDir, "fonts"),
     )
     dirs.forEach { it.mkdirs() }
     return dirs

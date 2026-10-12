@@ -7,7 +7,7 @@ package app.auplayer.enhance
  */
 data class ReaderEnhanceState(
     val enabled: Boolean = false,
-    val enhancingPages: Set<Int> = emptySet()
+    val enhancingPages: Set<Int> = emptySet(),
 )
 
 /** Pause new enhancement when hot or saving battery (§9). */

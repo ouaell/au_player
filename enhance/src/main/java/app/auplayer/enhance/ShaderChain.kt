@@ -29,11 +29,11 @@ object ShaderChainBuilder {
             0 -> listOf(
                 ShaderPass(patched("Anime4K_Clamp_Highlights")),
                 ShaderPass(patched("Anime4K_Restore_CNN_M")),
-                ShaderPass(patched("Anime4K_Upscale_CNN_x2_M"))
+                ShaderPass(patched("Anime4K_Upscale_CNN_x2_M")),
             )
             1 -> listOf(
                 ShaderPass(patched("Anime4K_Clamp_Highlights")),
-                ShaderPass(patched("Anime4K_Upscale_CNN_x2_S"))
+                ShaderPass(patched("Anime4K_Upscale_CNN_x2_S")),
             )
             else -> emptyList()
         }

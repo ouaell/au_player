@@ -10,5 +10,5 @@ data class PlayerHandle(
     val engine: PlayerEngine,
     val enhance: EnhanceController,
     val onBack: () -> Unit,
-    val onProgress: (positionMs: Long, durationMs: Long) -> Unit = { _, _ -> }
+    val onProgress: (positionMs: Long, durationMs: Long) -> Unit = { _, _ -> },
 )

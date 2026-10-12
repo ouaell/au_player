@@ -1,4 +1,5 @@
 @file:Suppress("MagicNumber") // Speed presets are the §5.1 spec values (0.25–4×).
+
 package app.auplayer.player
 
 /** Speed presets within §5.1 range 0.25–4×. */
@@ -48,7 +49,7 @@ class ABRepeat {
 enum class LoopMode {
     OFF,
     ONE,
-    ALL
+    ALL,
 }
 
 fun cycleLoop(current: LoopMode): LoopMode {
@@ -59,7 +60,7 @@ fun cycleLoop(current: LoopMode): LoopMode {
 enum class EofAction {
     STOP,
     REPLAY,
-    NEXT
+    NEXT,
 }
 
 fun afterEof(mode: LoopMode, hasNextInPlaylist: Boolean): EofAction {

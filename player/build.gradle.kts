@@ -1,10 +1,10 @@
-import java.io.File
-import javax.inject.Inject
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import org.gradle.process.ExecOperations
+import java.io.File
+import javax.inject.Inject
 
 plugins {
     alias(mihonx.plugins.android.library)
@@ -74,7 +74,7 @@ tasks.register<FetchNativeLibs>("fetchNativeLibs") {
     tag.set(
         rootProject.file("native/pins.txt").readLines()
             .first { it.startsWith("NATIVE_RELEASE_TAG=") }
-            .substringAfter('=')
+            .substringAfter('='),
     )
     script.set(rootProject.file("tools/fetch_native.sh").absolutePath)
     outputs.dir("src/main/jniLibs")

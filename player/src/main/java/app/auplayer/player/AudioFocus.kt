@@ -5,7 +5,7 @@ enum class AudioFocusChange {
     LOSS,
     TRANSIENT_LOSS,
     DUCK,
-    GAIN
+    GAIN,
 }
 
 sealed interface FocusAction {
