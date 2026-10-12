@@ -140,6 +140,7 @@ jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
   junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
   junit4 = { module = "junit:junit", version.ref = "junit4" }
+  junit-vintage-engine = { module = "org.junit.vintage:junit-vintage-engine", version.ref = "junit" }
   androidx-media3-session = { module = "androidx.media3:media3-session", version.ref = "media3" }
   androidx-compose-ui = { module = "androidx.compose.ui:ui" }
   androidx-compose-uiGraphics = { module = "androidx.compose.ui:ui-graphics" }

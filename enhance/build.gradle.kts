@@ -1,26 +1,15 @@
 plugins {
-    alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
+    alias(mihonx.plugins.android.library)
+    alias(mihonx.plugins.spotless)
 }
 
 android {
     namespace = "app.auplayer.enhance"
-    compileSdk = 36
-    defaultConfig { minSdk = 26 }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-}
-
-kotlin {
-    compilerOptions {
-        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
-    }
 }
 
 dependencies {
-    api(project(":aucore"))
+    api(projects.aucore)
     implementation(libs.bundles.kotlinx.coroutines)
     testImplementation(libs.junit4)
+    testRuntimeOnly(libs.junit.vintage.engine)
 }

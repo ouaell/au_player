@@ -1,7 +1,7 @@
 plugins {
-    alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.compose)
+    alias(mihonx.plugins.android.library)
+    alias(mihonx.plugins.compose)
+    alias(mihonx.plugins.spotless)
 }
 
 import java.io.File
@@ -36,48 +36,37 @@ abstract class FetchNativeLibs : DefaultTask() {
 
 android {
     namespace = "app.auplayer.player"
-    compileSdk = 36
-    ndkVersion = "30.0.16248370"
+
     defaultConfig {
-        minSdk = 26
-        // Must match native/ prebuilts (arm64 + arm32 release, x86_64 CI).
         ndk {
             abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86_64")
         }
     }
+
     buildFeatures {
         buildConfig = true
-        compose = true
     }
+
     externalNativeBuild {
         cmake {
             path = file("src/main/cpp/CMakeLists.txt")
             version = "3.22.1"
         }
     }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-}
-
-kotlin {
-    compilerOptions {
-        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
-    }
 }
 
 dependencies {
-    api(project(":aucore"))
-    api(project(":enhance"))
+    api(projects.aucore)
+    api(projects.enhance)
     implementation(libs.bundles.kotlinx.coroutines)
     implementation(libs.androidx.media3.session)
-    implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
-    implementation(libs.androidx.compose.ui.graphics)
+    implementation(libs.androidx.compose.uiGraphics)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.materialIcons)
+
     testImplementation(libs.junit4)
+    testRuntimeOnly(libs.junit.vintage.engine)
 }
 
 /** Stages pinned native libs (no binaries in git); up-to-date when present. */
