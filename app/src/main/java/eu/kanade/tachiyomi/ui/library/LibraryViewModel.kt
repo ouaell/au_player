@@ -39,6 +39,7 @@ import mihon.core.common.utils.mutate
 import mihon.core.viewmodel.StateViewModel
 import mihon.domain.library.model.search.QueryNode
 import mihon.domain.manga.model.toDomainManga
+import mihon.domain.source.interactor.UpdateMangaFromRemote
 import mihon.feature.library.matches
 import tachiyomi.core.common.preference.CheckboxState
 import tachiyomi.core.common.preference.TriState
@@ -91,6 +92,7 @@ class LibraryViewModel(
     private val sourceManager: SourceManager = Injekt.get(),
     private val getMangaByUrlAndSourceId: GetMangaByUrlAndSourceId = Injekt.get(),
     private val mangaRepository: MangaRepository = Injekt.get(),
+    private val updateMangaFromRemote: UpdateMangaFromRemote = Injekt.get(),
     private val downloadManager: DownloadManager = Injekt.get(),
     private val downloadCache: DownloadCache = Injekt.get(),
     private val trackerManager: TrackerManager = Injekt.get(),
@@ -641,6 +643,15 @@ class LibraryViewModel(
                 if (!manga.favorite && updateManga.awaitUpdateFavorite(manga.id, true)) {
                     added++
                 }
+                // Sync chapters now so the series is complete offline and the
+                // series screen never shows a transient "0 chapters".
+                updateMangaFromRemote(
+                    source = source,
+                    manga = manga,
+                    fetchDetails = false,
+                    fetchChapters = true,
+                    manualFetch = false,
+                )
             }
             logcat(LogPriority.DEBUG) { "scanLocal: added=$added" }
             added
