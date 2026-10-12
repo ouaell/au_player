@@ -37,8 +37,14 @@ class ShaderStager(private val context: Context) {
         return ok
     }
 
-    /** Maps a pack-relative asset path to its staged file. */
-    fun resolve(assetPath: String): String = File(root, assetPath).path
+    /**
+     * Maps a pack-relative asset path to its staged file.
+     *
+     * Asset paths are rooted at `filesDir` ("shaders/patched/Foo.glsl"), which
+     * is exactly where [stage] puts them. Joining them onto [root] instead
+     * would repeat the "shaders/patched/" segment.
+     */
+    fun resolve(assetPath: String): String = File(context.filesDir, assetPath).path
 
     private fun copyIfStale(name: String): Boolean {
         val target = File(root, name)
