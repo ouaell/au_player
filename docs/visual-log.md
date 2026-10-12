@@ -48,3 +48,8 @@
 - The adb settled shot was BLACK by design: Mihon marks the reader FLAG_SECURE
   (registerSecureActivity), which adb screencap honors. Gate rewired to Maestro shots.
 - All 3 flows passed in that run; only the (wrong) adb gate failed.
+
+## 2026-10-12 — fullscreen scrim dims the page (mihon-visual 38199002354)
+- Same reader-page content, but the system "Viewing full screen / Got it" overlay dims
+  everything (mean crushed below the gate). Dismiss "Got it" in-flow (runFlow/when-visible)
+  from now on. Full gate re-running as 38199758328.
